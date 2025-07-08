@@ -19,12 +19,17 @@ import com.voicebridge.audio.AudioRecorder
 import com.voicebridge.audio.AudioData
 import com.voicebridge.skills.SkillEngine
 import com.voicebridge.skills.VoiceProcessingResult
+import com.voicebridge.camera.SimpleCameraProcessor
+import com.voicebridge.ocr.SimpleOCRProcessor
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.delay
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
+import java.util.Locale
 
 /**
  * Main Activity for VoiceBridge - Real Audio Implementation
@@ -57,6 +62,10 @@ class MainActivity : AppCompatActivity() {
     private var recordingJob: Job? = null
     private val voiceBridgeNative = VoiceBridgeNative()
     private lateinit var skillEngine: SkillEngine
+    private var textToSpeech: TextToSpeech? = null
+    private var isTTSReady = false
+    private lateinit var cameraProcessor: SimpleCameraProcessor
+    private lateinit var ocrProcessor: SimpleOCRProcessor
     
     // Audio buffer for speech recognition
     private val audioBuffer = mutableListOf<Float>()
@@ -187,6 +196,7 @@ class MainActivity : AppCompatActivity() {
                 initializeCameraProcessor()
                 initializeOCRProcessor()
                 initializeSkillEngine()
+                initializeTextToSpeech()
                 
                 updateStatusText("VoiceBridge Ready - All features unlocked!")
                 
@@ -251,23 +261,53 @@ class MainActivity : AppCompatActivity() {
     
     private suspend fun initializeCameraProcessor() {
         try {
-            // TODO: Initialize CameraProcessor when ready
-            updateStatusText("Camera processor initialized ✓")
-            Log.d(TAG, "Camera processor initialization simulated")
+            // Initialize real camera processor
+            cameraProcessor = SimpleCameraProcessor.getInstance(this)
+            
+            if (cameraProcessor.initialize()) {
+                updateStatusText("Camera processor initialized ✓")
+                Log.d(TAG, "Camera processor initialized successfully")
+                
+                // Set up camera listeners
+                cameraProcessor.setOnImageCapturedListener { bitmap ->
+                    if (bitmap != null) {
+                        Log.d(TAG, "Image captured successfully")
+                        lifecycleScope.launch {
+                            processImageWithOCR(bitmap)
+                        }
+                    }
+                }
+                
+                cameraProcessor.setOnErrorListener { error ->
+                    Log.e(TAG, "Camera error: $error")
+                    updateStatusText("Camera error: $error")
+                }
+                
+            } else {
+                updateStatusText("Camera processor initialization failed")
+                Log.e(TAG, "Failed to initialize camera processor")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Camera processor initialization failed", e)
-            updateStatusText("Camera processor failed")
+            updateStatusText("Camera processor failed: ${e.message}")
         }
     }
     
     private suspend fun initializeOCRProcessor() {
         try {
-            // TODO: Initialize OCRProcessor when ready
-            updateStatusText("OCR processor initialized ✓")
-            Log.d(TAG, "OCR processor initialization simulated")
+            // Initialize real OCR processor
+            ocrProcessor = SimpleOCRProcessor.getInstance(this)
+            
+            if (ocrProcessor.initialize()) {
+                updateStatusText("OCR processor initialized ✓")
+                Log.d(TAG, "OCR processor initialized successfully")
+            } else {
+                updateStatusText("OCR processor initialization failed")
+                Log.e(TAG, "Failed to initialize OCR processor")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "OCR processor initialization failed", e)
-            updateStatusText("OCR processor failed")
+            updateStatusText("OCR processor failed: ${e.message}")
         }
     }
     
@@ -286,6 +326,47 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e(TAG, "Skill engine initialization failed", e)
             updateStatusText("Skill engine failed: ${e.message}")
+        }
+    }
+    
+    private suspend fun initializeTextToSpeech() {
+        try {
+            updateStatusText("Initializing text-to-speech...")
+            
+            textToSpeech = TextToSpeech(this) { status ->
+                if (status == TextToSpeech.SUCCESS) {
+                    val result = textToSpeech?.setLanguage(Locale.US)
+                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        Log.e(TAG, "Language not supported for TTS")
+                        updateStatusText("TTS language not supported")
+                    } else {
+                        isTTSReady = true
+                        updateStatusText("Text-to-speech ready ✓")
+                        Log.d(TAG, "Text-to-speech initialized successfully")
+                        
+                        // Set up progress listener
+                        textToSpeech?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                            override fun onStart(utteranceId: String?) {
+                                Log.d(TAG, "TTS started speaking")
+                            }
+                            
+                            override fun onDone(utteranceId: String?) {
+                                Log.d(TAG, "TTS finished speaking")
+                            }
+                            
+                            override fun onError(utteranceId: String?) {
+                                Log.e(TAG, "TTS error")
+                            }
+                        })
+                    }
+                } else {
+                    Log.e(TAG, "TTS initialization failed")
+                    updateStatusText("Text-to-speech initialization failed")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "TTS initialization failed", e)
+            updateStatusText("TTS failed: ${e.message}")
         }
     }
     
@@ -367,17 +448,29 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun startCamera() {
-        try {
-            isCameraMode = true
-            cameraButton.text = "Stop Camera"
-            updateStatusText("Camera simulation active - OCR ready")
-            
-            // Simulate camera
-            Log.d(TAG, "Camera started (simulated)")
-            
-        } catch (e: Exception) {
-            Log.e(TAG, "Error starting camera", e)
-            updateStatusText("Camera error: ${e.message}")
+        lifecycleScope.launch {
+            try {
+                // Note: For now, we'll simulate camera without actual preview
+                // In a full implementation, you'd need a PreviewView in the layout
+                val started = cameraProcessor.startPreview(this@MainActivity, null)
+                
+                if (started) {
+                    isCameraMode = true
+                    cameraButton.text = "Stop Camera"
+                    updateStatusText("Camera active - Say 'capture image' to take photo")
+                    speakText("Camera is now active. Say capture image to take a photo.")
+                    
+                    Log.d(TAG, "Camera started successfully")
+                } else {
+                    updateStatusText("Failed to start camera")
+                    speakText("Failed to start camera")
+                }
+                
+            } catch (e: Exception) {
+                Log.e(TAG, "Error starting camera", e)
+                updateStatusText("Camera error: ${e.message}")
+                speakText("Camera error occurred")
+            }
         }
     }
     
@@ -509,6 +602,29 @@ class MainActivity : AppCompatActivity() {
     private suspend fun processRecognizedSpeech(recognizedText: String) {
         try {
             updateStatusText("Processing command: \"$recognizedText\"")
+            speakText("Processing your command")
+            
+            // Check for camera commands first
+            val lowerText = recognizedText.lowercase()
+            if (lowerText.contains("capture") || lowerText.contains("take photo") || lowerText.contains("take picture")) {
+                if (isCameraMode) {
+                    updateStatusText("📸 Capturing image...")
+                    speakText("Taking photo now")
+                    
+                    val success = cameraProcessor.captureImage()
+                    if (success) {
+                        updateStatusText("Image captured! Processing with OCR...")
+                        speakText("Image captured successfully. Analyzing the content.")
+                    } else {
+                        updateStatusText("Failed to capture image")
+                        speakText("Failed to capture image. Please try again.")
+                    }
+                } else {
+                    updateStatusText("Camera not active. Start camera first.")
+                    speakText("Camera is not active. Please start the camera first.")
+                }
+                return
+            }
             
             // Process with real SkillEngine
             val result = skillEngine.processVoiceInput(recognizedText)
@@ -517,36 +633,93 @@ class MainActivity : AppCompatActivity() {
                 when (result.action) {
                     "skill_found" -> {
                         updateStatusText("✓ Found skill: ${result.skillName}")
+                        speakText("I found the ${result.skillName} skill. How can I help you with this?")
                         Log.i(TAG, "Skill found: ${result.skillName}")
                         
                         // Show skill details for a moment
-                        delay(2000)
+                        delay(3000)
                         updateStatusText("Skill ready: ${result.skillName} - Say more to continue")
                     }
                     "general_command" -> {
                         updateStatusText("✓ Command: ${result.command}")
+                        speakText("I understand you want to ${result.command}. What would you like me to do?")
                         Log.i(TAG, "General command: ${result.command}")
                         
-                        delay(2000)
+                        delay(3000)
                         updateStatusText("Ready for next command")
                     }
                     else -> {
                         updateStatusText("✓ ${result.message}")
-                        delay(2000)
+                        speakText("I understood your request. ${result.message}")
+                        delay(3000)
                         updateStatusText("Ready for next command")
                     }
                 }
             } else {
                 updateStatusText("❌ ${result.message}")
+                speakText("I'm sorry, I didn't understand that command. Please try again.")
                 Log.w(TAG, "Command not understood: ${result.message}")
                 
-                delay(2000)
+                delay(3000)
                 updateStatusText("Ready for next command")
             }
             
         } catch (e: Exception) {
             Log.e(TAG, "Error processing speech", e)
             updateStatusText("Command processing error: ${e.message}")
+            speakText("Sorry, there was an error processing your command")
+        }
+    }
+    
+    private suspend fun processImageWithOCR(bitmap: android.graphics.Bitmap) {
+        try {
+            updateStatusText("🔍 Analyzing image with OCR...")
+            speakText("Analyzing the image content")
+            
+            // Process with OCR
+            val ocrResult = ocrProcessor.processImage(bitmap)
+            
+            if (ocrResult.text.isNotBlank()) {
+                updateStatusText("📄 Found text: ${ocrResult.text.take(50)}...")
+                speakText("I found text in the image. It appears to be a form. ${ocrResult.text.take(100)}")
+                
+                // Process the OCR text with SkillEngine
+                val skillResult = skillEngine.processOCRText(ocrResult.text)
+                
+                if (skillResult.isSuccess) {
+                    updateStatusText("✓ ${skillResult.message}")
+                    speakText("I detected a ${skillResult.skillName}. I can help you fill this out.")
+                    
+                    delay(3000)
+                    updateStatusText("Ready - Say what information you'd like to enter")
+                } else {
+                    updateStatusText("Text found but no matching form detected")
+                    speakText("I found text but couldn't identify a specific form type.")
+                }
+                
+            } else {
+                updateStatusText("No text found in image")
+                speakText("I couldn't find any text in the image. Please try again with a clearer photo.")
+            }
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error processing image with OCR", e)
+            updateStatusText("OCR processing error: ${e.message}")
+            speakText("There was an error analyzing the image")
+        }
+    }
+    
+    private fun speakText(text: String) {
+        try {
+            if (isTTSReady && textToSpeech != null) {
+                val utteranceId = System.currentTimeMillis().toString()
+                textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
+                Log.d(TAG, "Speaking: $text")
+            } else {
+                Log.w(TAG, "TTS not ready, cannot speak: $text")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error speaking text", e)
         }
     }
     
@@ -569,6 +742,20 @@ class MainActivity : AppCompatActivity() {
             // Clean up audio recorder
             audioRecorder?.release()
             audioRecorder = null
+            
+            // Clean up text-to-speech
+            textToSpeech?.stop()
+            textToSpeech?.shutdown()
+            textToSpeech = null
+            
+            // Clean up camera and OCR processors
+            if (::cameraProcessor.isInitialized) {
+                cameraProcessor.cleanup()
+            }
+            
+            if (::ocrProcessor.isInitialized) {
+                ocrProcessor.cleanup()
+            }
             
             Log.i(TAG, "MainActivity destroyed and cleaned up")
             
