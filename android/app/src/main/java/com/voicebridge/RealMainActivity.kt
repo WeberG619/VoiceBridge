@@ -124,7 +124,7 @@ class RealMainActivity : AppCompatActivity() {
         container.addView(titleText)
         
         val subtitleText = TextView(this).apply {
-            text = "🌟 AI Assistant for Everyone • Accessible • Empowering"
+            text = "🌟 Universal Vision Assistant • Read Anything • See Everything"
             textSize = 18f
             setTextColor(Color.parseColor("#c0c0c0"))
             gravity = Gravity.CENTER
@@ -257,7 +257,7 @@ class RealMainActivity : AppCompatActivity() {
         
         // Instructions - Enhanced with modern styling
         val instructionText = TextView(this).apply {
-            text = "🎤 Hold to talk • 📷 Tap photo • 👁️ Live vision assistant"
+            text = "🎤 Hold to talk • 📷 Capture anything • 👁️ Live vision for everything"
             textSize = 16f
             setTextColor(Color.parseColor("#d1d5db"))
             gravity = Gravity.CENTER
@@ -268,7 +268,7 @@ class RealMainActivity : AppCompatActivity() {
         
         // Accessibility description - Enhanced with modern styling
         val accessibilityText = TextView(this).apply {
-            text = "♿ Designed for visual impairments, dyslexia, and accessibility"
+            text = "♿ Read medicine labels • Identify objects • Navigate the world"
             textSize = 14f
             setTextColor(Color.parseColor("#93c5fd"))
             gravity = Gravity.CENTER
@@ -430,16 +430,16 @@ class RealMainActivity : AppCompatActivity() {
     }
     
     private fun enableDemoMode() {
-        updateStatus("Demo mode - Hold button to try")
-        mainButton.isEnabled = true
-        isSetup = true
-        setupButton.visibility = Button.GONE
+        updateStatus("Please set up API keys for full functionality")
+        mainButton.isEnabled = false
+        isSetup = false
+        setupButton.visibility = Button.VISIBLE
         
-        // Initialize TTS for demo
+        // Initialize TTS for feedback
         textToSpeech = TextToSpeech(this) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 textToSpeech?.setLanguage(Locale.US)
-                speak("Demo mode ready! This simulates the real experience.")
+                speak("Please add your API keys to use VoiceBridge.")
             }
         }
     }
@@ -459,7 +459,7 @@ class RealMainActivity : AppCompatActivity() {
         textToSpeech = TextToSpeech(this) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 textToSpeech?.setLanguage(Locale.US)
-                speak("VoiceBridge ready! I understand any accent and can help with forms.")
+                speak("VoiceBridge ready! I can see and describe anything you point your camera at.")
             }
         }
     }
@@ -532,16 +532,9 @@ class RealMainActivity : AppCompatActivity() {
                 }
             }
         } else {
-            // Demo mode
-            val demoResponses = listOf(
-                "I can help you fill out forms",
-                "Point your camera at any form",
-                "I understand any accent",
-                "Just speak naturally"
-            )
-            val response = demoResponses.random()
-            updateStatus("You: Demo input")
-            speak(response)
+            // No speech API - still try to process as text
+            updateStatus("Voice input not available. Please set up speech API key.")
+            speak("Please add your speech API key to use voice input.")
         }
     }
     
@@ -549,13 +542,11 @@ class RealMainActivity : AppCompatActivity() {
         updateStatus("You: $userInput")
         
         try {
-            // Check if this is a live vision request
-            val isVisionRequest = userInput.lowercase().contains(Regex("what.*see|describe|look|read|tell.*about|what.*there|what.*front"))
-            
             var response = ""
             
-            if (isVisionRequest && isLiveVisionActive) {
-                // Get current frame for immediate vision response
+            // Always check if live vision is active first
+            if (isLiveVisionActive) {
+                // Live vision is on - analyze what camera sees
                 updateStatus("📸 Analyzing what you're pointing at...")
                 
                 // Ensure camera is ready
@@ -568,9 +559,9 @@ class RealMainActivity : AppCompatActivity() {
                         Log.d(TAG, "📸 Successfully captured frame from camera preview")
                         val ocrResult = googleVisionAPI.extractTextFromImage(bitmap)
                         
-                        // Use the new vision-specific method with better prompt
+                        // Pure vision assistance - let AI decide what it sees
                         response = claudeAPI.chatAboutVision(
-                            userMessage = "The user is asking: '$userInput'. Describe what you see in this live camera view. Be specific about objects, people, text, colors, and surroundings.",
+                            userMessage = userInput,
                             sceneText = ocrResult.text,
                             conversationHistory = conversationHistory
                         )
@@ -582,12 +573,11 @@ class RealMainActivity : AppCompatActivity() {
                         Log.w(TAG, "⚠️ Could not capture frame from camera preview - bitmap is null")
                     }
                 }
-            } else if (isVisionRequest && !isLiveVisionActive) {
-                response = "Please tap the golden Live Vision button first to activate the camera, then ask me what I see."
             } else {
-                // Regular conversation
-                response = claudeAPI.chatAboutForm(
+                // No live vision - regular conversation
+                response = claudeAPI.chatAboutVision(
                     userMessage = userInput,
+                    sceneText = null,
                     conversationHistory = conversationHistory
                 )
             }
@@ -729,7 +719,7 @@ class RealMainActivity : AppCompatActivity() {
     }
     
     /**
-     * Process captured image with Google Vision OCR
+     * Process captured image with Google Vision OCR - Pure vision analysis
      */
     private fun processImageWithOCR(imageUri: android.net.Uri) {
         lifecycleScope.launch {
@@ -743,25 +733,23 @@ class RealMainActivity : AppCompatActivity() {
                     // Use Google Vision API for OCR
                     val ocrResult = googleVisionAPI.extractTextFromImage(bitmap)
                     
-                    if (ocrResult.text.isNotEmpty()) {
-                        // Send OCR result to Claude for form analysis
-                        val claudeResponse = claudeAPI.chatAboutForm(
-                            userMessage = "I captured this form. Help me understand and fill it out: ${ocrResult.text}",
-                            formText = ocrResult.text,
-                            conversationHistory = conversationHistory
-                        )
-                        
-                        updateStatus("Form analyzed! Listen to response...")
-                        speak(claudeResponse)
-                        
-                        // Add to conversation history
-                        conversationHistory.add("Form captured: ${ocrResult.text}")
-                        conversationHistory.add(claudeResponse)
-                        
-                    } else {
-                        updateStatus("No text found in image")
-                        speak("I couldn't find any text in the photo. Try taking another picture with better lighting.")
-                    }
+                    // Always analyze what's in the image, regardless of text
+                    val claudeResponse = claudeAPI.chatAboutVision(
+                        userMessage = "I took a photo. Please describe what you see in this image and read any text that's visible.",
+                        sceneText = ocrResult.text,
+                        conversationHistory = conversationHistory
+                    )
+                    
+                    updateStatus("Photo analyzed! Listen to response...")
+                    speak(claudeResponse)
+                    
+                    // Add to conversation history
+                    conversationHistory.add("Photo captured with text: ${ocrResult.text}")
+                    conversationHistory.add(claudeResponse)
+                    
+                    Log.d(TAG, "✅ Photo processed successfully")
+                    Log.d(TAG, "📝 OCR Text found: ${ocrResult.text}")
+                    
                 } else {
                     updateStatus("Error processing image")
                     speak("Error processing the image. Please try again.")
@@ -769,7 +757,7 @@ class RealMainActivity : AppCompatActivity() {
                 
             } catch (e: Exception) {
                 Log.e(TAG, "Error processing image", e)
-                updateStatus("OCR processing failed")
+                updateStatus("Image processing failed")
                 speak("Error analyzing the image. Please try again.")
             }
         }
