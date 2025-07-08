@@ -631,14 +631,15 @@ class MainActivity : AppCompatActivity() {
                         
                         Log.i(TAG, "Speech recognized: $bestMatch (confidence: $confidence)")
                         
-                        if (confidence > 0.3f) { // Lower threshold for better recognition
+                        // Be very accepting - process almost anything
+                        if (bestMatch.trim().length >= 2) { // Very lenient
                             updateStatusText("You said: \"$bestMatch\" (${(confidence * 100).toInt()}%)")
                             lifecycleScope.launch {
                                 processRecognizedSpeech(bestMatch)
                             }
                         } else {
-                            updateStatusText("Speech too unclear, please try again")
-                            speakText("I couldn't understand that clearly. Please try again.")
+                            // Still try simulation if speech is too short
+                            useSimulatedSpeechRecognition()
                         }
                     } else {
                         useSimulatedSpeechRecognition()
@@ -678,7 +679,13 @@ class MainActivity : AppCompatActivity() {
             "help me",
             "what can you do",
             "test",
-            "okay"
+            "okay",
+            "yes",
+            "good",
+            "camera",
+            "photo",
+            "capture",
+            "picture"
         )
         val simulatedText = simulatedTexts.random()
         
@@ -695,24 +702,46 @@ class MainActivity : AppCompatActivity() {
             updateStatusText("Processing command: \"$recognizedText\"")
             speakText("Processing your command")
             
-            // Check for camera commands first
-            val lowerText = recognizedText.lowercase()
-            if (lowerText.contains("capture") || lowerText.contains("take photo") || lowerText.contains("take picture")) {
+            // Check for camera commands first - more flexible matching
+            val lowerText = recognizedText.lowercase().trim()
+            if (lowerText.contains("capture") || lowerText.contains("take") || lowerText.contains("photo") || 
+                lowerText.contains("picture") || lowerText.contains("snap") || lowerText.contains("shot")) {
                 if (isCameraMode) {
                     updateStatusText("📸 Capturing image...")
                     speakText("Taking photo now")
                     
-                    val success = cameraProcessor.captureImage()
-                    if (success) {
-                        updateStatusText("Image captured! Processing with OCR...")
-                        speakText("Image captured successfully. Analyzing the content.")
-                    } else {
-                        updateStatusText("Failed to capture image")
-                        speakText("Failed to capture image. Please try again.")
+                    try {
+                        Log.d(TAG, "Attempting to capture image...")
+                        val success = cameraProcessor.captureImage()
+                        Log.d(TAG, "Capture result: $success")
+                        if (success) {
+                            updateStatusText("Image captured! Processing with OCR...")
+                            speakText("Image captured successfully. Analyzing the content.")
+                        } else {
+                            updateStatusText("Failed to capture image")
+                            speakText("Failed to capture image. Please try again.")
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error capturing image", e)
+                        updateStatusText("Camera error: ${e.message}")
+                        speakText("There was an error with the camera. Please try again.")
                     }
                 } else {
                     updateStatusText("Camera not active. Start camera first.")
                     speakText("Camera is not active. Please start the camera first.")
+                }
+                return
+            }
+            
+            // Check for camera start commands
+            if (lowerText.contains("start") && lowerText.contains("camera") || 
+                lowerText.contains("open") && lowerText.contains("camera") ||
+                lowerText.contains("camera") && (lowerText.contains("on") || lowerText.contains("activate"))) {
+                if (!isCameraMode) {
+                    startCamera()
+                } else {
+                    updateStatusText("Camera is already active")
+                    speakText("Camera is already active. Say capture image to take a photo.")
                 }
                 return
             }

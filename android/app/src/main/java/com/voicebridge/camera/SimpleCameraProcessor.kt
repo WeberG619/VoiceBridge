@@ -134,11 +134,18 @@ class SimpleCameraProcessor private constructor(
      */
     suspend fun captureImage(): Boolean = withContext(Dispatchers.IO) {
         try {
-            val imageCapture = this@SimpleCameraProcessor.imageCapture ?: return@withContext false
+            val imageCapture = this@SimpleCameraProcessor.imageCapture ?: {
+                Log.e(TAG, "ImageCapture not initialized")
+                return@withContext false
+            }()
+            
+            Log.d(TAG, "Starting image capture...")
             
             // Create temp file
             val outputFile = context.cacheDir.resolve("temp_capture_${System.currentTimeMillis()}.jpg")
             val outputFileOptions = ImageCapture.OutputFileOptions.Builder(outputFile).build()
+            
+            Log.d(TAG, "Output file: ${outputFile.absolutePath}")
             
             // Capture image
             val result = suspendCoroutine<Boolean> { continuation ->
@@ -148,8 +155,14 @@ class SimpleCameraProcessor private constructor(
                     object : ImageCapture.OnImageSavedCallback {
                         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                             try {
+                                Log.d(TAG, "Image saved successfully")
                                 val bitmap = BitmapFactory.decodeFile(outputFile.absolutePath)
-                                onImageCapturedListener?.invoke(bitmap)
+                                if (bitmap != null) {
+                                    Log.d(TAG, "Bitmap created successfully: ${bitmap.width}x${bitmap.height}")
+                                    onImageCapturedListener?.invoke(bitmap)
+                                } else {
+                                    Log.e(TAG, "Failed to decode bitmap from file")
+                                }
                                 
                                 // Clean up temp file
                                 outputFile.delete()

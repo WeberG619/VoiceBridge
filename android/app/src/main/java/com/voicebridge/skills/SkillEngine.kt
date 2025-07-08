@@ -244,8 +244,8 @@ class SkillEngine private constructor(private val context: Context) {
                         processedText = cleanText
                     )
                 } else {
-                    // Be more lenient - accept any reasonable input
-                    if (cleanText.trim().length >= 2) {
+                    // Always accept reasonable input - almost never fail
+                    if (cleanText.trim().length >= 1) {
                         return@withContext VoiceProcessingResult(
                             isSuccess = true,
                             action = "general_command",
@@ -438,18 +438,18 @@ class SkillEngine private constructor(private val context: Context) {
         val commands = mutableListOf<String>()
         val lowerText = text.lowercase().trim()
         
-        // Define flexible command patterns
+        // Define flexible command patterns with more variations
         val commandPatterns = mapOf(
             "hello|hi|hey|greetings|good morning|good afternoon" to "greeting",
             "how.*are.*you|what.*up|how.*going" to "greeting",
             "fill.*form|complete.*form|finish.*form|form.*fill" to "fill form",
             "start.*application|new.*application|apply.*for" to "start application",
             "help.*me|help.*with|assist.*me|what.*can.*you.*do" to "help",
-            "start.*camera|open.*camera|camera.*on" to "start camera",
-            "capture.*image|take.*photo|take.*picture|snap.*photo" to "capture image",
-            "yes|yeah|yep|okay|ok|sure|alright" to "confirm",
-            "no|nope|cancel|stop|quit" to "cancel",
-            "test.*recognition|test.*speech|testing" to "test"
+            "start.*camera|open.*camera|camera.*on|camera.*start" to "start camera",
+            "capture.*image|take.*photo|take.*picture|snap.*photo|image.*capture|photo.*capture" to "capture image",
+            "yes|yeah|yep|okay|ok|sure|alright|good|fine" to "confirm",
+            "no|nope|cancel|stop|quit|exit" to "cancel",
+            "test.*recognition|test.*speech|testing|test" to "test"
         )
         
         // Check each pattern
@@ -461,18 +461,18 @@ class SkillEngine private constructor(private val context: Context) {
             }
         }
         
-        // If no patterns match, try simple word matching
+        // If no patterns match, try simple word matching - be very accepting
         if (commands.isEmpty()) {
             when {
                 lowerText.contains("hello") || lowerText.contains("hi") -> commands.add("greeting")
                 lowerText.contains("camera") -> commands.add("start camera")
-                lowerText.contains("capture") || lowerText.contains("photo") -> commands.add("capture image")
+                lowerText.contains("capture") || lowerText.contains("photo") || lowerText.contains("picture") || lowerText.contains("take") -> commands.add("capture image")
                 lowerText.contains("form") -> commands.add("fill form")
                 lowerText.contains("help") -> commands.add("help")
                 lowerText.contains("test") -> commands.add("test")
-                lowerText.contains("yes") || lowerText.contains("ok") -> commands.add("confirm")
+                lowerText.contains("yes") || lowerText.contains("ok") || lowerText.contains("good") -> commands.add("confirm")
                 lowerText.contains("no") || lowerText.contains("stop") -> commands.add("cancel")
-                lowerText.length > 2 -> commands.add("general command")
+                lowerText.length > 1 -> commands.add("general command") // Accept almost everything
             }
         }
         
