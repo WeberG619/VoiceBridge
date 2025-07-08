@@ -19,6 +19,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -63,6 +65,7 @@ class RealMainActivity : AppCompatActivity() {
     
     // Live Vision State
     private var isLiveVisionActive = false
+    private var liveVisionHandler = Handler(Looper.getMainLooper())
     private var liveVisionRunnable: Runnable? = null
     
     // APIs
@@ -787,7 +790,7 @@ class RealMainActivity : AppCompatActivity() {
         
         // Stop continuous analysis
         liveVisionRunnable?.let { 
-            cameraExecutor.removeCallbacks(it)
+            liveVisionHandler.removeCallbacks(it)
         }
         
         updateStatus("Live Vision stopped")
@@ -805,13 +808,13 @@ class RealMainActivity : AppCompatActivity() {
                 if (isLiveVisionActive) {
                     analyzeLiveFrame()
                     // Schedule next analysis in 3 seconds
-                    cameraExecutor.postDelayed(this, 3000)
+                    liveVisionHandler.postDelayed(this, 3000)
                 }
             }
         }
         
         // Start first analysis
-        cameraExecutor.post(liveVisionRunnable!!)
+        liveVisionHandler.post(liveVisionRunnable!!)
     }
     
     /**
