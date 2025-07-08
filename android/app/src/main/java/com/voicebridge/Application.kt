@@ -2,7 +2,7 @@ package com.voicebridge
 
 import android.app.Application
 import android.util.Log
-import com.voicebridge.telemetry.OfflineCrashReporter
+import com.voicebridge.crash.CrashReporter
 import com.voicebridge.telemetry.PrivacyAnalytics
 
 /**
@@ -19,7 +19,7 @@ class VoiceBridgeApplication : Application() {
         private const val TAG = "VoiceBridgeApp"
     }
     
-    private lateinit var crashReporter: OfflineCrashReporter
+    private lateinit var crashReporter: CrashReporter
     private lateinit var analytics: PrivacyAnalytics
     
     override fun onCreate() {
@@ -38,8 +38,8 @@ class VoiceBridgeApplication : Application() {
     
     private fun initializeCrashReporting() {
         try {
-            crashReporter = OfflineCrashReporter.getInstance(this)
-            crashReporter.initialize()
+            crashReporter = CrashReporter.getInstance(this)
+            CrashReporter.initialize(this)
             Log.i(TAG, "Crash reporting initialized")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to initialize crash reporting", e)

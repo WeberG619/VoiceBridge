@@ -1,0 +1,208 @@
+id: medical_intake
+language: en
+name: Medical Intake Form
+description: Automated form filling for medical office intake forms
+version: "1.0"
+category: healthcare
+
+prompts:
+  - field: patient_first_name
+    ask: "What is the patient's first name?"
+    hint: "Please provide the patient's legal first name"
+    type: name
+    required: true
+    validation: "^[A-Za-z\\-']{1,30}$"
+    
+  - field: patient_last_name
+    ask: "What is the patient's last name?"
+    hint: "Please provide the patient's legal last name"
+    type: name
+    required: true
+    validation: "^[A-Za-z\\-']{1,30}$"
+    
+  - field: date_of_birth
+    ask: "What is the patient's date of birth?"
+    hint: "Please provide birth date in month, day, year format"
+    type: date
+    required: true
+    format: "MM/DD/YYYY"
+    
+  - field: gender
+    ask: "What is the patient's gender?"
+    hint: "Please specify the patient's gender"
+    type: select
+    required: true
+    options:
+      - "Male"
+      - "Female"
+      - "Non-binary"
+      - "Prefer not to answer"
+    
+  - field: social_security_number
+    ask: "What is the patient's Social Security Number?"
+    hint: "Please provide the 9-digit Social Security Number"
+    type: ssn
+    required: true
+    validation: "^\\d{3}-\\d{2}-\\d{4}$"
+    format: "XXX-XX-XXXX"
+    
+  - field: insurance_provider
+    ask: "Who is the patient's insurance provider?"
+    hint: "Please provide the name of the insurance company"
+    type: text
+    required: true
+    
+  - field: insurance_id
+    ask: "What is the patient's insurance ID number?"
+    hint: "Please provide the insurance member ID"
+    type: text
+    required: true
+    
+  - field: group_number
+    ask: "What is the insurance group number?"
+    hint: "Please provide the group number if available"
+    type: text
+    required: false
+    
+  - field: primary_phone
+    ask: "What is the patient's primary phone number?"
+    hint: "Please provide the best contact number"
+    type: phone
+    required: true
+    format: "(XXX) XXX-XXXX"
+    
+  - field: emergency_contact_name
+    ask: "Who is the emergency contact?"
+    hint: "Please provide the full name of emergency contact"
+    type: name
+    required: true
+    
+  - field: emergency_contact_phone
+    ask: "What is the emergency contact's phone number?"
+    hint: "Please provide emergency contact phone"
+    type: phone
+    required: true
+    format: "(XXX) XXX-XXXX"
+    
+  - field: emergency_contact_relationship
+    ask: "What is the relationship to the emergency contact?"
+    hint: "Please specify the relationship"
+    type: select
+    required: true
+    options:
+      - "Spouse"
+      - "Parent"
+      - "Child"
+      - "Sibling"
+      - "Friend"
+      - "Other family member"
+      - "Other"
+    
+  - field: address
+    ask: "What is the patient's home address?"
+    hint: "Please provide complete street address"
+    type: address
+    required: true
+    
+  - field: city
+    ask: "What city does the patient live in?"
+    hint: "Please provide the city"
+    type: text
+    required: true
+    
+  - field: state
+    ask: "What state does the patient live in?"
+    hint: "Please provide the state"
+    type: text
+    required: true
+    
+  - field: zip_code
+    ask: "What is the patient's ZIP code?"
+    hint: "Please provide the ZIP code"
+    type: text
+    required: true
+    validation: "^\\d{5}(-\\d{4})?$"
+    
+  - field: reason_for_visit
+    ask: "What is the reason for today's visit?"
+    hint: "Please describe the main concern or reason for the appointment"
+    type: textarea
+    required: true
+    
+  - field: current_medications
+    ask: "What medications is the patient currently taking?"
+    hint: "Please list all current medications, or say 'none' if not taking any"
+    type: textarea
+    required: false
+    
+  - field: allergies
+    ask: "Does the patient have any allergies?"
+    hint: "Please list any known allergies, or say 'none' if no known allergies"
+    type: textarea
+    required: false
+    
+  - field: medical_history
+    ask: "Does the patient have any significant medical history?"
+    hint: "Please describe any relevant medical conditions or surgeries"
+    type: textarea
+    required: false
+
+postprocess:
+  - action: format_phone
+    field: primary_phone
+    format: "(XXX) XXX-XXXX"
+    
+  - action: format_phone
+    field: emergency_contact_phone
+    format: "(XXX) XXX-XXXX"
+    
+  - action: format_ssn
+    field: social_security_number
+    format: "XXX-XX-XXXX"
+    
+  - action: capitalize_name
+    field: patient_first_name
+    
+  - action: capitalize_name
+    field: patient_last_name
+    
+  - action: capitalize_name
+    field: emergency_contact_name
+
+accessibility:
+  form_selectors:
+    patient_first_name: "input[name*='firstName'], input[name*='first_name'], input[id*='first']"
+    patient_last_name: "input[name*='lastName'], input[name*='last_name'], input[id*='last']"
+    date_of_birth: "input[name*='dob'], input[name*='birth'], input[type='date']"
+    gender: "select[name*='gender'], input[name*='gender']"
+    social_security_number: "input[name*='ssn'], input[name*='social']"
+    insurance_provider: "input[name*='insurance'], input[id*='insurance']"
+    insurance_id: "input[name*='member'], input[name*='policy']"
+    group_number: "input[name*='group'], input[id*='group']"
+    primary_phone: "input[name*='phone'], input[type='tel']"
+    emergency_contact_name: "input[name*='emergency'], input[id*='emergency']"
+    emergency_contact_phone: "input[name*='emergency'][type='tel']"
+    emergency_contact_relationship: "select[name*='relationship'], input[name*='relationship']"
+    address: "input[name*='address'], textarea[name*='address']"
+    city: "input[name*='city'], input[id*='city']"
+    state: "input[name*='state'], select[name*='state']"
+    zip_code: "input[name*='zip'], input[id*='zip']"
+    reason_for_visit: "textarea[name*='reason'], textarea[name*='visit']"
+    current_medications: "textarea[name*='medication'], textarea[name*='drug']"
+    allergies: "textarea[name*='allerg'], textarea[name*='reaction']"
+    medical_history: "textarea[name*='history'], textarea[name*='medical']"
+    
+  submit_button: "button[type='submit'], input[type='submit'], button[id*='submit']"
+  
+commands:
+  - trigger: "fill medical intake"
+    action: execute_skill
+    skill: medical_intake
+    
+  - trigger: "complete patient form"
+    action: execute_skill
+    skill: medical_intake
+    
+  - trigger: "medical intake form"
+    action: execute_skill
+    skill: medical_intake

@@ -1,0 +1,240 @@
+id: tax_preparation
+language: en
+name: Tax Preparation Form
+description: Automated form filling for tax preparation and filing
+version: "1.0"
+category: financial
+
+prompts:
+  - field: taxpayer_first_name
+    ask: "What is the taxpayer's first name?"
+    hint: "Please provide the primary taxpayer's legal first name"
+    type: name
+    required: true
+    validation: "^[A-Za-z\\-']{1,30}$"
+    
+  - field: taxpayer_last_name
+    ask: "What is the taxpayer's last name?"
+    hint: "Please provide the primary taxpayer's legal last name"
+    type: name
+    required: true
+    validation: "^[A-Za-z\\-']{1,30}$"
+    
+  - field: taxpayer_ssn
+    ask: "What is the taxpayer's Social Security Number?"
+    hint: "Please provide the primary taxpayer's SSN"
+    type: ssn
+    required: true
+    validation: "^\\d{3}-\\d{2}-\\d{4}$"
+    format: "XXX-XX-XXXX"
+    
+  - field: filing_status
+    ask: "What is your filing status?"
+    hint: "Please select your tax filing status"
+    type: select
+    required: true
+    options:
+      - "Single"
+      - "Married Filing Jointly"
+      - "Married Filing Separately"
+      - "Head of Household"
+      - "Qualifying Surviving Spouse"
+    
+  - field: spouse_first_name
+    ask: "What is your spouse's first name?"
+    hint: "Please provide spouse's first name (if married filing jointly)"
+    type: name
+    required: false
+    validation: "^[A-Za-z\\-']{1,30}$"
+    depends_on: "filing_status"
+    show_when: "Married Filing Jointly"
+    
+  - field: spouse_last_name
+    ask: "What is your spouse's last name?"
+    hint: "Please provide spouse's last name (if married filing jointly)"
+    type: name
+    required: false
+    validation: "^[A-Za-z\\-']{1,30}$"
+    depends_on: "filing_status"
+    show_when: "Married Filing Jointly"
+    
+  - field: spouse_ssn
+    ask: "What is your spouse's Social Security Number?"
+    hint: "Please provide spouse's SSN (if married filing jointly)"
+    type: ssn
+    required: false
+    validation: "^\\d{3}-\\d{2}-\\d{4}$"
+    format: "XXX-XX-XXXX"
+    depends_on: "filing_status"
+    show_when: "Married Filing Jointly"
+    
+  - field: home_address
+    ask: "What is your home address?"
+    hint: "Please provide your complete street address"
+    type: address
+    required: true
+    
+  - field: city
+    ask: "What city do you live in?"
+    hint: "Please provide your city"
+    type: text
+    required: true
+    
+  - field: state
+    ask: "What state do you live in?"
+    hint: "Please provide your state"
+    type: text
+    required: true
+    
+  - field: zip_code
+    ask: "What is your ZIP code?"
+    hint: "Please provide your ZIP code"
+    type: text
+    required: true
+    validation: "^\\d{5}(-\\d{4})?$"
+    
+  - field: w2_wages
+    ask: "What was your total W-2 wages for the tax year?"
+    hint: "Please provide total wages from all W-2 forms"
+    type: currency
+    required: true
+    format: "$XXX,XXX.XX"
+    
+  - field: federal_tax_withheld
+    ask: "How much federal tax was withheld from your paychecks?"
+    hint: "Please provide total federal tax withheld"
+    type: currency
+    required: true
+    format: "$XX,XXX.XX"
+    
+  - field: state_tax_withheld
+    ask: "How much state tax was withheld from your paychecks?"
+    hint: "Please provide total state tax withheld"
+    type: currency
+    required: false
+    format: "$X,XXX.XX"
+    
+  - field: interest_income
+    ask: "Did you receive any interest income?"
+    hint: "Please provide total interest income from banks, savings accounts, etc."
+    type: currency
+    required: false
+    format: "$X,XXX.XX"
+    
+  - field: dividend_income
+    ask: "Did you receive any dividend income?"
+    hint: "Please provide total dividend income from investments"
+    type: currency
+    required: false
+    format: "$X,XXX.XX"
+    
+  - field: mortgage_interest
+    ask: "Did you pay mortgage interest?"
+    hint: "Please provide total mortgage interest paid (for itemized deductions)"
+    type: currency
+    required: false
+    format: "$XX,XXX.XX"
+    
+  - field: charitable_donations
+    ask: "Did you make any charitable donations?"
+    hint: "Please provide total charitable donations (for itemized deductions)"
+    type: currency
+    required: false
+    format: "$X,XXX.XX"
+    
+  - field: state_local_taxes
+    ask: "Did you pay state and local taxes?"
+    hint: "Please provide state and local tax payments (for itemized deductions)"
+    type: currency
+    required: false
+    format: "$XX,XXX.XX"
+    
+  - field: dependents_count
+    ask: "How many dependents do you have?"
+    hint: "Please provide the number of qualifying dependents"
+    type: number
+    required: true
+    min: 0
+    max: 20
+    
+  - field: bank_routing_number
+    ask: "What is your bank routing number for direct deposit?"
+    hint: "Please provide 9-digit routing number (for refund direct deposit)"
+    type: text
+    required: false
+    validation: "^\\d{9}$"
+    
+  - field: bank_account_number
+    ask: "What is your bank account number for direct deposit?"
+    hint: "Please provide account number (for refund direct deposit)"
+    type: text
+    required: false
+
+postprocess:
+  - action: format_ssn
+    field: taxpayer_ssn
+    format: "XXX-XX-XXXX"
+    
+  - action: format_ssn
+    field: spouse_ssn
+    format: "XXX-XX-XXXX"
+    
+  - action: capitalize_name
+    field: taxpayer_first_name
+    
+  - action: capitalize_name
+    field: taxpayer_last_name
+    
+  - action: capitalize_name
+    field: spouse_first_name
+    
+  - action: capitalize_name
+    field: spouse_last_name
+    
+  - action: format_currency
+    field: w2_wages
+    format: "$XXX,XXX.XX"
+    
+  - action: format_currency
+    field: federal_tax_withheld
+    format: "$XX,XXX.XX"
+
+accessibility:
+  form_selectors:
+    taxpayer_first_name: "input[name*='firstName'], input[id*='taxpayer_first']"
+    taxpayer_last_name: "input[name*='lastName'], input[id*='taxpayer_last']"
+    taxpayer_ssn: "input[name*='ssn'], input[id*='taxpayer_ssn']"
+    filing_status: "select[name*='filing'], input[name*='status']"
+    spouse_first_name: "input[name*='spouse_first'], input[id*='spouse_first']"
+    spouse_last_name: "input[name*='spouse_last'], input[id*='spouse_last']"
+    spouse_ssn: "input[name*='spouse_ssn'], input[id*='spouse_ssn']"
+    home_address: "input[name*='address'], textarea[name*='address']"
+    city: "input[name*='city'], input[id*='city']"
+    state: "input[name*='state'], select[name*='state']"
+    zip_code: "input[name*='zip'], input[id*='zip']"
+    w2_wages: "input[name*='wages'], input[id*='w2']"
+    federal_tax_withheld: "input[name*='federal'], input[id*='withheld']"
+    state_tax_withheld: "input[name*='state_tax'], input[id*='state_withheld']"
+    interest_income: "input[name*='interest'], input[id*='interest']"
+    dividend_income: "input[name*='dividend'], input[id*='dividend']"
+    mortgage_interest: "input[name*='mortgage'], input[id*='mortgage']"
+    charitable_donations: "input[name*='charitable'], input[id*='charity']"
+    state_local_taxes: "input[name*='state_local'], input[id*='salt']"
+    dependents_count: "input[name*='dependent'], input[id*='dependent']"
+    bank_routing_number: "input[name*='routing'], input[id*='routing']"
+    bank_account_number: "input[name*='account'], input[id*='account']"
+    
+  submit_button: "button[type='submit'], input[type='submit'], button[id*='submit']"
+  
+commands:
+  - trigger: "fill tax form"
+    action: execute_skill
+    skill: tax_preparation
+    
+  - trigger: "prepare taxes"
+    action: execute_skill
+    skill: tax_preparation
+    
+  - trigger: "complete tax return"
+    action: execute_skill
+    skill: tax_preparation

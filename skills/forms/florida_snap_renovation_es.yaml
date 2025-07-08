@@ -1,100 +1,100 @@
-id: florida_snap_renewal
-language: en
-name: Florida SNAP Renewal Form
-description: Automated form filling for Florida SNAP benefits renewal
+id: florida_snap_renovation_es
+language: es
+name: Formulario de Renovación SNAP de Florida
+description: Relleno automatizado de formulario para renovación de beneficios SNAP de Florida
 version: "1.0"
 
 prompts:
   - field: full_name
-    ask: "What is your full legal name?"
-    hint: "Please provide your first and last name as it appears on your ID"
+    ask: "¿Cuál es tu nombre legal completo?"
+    hint: "Por favor proporciona tu nombre y apellido como aparece en tu identificación"
     type: name
     required: true
-    validation: "^[A-Za-z\\s\\-']{2,50}$"
+    validation: "^[A-Za-zÀ-ÿ\\s\\-']{2,50}$"
     
   - field: social_security_number
-    ask: "What is your Social Security Number?"
-    hint: "Please provide your 9-digit Social Security Number"
+    ask: "¿Cuál es tu Número de Seguro Social?"
+    hint: "Por favor proporciona tu Número de Seguro Social de 9 dígitos"
     type: ssn
     required: true
     validation: "^\\d{3}-\\d{2}-\\d{4}$"
     format: "XXX-XX-XXXX"
     
   - field: date_of_birth
-    ask: "What is your date of birth?"
-    hint: "Please provide your birth date in month, day, year format"
+    ask: "¿Cuál es tu fecha de nacimiento?"
+    hint: "Por favor proporciona tu fecha de nacimiento en formato mes, día, año"
     type: date
     required: true
     format: "MM/DD/YYYY"
     
   - field: phone_number
-    ask: "What is your phone number?"
-    hint: "Please provide your primary phone number"
+    ask: "¿Cuál es tu número de teléfono?"
+    hint: "Por favor proporciona tu número de teléfono principal"
     type: phone
     required: true
     format: "(XXX) XXX-XXXX"
     
   - field: email_address
-    ask: "What is your email address?"
-    hint: "Please provide your email address for communication"
+    ask: "¿Cuál es tu dirección de correo electrónico?"
+    hint: "Por favor proporciona tu dirección de correo electrónico para comunicación"
     type: email
     required: false
     validation: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
     
   - field: home_address
-    ask: "What is your current home address?"
-    hint: "Please provide your complete street address"
+    ask: "¿Cuál es tu dirección de casa actual?"
+    hint: "Por favor proporciona tu dirección completa"
     type: address
     required: true
     
   - field: city
-    ask: "What city do you live in?"
-    hint: "Please provide your city"
+    ask: "¿En qué ciudad vives?"
+    hint: "Por favor proporciona tu ciudad"
     type: text
     required: true
     
   - field: state
-    ask: "What state do you live in?"
-    hint: "Please provide your state"
+    ask: "¿En qué estado vives?"
+    hint: "Por favor proporciona tu estado"
     type: text
     required: true
     default: "Florida"
     
   - field: zip_code
-    ask: "What is your ZIP code?"
-    hint: "Please provide your 5-digit ZIP code"
+    ask: "¿Cuál es tu código postal?"
+    hint: "Por favor proporciona tu código postal de 5 dígitos"
     type: text
     required: true
     validation: "^\\d{5}$"
     
   - field: household_size
-    ask: "How many people live in your household?"
-    hint: "Include yourself and all family members living with you"
+    ask: "¿Cuántas personas viven en tu hogar?"
+    hint: "Incluye a ti mismo y todos los miembros de la familia que viven contigo"
     type: number
     required: true
     min: 1
     max: 20
     
   - field: monthly_income
-    ask: "What is your total monthly household income?"
-    hint: "Include all sources of income before taxes"
+    ask: "¿Cuál es el ingreso mensual total de tu hogar?"
+    hint: "Incluye todas las fuentes de ingreso antes de impuestos"
     type: currency
     required: true
     format: "$X,XXX.XX"
     
   - field: employment_status
-    ask: "What is your current employment status?"
-    hint: "Select your primary employment situation"
+    ask: "¿Cuál es tu estado de empleo actual?"
+    hint: "Selecciona tu situación de empleo principal"
     type: select
     required: true
     options:
-      - "Employed full-time"
-      - "Employed part-time"
-      - "Self-employed"
-      - "Unemployed"
-      - "Retired"
-      - "Disabled"
-      - "Student"
+      - "Empleado tiempo completo"
+      - "Empleado tiempo parcial"
+      - "Trabajador independiente"
+      - "Desempleado"
+      - "Jubilado"
+      - "Discapacitado"
+      - "Estudiante"
 
 postprocess:
   - action: format_phone
@@ -138,10 +138,14 @@ accessibility:
   submit_button: "button[type='submit']"
   
 commands:
-  - trigger: "fill snap renewal form"
+  - trigger: "llenar formulario renovación snap"
     action: execute_skill
-    skill: florida_snap_renewal
+    skill: florida_snap_renovation_es
     
-  - trigger: "start snap application"
+  - trigger: "iniciar aplicación snap"
     action: execute_skill
-    skill: florida_snap_renewal
+    skill: florida_snap_renovation_es
+    
+  - trigger: "completar formulario beneficios"
+    action: execute_skill
+    skill: florida_snap_renovation_es

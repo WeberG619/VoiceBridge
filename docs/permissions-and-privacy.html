@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceBridge - Permissions & Privacy Policy</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .header { background: #2196F3; color: white; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+        .section { margin-bottom: 30px; }
+        .permission { background: #f5f5f5; padding: 15px; border-left: 4px solid #2196F3; margin: 10px 0; }
+        .required { border-left-color: #f44336; }
+        .optional { border-left-color: #4caf50; }
+        .data-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .data-table th, .data-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .data-table th { background-color: #f2f2f2; }
+        .highlight { background-color: #e3f2fd; padding: 15px; border-radius: 4px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>VoiceBridge Permissions & Privacy Policy</h1>
+        <p>Complete transparency about what permissions we request and why</p>
+    </div>
+
+    <div class="section">
+        <h2>🔒 Privacy-First Design</h2>
+        <div class="highlight">
+            <strong>VoiceBridge is designed with privacy as the foundation:</strong>
+            <ul>
+                <li>✅ All processing happens offline on your device</li>
+                <li>✅ No data is transmitted to external servers</li>
+                <li>✅ No user accounts or cloud storage required</li>
+                <li>✅ No advertising or tracking SDKs</li>
+                <li>✅ You control all your data</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📋 Required Permissions</h2>
+        <p>These permissions are essential for VoiceBridge to function:</p>
+
+        <div class="permission required">
+            <h3>🎤 RECORD_AUDIO</h3>
+            <p><strong>Why needed:</strong> Voice recognition for form filling commands</p>
+            <p><strong>Data handling:</strong> Audio is processed locally by Whisper.cpp AI model. Voice data is never stored permanently or transmitted.</p>
+            <p><strong>User control:</strong> You can revoke this permission anytime in Android settings</p>
+        </div>
+
+        <div class="permission required">
+            <h3>♿ BIND_ACCESSIBILITY_SERVICE</h3>
+            <p><strong>Why needed:</strong> Automatic form field detection and filling</p>
+            <p><strong>Data handling:</strong> Only reads form field labels and types. Cannot access sensitive data like passwords or payment info.</p>
+            <p><strong>User control:</strong> Enable/disable in Android Accessibility Settings</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📋 Optional Permissions</h2>
+        <p>These permissions enhance functionality but aren't required:</p>
+
+        <div class="permission optional">
+            <h3>📷 CAMERA</h3>
+            <p><strong>Why needed:</strong> Document scanning and OCR text extraction</p>
+            <p><strong>Data handling:</strong> Images processed locally by Tesseract OCR. No photos saved unless you explicitly choose to.</p>
+            <p><strong>User control:</strong> App works without camera access</p>
+        </div>
+
+        <div class="permission optional">
+            <h3>📁 READ_EXTERNAL_STORAGE</h3>
+            <p><strong>Why needed:</strong> Access documents and images for OCR processing</p>
+            <p><strong>Data handling:</strong> Only reads files you explicitly select. No automatic scanning.</p>
+            <p><strong>User control:</strong> Grant access only when needed</p>
+        </div>
+
+        <div class="permission optional">
+            <h3>🌐 INTERNET + ACCESS_NETWORK_STATE</h3>
+            <p><strong>Why needed:</strong> Download AI models on first launch only</p>
+            <p><strong>Data handling:</strong> Only downloads open-source AI models. No user data transmitted.</p>
+            <p><strong>User control:</strong> After initial setup, app works completely offline</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📊 Data Collection & Retention</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Data Type</th>
+                    <th>Purpose</th>
+                    <th>Storage Location</th>
+                    <th>Retention Period</th>
+                    <th>Sharing</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Voice Audio</td>
+                    <td>Speech-to-text conversion</td>
+                    <td>Processed in RAM only</td>
+                    <td>Immediately deleted</td>
+                    <td>Never shared</td>
+                </tr>
+                <tr>
+                    <td>Form Data</td>
+                    <td>Auto-fill assistance</td>
+                    <td>Device only (encrypted)</td>
+                    <td>Until user deletes</td>
+                    <td>Never shared</td>
+                </tr>
+                <tr>
+                    <td>Usage Analytics</td>
+                    <td>App improvement</td>
+                    <td>Device only</td>
+                    <td>30 days maximum</td>
+                    <td>User choice only</td>
+                </tr>
+                <tr>
+                    <td>Crash Reports</td>
+                    <td>Bug fixing</td>
+                    <td>Device only</td>
+                    <td>20 reports maximum</td>
+                    <td>User choice only</td>
+                </tr>
+                <tr>
+                    <td>OCR Images</td>
+                    <td>Text extraction</td>
+                    <td>Processed in RAM only</td>
+                    <td>Immediately deleted</td>
+                    <td>Never shared</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>🛡️ Security Measures</h2>
+        <ul>
+            <li><strong>No External Servers:</strong> All AI processing happens on your device</li>
+            <li><strong>Local Encryption:</strong> Stored form data is encrypted using Android Keystore</li>
+            <li><strong>Memory Protection:</strong> Voice and image data cleared from memory immediately after processing</li>
+            <li><strong>Permission Minimization:</strong> Only requests permissions actually needed</li>
+            <li><strong>Open Source:</strong> Code is publicly auditable on GitHub</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>⚙️ User Controls</h2>
+        <p>You have complete control over your data:</p>
+        <ul>
+            <li><strong>Permission Management:</strong> Revoke any permission in Android Settings</li>
+            <li><strong>Data Export:</strong> Export all your form templates and analytics data</li>
+            <li><strong>Data Deletion:</strong> Clear all app data with one button</li>
+            <li><strong>Analytics Toggle:</strong> Disable usage analytics completely</li>
+            <li><strong>Offline Mode:</strong> Use app without any network connection</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>📞 Contact & Questions</h2>
+        <p>Questions about permissions or privacy?</p>
+        <ul>
+            <li><strong>GitHub Issues:</strong> <a href="https://github.com/voicebridge/voicebridge/issues">Report concerns</a></li>
+            <li><strong>Email:</strong> privacy@voicebridge.app</li>
+            <li><strong>Documentation:</strong> <a href="index.html">VoiceBridge Docs</a></li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>📅 Policy Updates</h2>
+        <p><strong>Last Updated:</strong> July 8, 2025</p>
+        <p><strong>Version:</strong> 1.0.0-beta.1</p>
+        <p>We will notify users of any privacy policy changes through app updates and this website.</p>
+    </div>
+
+    <footer style="border-top: 1px solid #ddd; padding-top: 20px; margin-top: 40px; text-align: center; color: #666;">
+        <p>&copy; 2025 VoiceBridge - Privacy-First Voice Automation</p>
+    </footer>
+</body>
+</html>

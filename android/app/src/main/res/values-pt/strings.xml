@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Portuguese (Brazil) translations for VoiceBridge -->
+    
+    <string name="app_name">VoiceBridge</string>
+    <string name="app_description">Preencha formulários com sua voz usando IA. Offline, acessível e privado.</string>
+    
+    <!-- Main Activity -->
+    <string name="btn_start_listening">Começar a ouvir</string>
+    <string name="btn_stop_listening">Parar de ouvir</string>
+    <string name="btn_capture">Capturar</string>
+    <string name="btn_process_text">Processar texto</string>
+    <string name="btn_fill_form">Preencher formulário</string>
+    <string name="btn_accessibility_settings">Configurações de acessibilidade</string>
+    
+    <string name="status_listening">Ouvindo...</string>
+    <string name="status_processing">Processando...</string>
+    <string name="status_ready">Pronto</string>
+    <string name="status_error">Erro: %1$s</string>
+    
+    <string name="transcription_hint">A transcrição aparecerá aqui</string>
+    <string name="processed_text_hint">O texto processado aparecerá aqui</string>
+    <string name="commands_hint">Os comandos detectados aparecerão aqui</string>
+    <string name="ocr_result_hint">Os resultados do OCR aparecerão aqui</string>
+    
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">Bem-vindo ao VoiceBridge</string>
+    <string name="onboarding_welcome_subtitle">Transforme como você interage com formulários e documentos usando o poder da sua voz e tecnologia de IA.</string>
+    
+    <string name="onboarding_voice_title">Controle por voz</string>
+    <string name="onboarding_voice_subtitle">Use sua voz para preencher formulários sem usar as mãos. VoiceBridge entende fala natural e a converte em texto.</string>
+    
+    <string name="onboarding_scan_title">Escaneamento de documentos</string>
+    <string name="onboarding_scan_subtitle">Capture e extraia texto de documentos, formulários e imagens usando tecnologia OCR avançada.</string>
+    
+    <string name="onboarding_automation_title">Automação inteligente de formulários</string>
+    <string name="onboarding_automation_subtitle">VoiceBridge identifica inteligentemente campos de formulário e os preenche usando entrada de voz ou texto escaneado.</string>
+    
+    <string name="onboarding_permissions_title">Configuração de permissões</string>
+    <string name="onboarding_permissions_subtitle">VoiceBridge precisa de certas permissões para fornecer seus recursos. Todas as permissões são usadas apenas para funcionalidade principal.</string>
+    
+    <string name="onboarding_complete_title">Você está pronto!</string>
+    <string name="onboarding_complete_subtitle">VoiceBridge está preparado para ajudá-lo a preencher formulários mais rápido e eficientemente do que nunca.</string>
+    
+    <string name="btn_next">Próximo</string>
+    <string name="btn_previous">Anterior</string>
+    <string name="btn_skip">Pular</string>
+    <string name="btn_get_started">Começar</string>
+    
+    <!-- Accessibility Service -->
+    <string name="accessibility_service_description">O serviço de acessibilidade VoiceBridge permite preenchimento automático de formulários através de comandos de voz e escaneamento de documentos. Este serviço pode observar suas interações e recuperar conteúdo da janela para identificar e preencher campos de formulário.</string>
+    <string name="accessibility_service_summary">Habilita preenchimento de formulários controlado por voz e processamento de documentos</string>
+    
+    <!-- Error Messages -->
+    <string name="error_microphone_permission">Permissão de microfone necessária para gravação de voz. Vá para Configurações para habilitar.</string>
+    <string name="error_camera_permission">Permissão de câmera necessária para escaneamento de documentos. Vá para Configurações para habilitar.</string>
+    <string name="error_voice_recognition_failed">Reconhecimento de voz falhado. Por favor tente falar novamente claramente.</string>
+    
+    <!-- Success Messages -->
+    <string name="success_voice_command_processed">Comando de voz processado com sucesso</string>
+    <string name="success_document_scanned">Documento escaneado e texto extraído com sucesso</string>
+    <string name="success_form_filled">Formulário preenchido automaticamente com dados de voz</string>
+</resources>

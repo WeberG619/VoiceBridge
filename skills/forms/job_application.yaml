@@ -1,0 +1,176 @@
+id: job_application
+language: en
+name: Job Application Form
+description: Automated form filling for job applications
+version: "1.0"
+category: employment
+
+prompts:
+  - field: first_name
+    ask: "What is your first name?"
+    hint: "Please provide your legal first name"
+    type: name
+    required: true
+    validation: "^[A-Za-z\\-']{1,30}$"
+    
+  - field: last_name
+    ask: "What is your last name?"
+    hint: "Please provide your legal last name"
+    type: name
+    required: true
+    validation: "^[A-Za-z\\-']{1,30}$"
+    
+  - field: email
+    ask: "What is your email address?"
+    hint: "Please provide your professional email address"
+    type: email
+    required: true
+    validation: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+    
+  - field: phone
+    ask: "What is your phone number?"
+    hint: "Please provide your primary phone number"
+    type: phone
+    required: true
+    format: "(XXX) XXX-XXXX"
+    
+  - field: address
+    ask: "What is your current address?"
+    hint: "Please provide your complete street address"
+    type: address
+    required: true
+    
+  - field: city
+    ask: "What city do you live in?"
+    hint: "Please provide your city"
+    type: text
+    required: true
+    
+  - field: state
+    ask: "What state do you live in?"
+    hint: "Please provide your state"
+    type: text
+    required: true
+    
+  - field: zip_code
+    ask: "What is your ZIP code?"
+    hint: "Please provide your ZIP code"
+    type: text
+    required: true
+    validation: "^\\d{5}(-\\d{4})?$"
+    
+  - field: position_applied
+    ask: "What position are you applying for?"
+    hint: "Please state the job title you're applying for"
+    type: text
+    required: true
+    
+  - field: desired_salary
+    ask: "What is your desired salary?"
+    hint: "Please provide your salary expectation"
+    type: currency
+    required: false
+    format: "$XX,XXX"
+    
+  - field: availability_date
+    ask: "When can you start working?"
+    hint: "Please provide your earliest start date"
+    type: date
+    required: true
+    format: "MM/DD/YYYY"
+    
+  - field: education_level
+    ask: "What is your highest level of education?"
+    hint: "Select your education level"
+    type: select
+    required: true
+    options:
+      - "High School Diploma"
+      - "Associate Degree"
+      - "Bachelor's Degree"
+      - "Master's Degree"
+      - "Doctoral Degree"
+      - "Professional Certification"
+      - "Other"
+    
+  - field: years_experience
+    ask: "How many years of relevant experience do you have?"
+    hint: "Please provide total years of experience in this field"
+    type: number
+    required: true
+    min: 0
+    max: 50
+    
+  - field: previous_employer
+    ask: "Who was your most recent employer?"
+    hint: "Please provide your last company name"
+    type: text
+    required: false
+    
+  - field: job_title
+    ask: "What was your job title at your most recent position?"
+    hint: "Please provide your last job title"
+    type: text
+    required: false
+    
+  - field: employment_duration
+    ask: "How long did you work at your most recent job?"
+    hint: "Please provide duration in years or months"
+    type: text
+    required: false
+    
+  - field: references_available
+    ask: "Do you have professional references available?"
+    hint: "Please indicate if you can provide references"
+    type: select
+    required: false
+    options:
+      - "Yes, available upon request"
+      - "Yes, I can provide them now"
+      - "No, not at this time"
+
+postprocess:
+  - action: format_phone
+    field: phone
+    format: "(XXX) XXX-XXXX"
+    
+  - action: capitalize_name
+    field: first_name
+    
+  - action: capitalize_name
+    field: last_name
+    
+  - action: format_currency
+    field: desired_salary
+    format: "$XX,XXX"
+
+accessibility:
+  form_selectors:
+    first_name: "input[name='firstName'], input[name='first_name'], input[id*='first']"
+    last_name: "input[name='lastName'], input[name='last_name'], input[id*='last']"
+    email: "input[name='email'], input[type='email'], input[id*='email']"
+    phone: "input[name='phone'], input[type='tel'], input[id*='phone']"
+    address: "input[name='address'], textarea[name='address'], input[id*='address']"
+    city: "input[name='city'], input[id*='city']"
+    state: "input[name='state'], select[name='state'], input[id*='state']"
+    zip_code: "input[name='zip'], input[name='zipcode'], input[id*='zip']"
+    position_applied: "input[name='position'], input[id*='position'], textarea[name='position']"
+    desired_salary: "input[name='salary'], input[id*='salary']"
+    availability_date: "input[name='startDate'], input[type='date'], input[id*='start']"
+    education_level: "select[name='education'], input[name='education'], select[id*='education']"
+    years_experience: "input[name='experience'], input[id*='experience']"
+    
+  submit_button: "button[type='submit'], input[type='submit'], button[id*='submit']"
+  
+commands:
+  - trigger: "fill job application"
+    action: execute_skill
+    skill: job_application
+    
+  - trigger: "apply for job"
+    action: execute_skill
+    skill: job_application
+    
+  - trigger: "complete employment form"
+    action: execute_skill
+    skill: job_application

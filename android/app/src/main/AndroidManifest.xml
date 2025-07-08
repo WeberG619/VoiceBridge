@@ -50,6 +50,20 @@
             android:theme="@style/Theme.VoiceBridge"
             android:parentActivityName=".MainActivity" />
         
+        <!-- Crash Report Activity (Debug only) -->
+        <activity
+            android:name=".crash.CrashReportActivity"
+            android:exported="false"
+            android:theme="@style/Theme.VoiceBridge"
+            android:parentActivityName=".MainActivity" />
+        
+        <!-- Language Settings Activity -->
+        <activity
+            android:name=".language.LanguageSettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.VoiceBridge"
+            android:parentActivityName=".MainActivity" />
+        
         <!-- Accessibility Service for form filling -->
         <service
             android:name=".accessibility.VoiceBridgeAccessibilityService"
