@@ -9,7 +9,25 @@ import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.InputStream
 
-class SkillEngine(private val context: Context) {
+/**
+ * Result of voice processing operations
+ */
+data class VoiceProcessingResult(
+    val isSuccess: Boolean,
+    val action: String,
+    val message: String,
+    val originalText: String,
+    val processedText: String? = null,
+    val skillName: String? = null,
+    val skillId: String? = null,
+    val formType: String? = null,
+    val command: String? = null,
+    val target: String? = null,
+    val text: String? = null,
+    val formData: Map<String, String>? = null
+)
+
+class SkillEngine private constructor(private val context: Context) {
     
     private val skills = mutableMapOf<String, Skill>()
     private val textProcessor = TextProcessor()
@@ -18,6 +36,15 @@ class SkillEngine(private val context: Context) {
     companion object {
         private const val TAG = "SkillEngine"
         private const val SKILLS_FOLDER = "skills"
+        
+        @Volatile
+        private var INSTANCE: SkillEngine? = null
+        
+        fun getInstance(context: Context): SkillEngine {
+            return INSTANCE ?: synchronized(this) {
+                INSTANCE ?: SkillEngine(context.applicationContext).also { INSTANCE = it }
+            }
+        }
     }
     
     suspend fun initialize(): Boolean = withContext(Dispatchers.IO) {
@@ -169,6 +196,120 @@ class SkillEngine(private val context: Context) {
     
     fun getAllSkills(): List<Skill> {
         return skills.values.toList()
+    }
+    
+    /**
+     * Process voice input and return a result for the UI
+     */
+    suspend fun processVoiceInput(voiceText: String): VoiceProcessingResult = withContext(Dispatchers.Default) {
+        try {
+            Log.d(TAG, "Processing voice input: $voiceText")
+            
+            // Clean and process the text
+            val cleanText = textProcessor.cleanText(voiceText)
+            
+            // Find matching skill
+            val matchedSkill = findSkillByCommand(cleanText)
+            
+            if (matchedSkill != null) {
+                Log.i(TAG, "Found matching skill: ${matchedSkill.name}")
+                
+                return@withContext VoiceProcessingResult(
+                    isSuccess = true,
+                    action = "skill_found",
+                    skillName = matchedSkill.name,
+                    skillId = matchedSkill.id,
+                    message = "Found skill: ${matchedSkill.name}",
+                    originalText = voiceText,
+                    processedText = cleanText
+                )
+            } else {
+                // Try to extract general commands
+                val extractedCommands = textProcessor.extractCommands(cleanText)
+                
+                if (extractedCommands.isNotEmpty()) {
+                    val command = extractedCommands[0]
+                    
+                    return@withContext VoiceProcessingResult(
+                        isSuccess = true,
+                        action = "general_command",
+                        command = command,
+                        message = "Recognized command: $command",
+                        originalText = voiceText,
+                        processedText = cleanText
+                    )
+                } else {
+                    return@withContext VoiceProcessingResult(
+                        isSuccess = false,
+                        action = "unknown",
+                        message = "Could not understand command: $voiceText",
+                        originalText = voiceText,
+                        processedText = cleanText
+                    )
+                }
+            }
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error processing voice input", e)
+            return@withContext VoiceProcessingResult(
+                isSuccess = false,
+                action = "error",
+                message = "Error processing voice: ${e.message}",
+                originalText = voiceText
+            )
+        }
+    }
+    
+    /**
+     * Process OCR text for form detection
+     */
+    suspend fun processOCRText(ocrText: String): VoiceProcessingResult = withContext(Dispatchers.Default) {
+        try {
+            Log.d(TAG, "Processing OCR text: $ocrText")
+            
+            // Clean the OCR text
+            val cleanText = textProcessor.cleanText(ocrText)
+            
+            // Look for form-related skills
+            val formSkills = skills.values.filter { it.description.contains("form", ignoreCase = true) }
+            
+            for (skill in formSkills) {
+                // Check if OCR text matches form patterns
+                for (prompt in skill.prompts) {
+                    if (cleanText.contains(prompt.ask, ignoreCase = true) ||
+                        cleanText.contains(prompt.field, ignoreCase = true)) {
+                        
+                        return@withContext VoiceProcessingResult(
+                            isSuccess = true,
+                            action = "form_detected",
+                            skillName = skill.name,
+                            skillId = skill.id,
+                            formType = "form",
+                            message = "Detected form: ${skill.name}",
+                            originalText = ocrText,
+                            processedText = cleanText
+                        )
+                    }
+                }
+            }
+            
+            return@withContext VoiceProcessingResult(
+                isSuccess = false,
+                action = "no_form_detected",
+                message = "No matching form found",
+                originalText = ocrText,
+                processedText = cleanText
+            )
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error processing OCR text", e)
+            return@withContext VoiceProcessingResult(
+                isSuccess = false,
+                action = "error",
+                message = "Error processing OCR: ${e.message}",
+                originalText = ocrText
+            )
+        }
     }
     
     suspend fun executeSkill(skill: Skill, userInputs: Map<String, String>): SkillExecutionResult = withContext(Dispatchers.IO) {

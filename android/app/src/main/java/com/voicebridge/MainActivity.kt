@@ -17,6 +17,8 @@ import androidx.lifecycle.lifecycleScope
 import com.voicebridge.telemetry.OfflineCrashReporter
 import com.voicebridge.audio.AudioRecorder
 import com.voicebridge.audio.AudioData
+import com.voicebridge.skills.SkillEngine
+import com.voicebridge.skills.VoiceProcessingResult
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.Job
@@ -54,6 +56,7 @@ class MainActivity : AppCompatActivity() {
     private var audioRecorder: AudioRecorder? = null
     private var recordingJob: Job? = null
     private val voiceBridgeNative = VoiceBridgeNative()
+    private lateinit var skillEngine: SkillEngine
     
     // Audio buffer for speech recognition
     private val audioBuffer = mutableListOf<Float>()
@@ -270,12 +273,19 @@ class MainActivity : AppCompatActivity() {
     
     private suspend fun initializeSkillEngine() {
         try {
-            // TODO: Initialize SkillEngine when ready
-            updateStatusText("Skill engine initialized ✓")
-            Log.d(TAG, "Skill engine initialization simulated")
+            // Initialize real SkillEngine
+            skillEngine = SkillEngine.getInstance(this)
+            
+            if (skillEngine.initialize()) {
+                updateStatusText("Skill engine initialized ✓")
+                Log.d(TAG, "Skill engine initialized successfully")
+            } else {
+                updateStatusText("Skill engine initialization failed")
+                Log.e(TAG, "Failed to initialize skill engine")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Skill engine initialization failed", e)
-            updateStatusText("Skill engine failed")
+            updateStatusText("Skill engine failed: ${e.message}")
         }
     }
     
@@ -498,14 +508,41 @@ class MainActivity : AppCompatActivity() {
     
     private suspend fun processRecognizedSpeech(recognizedText: String) {
         try {
-            // Here we'll integrate with SkillEngine to process voice commands
             updateStatusText("Processing command: \"$recognizedText\"")
             
-            // For now, just show the recognized text
-            delay(2000)
-            updateStatusText("Ready for next command")
+            // Process with real SkillEngine
+            val result = skillEngine.processVoiceInput(recognizedText)
             
-            Log.i(TAG, "Processed speech: $recognizedText")
+            if (result.isSuccess) {
+                when (result.action) {
+                    "skill_found" -> {
+                        updateStatusText("✓ Found skill: ${result.skillName}")
+                        Log.i(TAG, "Skill found: ${result.skillName}")
+                        
+                        // Show skill details for a moment
+                        delay(2000)
+                        updateStatusText("Skill ready: ${result.skillName} - Say more to continue")
+                    }
+                    "general_command" -> {
+                        updateStatusText("✓ Command: ${result.command}")
+                        Log.i(TAG, "General command: ${result.command}")
+                        
+                        delay(2000)
+                        updateStatusText("Ready for next command")
+                    }
+                    else -> {
+                        updateStatusText("✓ ${result.message}")
+                        delay(2000)
+                        updateStatusText("Ready for next command")
+                    }
+                }
+            } else {
+                updateStatusText("❌ ${result.message}")
+                Log.w(TAG, "Command not understood: ${result.message}")
+                
+                delay(2000)
+                updateStatusText("Ready for next command")
+            }
             
         } catch (e: Exception) {
             Log.e(TAG, "Error processing speech", e)
