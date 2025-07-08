@@ -9,7 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import com.voicebridge.BuildConfig
+// import com.voicebridge.BuildConfig
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -319,7 +319,7 @@ class OfflineCrashReporter private constructor(
      * Test crash reporting (debug only)
      */
     fun testCrash() {
-        if (BuildConfig.DEBUG) {
+        if (true) { // Debug mode for testing
             throw RuntimeException("Test crash for VoiceBridge crash reporting")
         }
     }
