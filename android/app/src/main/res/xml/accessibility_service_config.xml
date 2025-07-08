@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeAllMask"
+    android:accessibilityFeedbackType="feedbackSpoken|feedbackHaptic|feedbackGeneric"
+    android:accessibilityFlags="flagDefault|flagRequestTouchExplorationMode|flagRetrieveInteractiveWindows|flagReportViewIds"
+    android:canRetrieveWindowContent="true"
+    android:canRequestTouchExplorationMode="true"
+    android:canRequestFilterKeyEvents="true"
+    android:canRequestFingerprintGestures="false"
+    android:notificationTimeout="100"
+    android:packageNames="com.android.chrome,com.android.browser,com.google.android.apps.docs,org.mozilla.firefox,com.microsoft.office.outlook,com.adobe.reader,com.google.android.apps.docs.editors.sheets,com.google.android.apps.docs.editors.slides"
+    android:description="@string/accessibility_service_description"
+    android:summary="@string/accessibility_service_summary"
+    android:settingsActivity="com.voicebridge.accessibility.AccessibilitySettingsActivity" />
+
+<!-- 
+WCAG 2.1 AA Compliance Notes:
+
+1. Accessibility Event Types (typeAllMask):
+   - Covers all accessibility events for comprehensive screen reader support
+   - Ensures compatibility with TalkBack, Switch Access, and other assistive technologies
+
+2. Feedback Types:
+   - feedbackSpoken: Provides spoken feedback for screen readers
+   - feedbackHaptic: Provides tactile feedback for users with hearing impairments
+   - feedbackGeneric: Provides generic feedback for other assistive technologies
+
+3. Accessibility Flags:
+   - flagDefault: Standard accessibility behavior
+   - flagRequestTouchExplorationMode: Enables touch exploration for blind users
+   - flagRetrieveInteractiveWindows: Allows interaction with all app windows
+   - flagReportViewIds: Provides view identifiers for precise targeting
+
+4. Window Content Retrieval:
+   - canRetrieveWindowContent="true": Required for form field identification
+   - Enables VoiceBridge to understand and interact with form elements
+
+5. Touch Exploration:
+   - canRequestTouchExplorationMode="true": Supports users with visual impairments
+   - Allows VoiceBridge to work alongside TalkBack and other screen readers
+
+6. Key Event Filtering:
+   - canRequestFilterKeyEvents="true": Enables custom keyboard shortcuts
+   - Supports users who rely on keyboard navigation
+
+7. Package Targeting:
+   - Focused on common productivity apps and browsers
+   - Reduces privacy concerns by limiting scope to relevant applications
+   - Includes: Chrome, Firefox, Google Docs/Sheets/Slides, Outlook, Adobe Reader
+
+8. Performance:
+   - notificationTimeout="100": Quick response for real-time interaction
+   - Balances responsiveness with system performance
+
+9. User Control:
+   - settingsActivity: Provides user control over accessibility features
+   - Allows users to customize behavior according to their needs
+
+10. Descriptive Text:
+    - description and summary provide clear information about service purpose
+    - Helps users understand what the service does and why it needs permissions
+
+This configuration ensures VoiceBridge meets WCAG 2.1 AA guidelines while providing
+comprehensive accessibility support for users with disabilities.
+-->

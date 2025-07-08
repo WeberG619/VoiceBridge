@@ -1,0 +1,140 @@
+# VoiceBridge Project .gitignore
+
+# Android Studio and Gradle
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Android
+android/app/build
+android/app/release
+android/build
+android/local.properties
+android/app/google-services.json
+android/app/src/main/assets/models/
+android/app/src/main/assets/tessdata/
+android/app/src/main/jniLibs/
+android/app/src/main/res/raw/models/
+
+# NDK
+android/app/src/main/cpp/build/
+android/app/src/main/cpp/.cxx/
+
+# Keystore files
+*.jks
+*.keystore
+keystore.properties
+
+# External dependencies
+extern/whisper.cpp/build/
+extern/llama.cpp/build/
+extern/*/build/
+extern/*/.git/
+extern/*/models/
+
+# Generated files
+generated/
+gen/
+out/
+
+# Logs
+*.log
+logs/
+crash_reports/
+analytics/
+
+# AI/ML Models (large files)
+*.bin
+*.ggml
+*.gguf
+*.pt
+*.pth
+*.pb
+*.tflite
+models/
+tessdata/
+*.traineddata
+
+# Documentation build
+docs/build/
+docs/dist/
+docs/node_modules/
+
+# Scripts temporary files
+scripts/temp/
+scripts/cache/
+scripts/*.tmp
+
+# Tools build artifacts
+tools/build/
+tools/dist/
+
+# Store assets (generated)
+store/graphics/generated/
+store/screenshots/generated/
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Package files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Virtual environments
+venv/
+env/
+.env
+
+# Node.js (if used for documentation)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C++ build artifacts
+*.o
+*.a
+*.so
+*.dll
+*.exe

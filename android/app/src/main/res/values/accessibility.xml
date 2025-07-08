@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- WCAG 2.1 AA Accessibility Strings -->
+    
+    <!-- Content Descriptions for UI Elements -->
+    <string name="cd_voice_button_start">Start voice recording</string>
+    <string name="cd_voice_button_stop">Stop voice recording</string>
+    <string name="cd_voice_button_listening">Currently listening for voice input</string>
+    <string name="cd_voice_button_processing">Processing voice input</string>
+    
+    <string name="cd_camera_button">Open camera for document scanning</string>
+    <string name="cd_camera_capture">Capture document image</string>
+    <string name="cd_camera_flash_toggle">Toggle camera flash</string>
+    <string name="cd_camera_switch">Switch between front and back camera</string>
+    
+    <string name="cd_ocr_scan_button">Scan document with OCR</string>
+    <string name="cd_ocr_result_text">OCR detected text</string>
+    <string name="cd_ocr_confidence_score">OCR confidence score: %1$d percent</string>
+    
+    <string name="cd_form_field_empty">Empty form field: %1$s</string>
+    <string name="cd_form_field_filled">Filled form field: %1$s with value %2$s</string>
+    <string name="cd_form_field_error">Form field %1$s has error: %2$s</string>
+    <string name="cd_form_fill_button">Fill form automatically</string>
+    <string name="cd_form_clear_button">Clear all form fields</string>
+    <string name="cd_form_submit_button">Submit completed form</string>
+    
+    <string name="cd_settings_button">Open application settings</string>
+    <string name="cd_help_button">Open help and tutorial</string>
+    <string name="cd_menu_button">Open navigation menu</string>
+    <string name="cd_back_button">Navigate back to previous screen</string>
+    
+    <string name="cd_progress_indicator">Processing, please wait</string>
+    <string name="cd_loading_indicator">Loading content</string>
+    <string name="cd_error_icon">Error occurred</string>
+    <string name="cd_success_icon">Action completed successfully</string>
+    <string name="cd_warning_icon">Warning message</string>
+    
+    <!-- Screen Reader Announcements -->
+    <string name="announce_voice_recording_started">Voice recording started</string>
+    <string name="announce_voice_recording_stopped">Voice recording stopped</string>
+    <string name="announce_voice_text_recognized">Text recognized: %1$s</string>
+    <string name="announce_voice_command_executed">Voice command executed: %1$s</string>
+    
+    <string name="announce_camera_opened">Camera opened for document scanning</string>
+    <string name="announce_photo_captured">Document photo captured</string>
+    <string name="announce_ocr_started">OCR processing started</string>
+    <string name="announce_ocr_completed">OCR processing completed</string>
+    <string name="announce_ocr_text_found">Text detected in document: %1$s</string>
+    <string name="announce_ocr_no_text">No text detected in document</string>
+    
+    <string name="announce_form_field_selected">Selected form field: %1$s</string>
+    <string name="announce_form_field_filled">Form field %1$s filled with %2$s</string>
+    <string name="announce_form_validation_error">Validation error in field %1$s: %2$s</string>
+    <string name="announce_form_submission_success">Form submitted successfully</string>
+    <string name="announce_form_submission_error">Form submission failed: %1$s</string>
+    
+    <string name="announce_skill_activated">Skill activated: %1$s</string>
+    <string name="announce_skill_completed">Skill completed: %1$s</string>
+    <string name="announce_skill_error">Skill error: %1$s</string>
+    
+    <string name="announce_navigation_opened">Navigation menu opened</string>
+    <string name="announce_settings_opened">Settings screen opened</string>
+    <string name="announce_help_opened">Help screen opened</string>
+    
+    <!-- Accessibility Labels for Complex UI -->
+    <string name="label_voice_status_card">Voice recognition status</string>
+    <string name="label_ocr_status_card">Document scanning status</string>
+    <string name="label_form_progress_card">Form completion progress</string>
+    <string name="label_skill_selector">Available skills list</string>
+    <string name="label_recent_actions">Recent actions history</string>
+    
+    <!-- Accessibility Hints -->
+    <string name="hint_voice_button">Tap to start or stop voice recording for form filling</string>
+    <string name="hint_camera_button">Tap to open camera and scan documents for text extraction</string>
+    <string name="hint_form_field">Double tap to fill this field using voice commands</string>
+    <string name="hint_skill_item">Double tap to activate this skill for automated form filling</string>
+    <string name="hint_swipe_dismiss">Swipe right to dismiss this notification</string>
+    <string name="hint_long_press_options">Long press for additional options</string>
+    
+    <!-- Error Messages for Accessibility -->
+    <string name="error_voice_permission_denied">Microphone permission required for voice recording. Go to Settings to enable.</string>
+    <string name="error_camera_permission_denied">Camera permission required for document scanning. Go to Settings to enable.</string>
+    <string name="error_accessibility_service_disabled">Accessibility service required for form filling. Go to Settings to enable VoiceBridge accessibility service.</string>
+    <string name="error_voice_recognition_failed">Voice recognition failed. Please try speaking again clearly.</string>
+    <string name="error_ocr_processing_failed">Document scanning failed. Please ensure document is clear and well-lit.</string>
+    <string name="error_form_not_found">No compatible form found on this screen.</string>
+    
+    <!-- Success Messages for Accessibility -->
+    <string name="success_voice_command_processed">Voice command processed successfully</string>
+    <string name="success_document_scanned">Document scanned and text extracted successfully</string>
+    <string name="success_form_filled">Form filled automatically with voice data</string>
+    <string name="success_form_submitted">Form submitted successfully</string>
+    
+    <!-- Navigation Descriptions -->
+    <string name="nav_voice_tab">Voice control tab</string>
+    <string name="nav_camera_tab">Document scanning tab</string>
+    <string name="nav_forms_tab">Form management tab</string>
+    <string name="nav_skills_tab">Skills configuration tab</string>
+    <string name="nav_settings_tab">Application settings tab</string>
+    
+    <!-- Live Region Announcements -->
+    <string name="live_voice_status">Voice status: %1$s</string>
+    <string name="live_ocr_status">OCR status: %1$s</string>
+    <string name="live_form_status">Form status: %1$s</string>
+    <string name="live_processing_status">Processing: %1$s</string>
+    <string name="live_error_status">Error: %1$s</string>
+    
+    <!-- Accessibility Action Labels -->
+    <string name="action_start_voice_recording">Start voice recording</string>
+    <string name="action_stop_voice_recording">Stop voice recording</string>
+    <string name="action_open_camera">Open camera</string>
+    <string name="action_capture_photo">Capture photo</string>
+    <string name="action_fill_form">Fill form automatically</string>
+    <string name="action_clear_form">Clear form</string>
+    <string name="action_submit_form">Submit form</string>
+    <string name="action_select_skill">Select skill</string>
+    <string name="action_activate_skill">Activate skill</string>
+    <string name="action_open_settings">Open settings</string>
+    <string name="action_open_help">Open help</string>
+    
+    <!-- Accessibility Service Descriptions -->
+    <string name="accessibility_service_description">VoiceBridge accessibility service enables automatic form filling through voice commands and document scanning. This service can observe your interactions and retrieve window content to identify and fill form fields.</string>
+    <string name="accessibility_service_summary">Enables voice-controlled form filling and document processing</string>
+    
+    <!-- Accessibility Feature Descriptions -->
+    <string name="feature_voice_control">Voice control allows hands-free interaction with forms and applications</string>
+    <string name="feature_document_scanning">Document scanning extracts text from images for automatic form filling</string>
+    <string name="feature_form_automation">Form automation fills detected forms using voice input or scanned text</string>
+    <string name="feature_skill_system">Skill system provides pre-configured automation for specific forms and workflows</string>
+    
+    <!-- TalkBack Specific Strings -->
+    <string name="talkback_custom_action_fill_field">Fill field with voice</string>
+    <string name="talkback_custom_action_scan_document">Scan document</string>
+    <string name="talkback_custom_action_activate_skill">Activate skill</string>
+    <string name="talkback_heading_voice_controls">Voice controls section</string>
+    <string name="talkback_heading_document_scanner">Document scanner section</string>
+    <string name="talkback_heading_form_manager">Form manager section</string>
+    <string name="talkback_heading_skill_selector">Skill selector section</string>
+    
+    <!-- Voice Control State Descriptions -->
+    <string name="voice_state_idle">Voice control is idle, ready to start</string>
+    <string name="voice_state_listening">Listening for voice input</string>
+    <string name="voice_state_processing">Processing voice input</string>
+    <string name="voice_state_completed">Voice processing completed</string>
+    <string name="voice_state_error">Voice processing error occurred</string>
+    
+    <!-- OCR State Descriptions -->
+    <string name="ocr_state_idle">Document scanner is ready</string>
+    <string name="ocr_state_scanning">Scanning document</string>
+    <string name="ocr_state_processing">Processing document text</string>
+    <string name="ocr_state_completed">Document processing completed</string>
+    <string name="ocr_state_error">Document processing error occurred</string>
+    
+    <!-- Form State Descriptions -->
+    <string name="form_state_empty">Form is empty</string>
+    <string name="form_state_partial">Form is partially completed</string>
+    <string name="form_state_complete">Form is completely filled</string>
+    <string name="form_state_error">Form has validation errors</string>
+    <string name="form_state_submitted">Form has been submitted</string>
+</resources>

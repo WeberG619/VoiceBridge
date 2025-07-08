@@ -14,6 +14,7 @@
         android:text="VoiceBridge"
         android:textSize="24sp"
         android:textStyle="bold"
+        android:textColor="@color/primary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -22,125 +23,215 @@
         android:id="@+id/tv_status"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:text="Initializing..."
         android:textAlignment="center"
+        android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_title" />
 
-    <Button
-        android:id="@+id/btn_start_listening"
+    <!-- Camera Preview Section -->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:enabled="false"
-        android:text="Start Listening"
-        app:layout_constraintEnd_toStartOf="@+id/btn_stop_listening"
-        app:layout_constraintHorizontal_bias="0.5"
+        android:layout_height="200dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_status" />
 
-    <Button
-        android:id="@+id/btn_stop_listening"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:enabled="false"
-        android:text="Stop Listening"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/btn_start_listening"
-        app:layout_constraintTop_toTopOf="@+id/btn_start_listening" />
-
-    <TextView
-        android:id="@+id/tv_transcription_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Transcription:"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_start_listening" />
-
-    <ScrollView
-        android:id="@+id/scroll_transcription"
-        android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="8dp"
-        android:background="#F0F0F0"
-        android:padding="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_transcription_label">
-
-        <TextView
-            android:id="@+id/tv_transcription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="14sp" />
-    </ScrollView>
-
-    <Button
-        android:id="@+id/btn_process_text"
+    <!-- Audio Controls -->
+    <LinearLayout
+        android:id="@+id/audio_controls"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Process Text"
+        android:orientation="horizontal"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scroll_transcription" />
+        app:layout_constraintTop_toBottomOf="@+id/previewView">
 
-    <TextView
-        android:id="@+id/tv_processed_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Processed Text:"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_process_text" />
+        <Button
+            android:id="@+id/btn_start_listening"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:enabled="false"
+            android:text="Start Listening"
+            android:textSize="12sp" />
 
-    <ScrollView
-        android:id="@+id/scroll_processed"
+        <Button
+            android:id="@+id/btn_capture"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:enabled="false"
+            android:text="Capture"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <!-- Volume Indicator -->
+    <ProgressBar
+        android:id="@+id/volume_indicator"
+        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
-        android:layout_height="80dp"
+        android:layout_height="8dp"
         android:layout_marginTop="8dp"
-        android:background="#F0F0F0"
-        android:padding="8dp"
+        android:max="100"
+        android:progress="0"
+        android:progressTint="@color/secondary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_processed_label">
+        app:layout_constraintTop_toBottomOf="@+id/audio_controls" />
 
-        <TextView
-            android:id="@+id/tv_processed_text"
+    <!-- Results Section -->
+    <ScrollView
+        android:id="@+id/scroll_results"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/action_buttons"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/volume_indicator">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="14sp" />
+            android:orientation="vertical">
+
+            <!-- Transcription -->
+            <TextView
+                android:id="@+id/tv_transcription_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Transcription:"
+                android:textStyle="bold"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_transcription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@color/surface_variant"
+                android:padding="8dp"
+                android:text=""
+                android:textSize="12sp"
+                android:minHeight="60dp" />
+
+            <!-- OCR Result -->
+            <TextView
+                android:id="@+id/tv_ocr_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="OCR Result:"
+                android:textStyle="bold"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_ocr_result"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@color/surface_variant"
+                android:padding="8dp"
+                android:text=""
+                android:textSize="12sp"
+                android:minHeight="60dp" />
+
+            <!-- Processed Text -->
+            <TextView
+                android:id="@+id/tv_processed_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Processed Text:"
+                android:textStyle="bold"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_processed_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@color/surface_variant"
+                android:padding="8dp"
+                android:text=""
+                android:textSize="12sp"
+                android:minHeight="60dp" />
+
+            <!-- Commands -->
+            <TextView
+                android:id="@+id/tv_commands_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Commands:"
+                android:textStyle="bold"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_commands"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@color/surface_variant"
+                android:padding="8dp"
+                android:text=""
+                android:textSize="12sp" />
+
+        </LinearLayout>
     </ScrollView>
 
-    <TextView
-        android:id="@+id/tv_commands_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Commands:"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scroll_processed" />
-
-    <TextView
-        android:id="@+id/tv_commands"
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:id="@+id/action_buttons"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="#F0F0F0"
-        android:padding="8dp"
-        android:text=""
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_commands_label" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/btn_process_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:text="Process Text"
+            android:textSize="11sp"
+            android:enabled="false" />
+
+        <Button
+            android:id="@+id/btn_fill_form"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:text="Fill Form"
+            android:textSize="11sp"
+            android:enabled="false" />
+
+        <Button
+            android:id="@+id/btn_accessibility_settings"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:text="A11y Settings"
+            android:textSize="11sp"
+            android:enabled="false" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started - VoiceBridge</title>
+    <meta name="description" content="Learn how to set up and use VoiceBridge for voice-controlled form filling.">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/icon-32.png">
+    <style>
+        /* Reuse styles from main page */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #03DAC6;
+            --accent-color: #FF9800;
+            --text-dark: #212121;
+            --text-light: #757575;
+            --background: #FFFFFF;
+            --surface: #F5F5F5;
+            --border: #E0E0E0;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --error: #F44336;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: var(--background);
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            margin: 2rem 0 1rem 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        h2::before {
+            content: '▶';
+            color: var(--secondary-color);
+            margin-right: 0.5rem;
+        }
+        
+        h3 {
+            color: var(--text-dark);
+            margin: 1.5rem 0 0.5rem 0;
+        }
+        
+        .step {
+            background: var(--surface);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .step-number {
+            background: var(--primary-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid;
+        }
+        
+        .alert-info {
+            background: #E3F2FD;
+            border-color: var(--primary-color);
+            color: #1565C0;
+        }
+        
+        .alert-warning {
+            background: #FFF3E0;
+            border-color: var(--warning);
+            color: #E65100;
+        }
+        
+        .alert-success {
+            background: #E8F5E8;
+            border-color: var(--success);
+            color: #2E7D32;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-top: 3px solid var(--secondary-color);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        code {
+            background: var(--surface);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .code-block {
+            background: #2D3748;
+            color: #E2E8F0;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        .toc {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+        
+        .toc ul {
+            list-style: none;
+            margin-left: 1rem;
+        }
+        
+        .toc a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        .back-link {
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+        }
+        
+        .back-link:hover {
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <div class="logo-icon">🎤</div>
+                    VoiceBridge
+                </a>
+                <a href="index.html" class="back-link">← Back to Home</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>Getting Started with VoiceBridge</h1>
+        
+        <div class="alert alert-info">
+            <strong>Welcome!</strong> This guide will help you set up VoiceBridge and start filling forms with your voice in just a few minutes.
+        </div>
+
+        <div class="toc">
+            <h3>📋 Table of Contents</h3>
+            <ul>
+                <li><a href="#installation">1. Installation</a></li>
+                <li><a href="#first-setup">2. First-Time Setup</a></li>
+                <li><a href="#permissions">3. Granting Permissions</a></li>
+                <li><a href="#first-use">4. Your First Form</a></li>
+                <li><a href="#features">5. Key Features</a></li>
+                <li><a href="#tips">6. Tips & Tricks</a></li>
+                <li><a href="#troubleshooting">7. Troubleshooting</a></li>
+            </ul>
+        </div>
+
+        <h2 id="installation">Installation</h2>
+        
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Download from Google Play Store</strong>
+            <p>Search for "VoiceBridge" in the Google Play Store or click the download link on our website.</p>
+            <div style="margin-top: 1rem;">
+                <a href="#" class="btn btn-primary">📱 Download Now</a>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>System Requirements</strong>
+            <p>Ensure your device meets the minimum requirements:</p>
+            <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                <li>Android 7.0 (API level 24) or higher</li>
+                <li>2GB RAM minimum (4GB recommended)</li>
+                <li>1GB free storage space</li>
+                <li>Microphone access</li>
+                <li>Camera access (optional, for document scanning)</li>
+            </ul>
+        </div>
+
+        <h2 id="first-setup">First-Time Setup</h2>
+        
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Launch VoiceBridge</strong>
+            <p>Open the app from your app drawer. You'll be greeted with an interactive onboarding tutorial.</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Complete the Tutorial</strong>
+            <p>Follow the 6-page tutorial that explains:</p>
+            <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                <li>How voice control works</li>
+                <li>Document scanning features</li>
+                <li>Form automation capabilities</li>
+                <li>Privacy and accessibility features</li>
+            </ul>
+        </div>
+
+        <h2 id="permissions">Granting Permissions</h2>
+        
+        <div class="alert alert-warning">
+            <strong>Important:</strong> VoiceBridge needs specific permissions to function properly. All permissions are used only for core features and never for data collection.
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎤</div>
+                <h3>Microphone Permission</h3>
+                <p><strong>Required</strong> for voice input and form filling</p>
+                <p><em>Your voice is processed locally and never stored or transmitted.</em></p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📷</div>
+                <h3>Camera Permission</h3>
+                <p><strong>Optional</strong> for document scanning and OCR</p>
+                <p><em>Images are processed locally and immediately discarded.</em></p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">♿</div>
+                <h3>Accessibility Service</h3>
+                <p><strong>Required</strong> for automatic form filling</p>
+                <p><em>Allows VoiceBridge to interact with form fields in other apps.</em></p>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Grant Basic Permissions</strong>
+            <p>When prompted, grant microphone and camera permissions. You can always change these later in Settings.</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Enable Accessibility Service</strong>
+            <p>This is the most important step:</p>
+            <ol style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                <li>Tap "Grant" when prompted for accessibility service</li>
+                <li>You'll be taken to Android's Accessibility settings</li>
+                <li>Find "VoiceBridge" in the list</li>
+                <li>Toggle it ON</li>
+                <li>Confirm when prompted</li>
+                <li>Return to VoiceBridge</li>
+            </ol>
+        </div>
+
+        <h2 id="first-use">Your First Form</h2>
+        
+        <div class="alert alert-success">
+            <strong>Ready to try!</strong> Let's fill your first form with VoiceBridge.
+        </div>
+
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Open Any Form</strong>
+            <p>Navigate to any form in your browser or app. Good examples:</p>
+            <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                <li>Contact forms on websites</li>
+                <li>Registration forms</li>
+                <li>Survey forms</li>
+                <li>Government applications</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Activate VoiceBridge</strong>
+            <p>Look for the VoiceBridge microphone button that appears as an overlay. If you don't see it:</p>
+            <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                <li>Pull down your notification shade</li>
+                <li>Tap the VoiceBridge notification</li>
+                <li>Or open VoiceBridge and tap "Start Form Filling"</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Speak Naturally</strong>
+            <p>Tap the microphone and speak naturally:</p>
+            <div class="code-block">
+                "My name is John Smith, email john@example.com, phone 555-123-4567"
+            </div>
+            <p>VoiceBridge will automatically identify and fill the appropriate form fields!</p>
+        </div>
+
+        <h2 id="features">Key Features</h2>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🗣️</div>
+                <h3>Natural Speech</h3>
+                <p>Speak naturally without specific commands. VoiceBridge understands context and intent.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📄</div>
+                <h3>Document Scanning</h3>
+                <p>Point your camera at any document to extract text with high-accuracy OCR.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Smart Field Detection</h3>
+                <p>Automatically identifies form fields like name, email, phone, address, and more.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🌙</div>
+                <h3>Dark Mode</h3>
+                <p>Beautiful dark theme that adapts to your system settings and saves battery.</p>
+            </div>
+        </div>
+
+        <h2 id="tips">Tips & Tricks</h2>
+        
+        <div class="step">
+            <span class="step-number">💡</span>
+            <strong>Voice Commands</strong>
+            <p>Use these helpful voice commands:</p>
+            <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                <li><code>"Next field"</code> - Move to the next form field</li>
+                <li><code>"Clear field"</code> - Clear the current field</li>
+                <li><code>"Submit form"</code> - Submit the completed form</li>
+                <li><code>"Stop listening"</code> - Stop voice recognition</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">📱</span>
+            <strong>Best Practices</strong>
+            <ul style="margin-left: 1.5rem;">
+                <li>Speak clearly and at a normal pace</li>
+                <li>Use a quiet environment for better accuracy</li>
+                <li>Hold your device 6-12 inches from your mouth</li>
+                <li>Pause briefly between different pieces of information</li>
+                <li>Review filled fields before submitting</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">⚡</span>
+            <strong>Efficiency Tips</strong>
+            <ul style="margin-left: 1.5rem;">
+                <li>Group similar information together when speaking</li>
+                <li>Use the document scanner for pre-written information</li>
+                <li>Create custom skills for frequently filled forms</li>
+                <li>Enable quick access from the notification panel</li>
+            </ul>
+        </div>
+
+        <h2 id="troubleshooting">Troubleshooting</h2>
+        
+        <div class="alert alert-info">
+            <strong>Having issues?</strong> Here are solutions to common problems.
+        </div>
+
+        <h3>🎤 Voice Not Recognized</h3>
+        <ul style="margin-left: 1.5rem;">
+            <li>Check microphone permissions in Settings > Apps > VoiceBridge</li>
+            <li>Ensure you're in a quiet environment</li>
+            <li>Speak clearly and not too fast</li>
+            <li>Check if your language is supported</li>
+            <li>Restart the app if issues persist</li>
+        </ul>
+
+        <h3>🚫 Form Fields Not Filling</h3>
+        <ul style="margin-left: 1.5rem;">
+            <li>Ensure Accessibility Service is enabled</li>
+            <li>Check if the app/website is supported</li>
+            <li>Try switching to manual field selection mode</li>
+            <li>Some forms may require manual submission</li>
+        </ul>
+
+        <h3>📷 Camera/OCR Issues</h3>
+        <ul style="margin-left: 1.5rem;">
+            <li>Ensure good lighting when scanning</li>
+            <li>Hold the camera steady and close enough to read text</li>
+            <li>Clean your camera lens</li>
+            <li>Try different angles if text isn't detected</li>
+        </ul>
+
+        <h3>🔧 General Issues</h3>
+        <ul style="margin-left: 1.5rem;">
+            <li>Restart VoiceBridge</li>
+            <li>Check for app updates in Google Play Store</li>
+            <li>Ensure you have sufficient storage space</li>
+            <li>Restart your device if problems persist</li>
+        </ul>
+
+        <div class="alert alert-info">
+            <strong>Still need help?</strong> Contact our support team at <strong>support@voicebridge.app</strong> or visit our <a href="faq.html">FAQ page</a> for more detailed troubleshooting.
+        </div>
+
+        <div style="text-align: center; margin: 3rem 0;">
+            <a href="user-guide.html" class="btn btn-primary">📖 Read Full User Guide</a>
+            <a href="faq.html" class="btn btn-secondary">❓ View FAQ</a>
+            <a href="index.html" class="btn btn-secondary">🏠 Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

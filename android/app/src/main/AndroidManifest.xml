@@ -17,6 +17,7 @@
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <application
+        android:name=".VoiceBridgeApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -35,6 +36,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <!-- Onboarding Activity -->
+        <activity
+            android:name=".onboarding.OnboardingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.VoiceBridge" />
+        
+        <!-- Accessibility Settings Activity -->
+        <activity
+            android:name=".accessibility.AccessibilitySettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.VoiceBridge"
+            android:parentActivityName=".MainActivity" />
         
         <!-- Accessibility Service for form filling -->
         <service

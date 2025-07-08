@@ -1,0 +1,370 @@
+# Employment Form Skill Template
+# Specialized skill for job applications and employment forms
+
+name: "Employment Application Assistant"
+version: "1.0"
+description: "Comprehensive skill for filling job applications, employment forms, and HR documents"
+category: "employment"
+languages: ["en", "es", "fr", "de"]
+
+# Skill metadata
+metadata:
+  author: "VoiceBridge Team"
+  created: "2025-01-01"
+  updated: "2025-01-01"
+  difficulty: "intermediate"
+  estimated_time: "5-15 minutes"
+  supported_forms:
+    - "Job applications"
+    - "Employment verification forms"
+    - "W-4 tax forms"
+    - "Direct deposit forms"
+    - "Background check authorization"
+    - "Reference forms"
+    - "Benefits enrollment"
+
+# Field mappings for employment forms
+field_mappings:
+  # Personal Information
+  personal:
+    first_name:
+      aliases: ["first name", "given name", "forename"]
+      patterns: ["first_name", "fname", "given_name"]
+      validation: "^[A-Za-z\\s\\-']{1,50}$"
+      required: true
+      
+    last_name:
+      aliases: ["last name", "surname", "family name"]
+      patterns: ["last_name", "lname", "surname"]
+      validation: "^[A-Za-z\\s\\-']{1,50}$"
+      required: true
+      
+    email:
+      aliases: ["email address", "email", "e-mail"]
+      patterns: ["email", "email_address"]
+      validation: "^[\\w\\.-]+@[\\w\\.-]+\\.[a-zA-Z]{2,}$"
+      required: true
+      
+    phone:
+      aliases: ["phone number", "telephone", "mobile", "cell phone"]
+      patterns: ["phone", "telephone", "mobile"]
+      validation: "^\\(?\\d{3}\\)?[\\s\\-]?\\d{3}[\\s\\-]?\\d{4}$"
+      format: "(XXX) XXX-XXXX"
+      required: true
+
+  # Address Information
+  address:
+    street_address:
+      aliases: ["street address", "address", "home address"]
+      patterns: ["address", "street_address", "home_address"]
+      validation: "^[A-Za-z0-9\\s\\-#.,]{1,100}$"
+      required: true
+      
+    city:
+      aliases: ["city", "town"]
+      patterns: ["city", "town"]
+      validation: "^[A-Za-z\\s\\-']{1,50}$"
+      required: true
+      
+    state:
+      aliases: ["state", "province"]
+      patterns: ["state", "province"]
+      validation: "^[A-Za-z\\s]{2,50}$"
+      required: true
+      
+    zip_code:
+      aliases: ["zip code", "postal code", "zip"]
+      patterns: ["zip", "zip_code", "postal_code"]
+      validation: "^\\d{5}(-\\d{4})?$"
+      format: "XXXXX or XXXXX-XXXX"
+      required: true
+
+  # Employment Information
+  employment:
+    position_applied:
+      aliases: ["position applied for", "job title", "role", "position"]
+      patterns: ["position", "job_title", "role", "position_applied"]
+      validation: "^[A-Za-z0-9\\s\\-.,()]{1,100}$"
+      required: true
+      
+    desired_salary:
+      aliases: ["desired salary", "salary expectation", "expected salary"]
+      patterns: ["salary", "desired_salary", "expected_salary"]
+      validation: "^\\$?[0-9,]{1,12}$"
+      format: "$XX,XXX"
+      required: false
+      
+    availability_date:
+      aliases: ["availability date", "start date", "available to start"]
+      patterns: ["start_date", "availability_date", "available_date"]
+      validation: "^(0[1-9]|1[0-2])/(0[1-9]|[12]\\d|3[01])/(19|20)\\d{2}$"
+      format: "MM/DD/YYYY"
+      required: true
+      
+    employment_type:
+      aliases: ["employment type", "full time", "part time", "contract"]
+      patterns: ["employment_type", "job_type"]
+      validation: "^(full-time|part-time|contract|temporary|internship)$"
+      options: ["Full-time", "Part-time", "Contract", "Temporary", "Internship"]
+      required: true
+
+  # Work History
+  work_history:
+    current_employer:
+      aliases: ["current employer", "current company", "present employer"]
+      patterns: ["current_employer", "current_company"]
+      validation: "^[A-Za-z0-9\\s\\-.,&]{0,100}$"
+      required: false
+      
+    current_position:
+      aliases: ["current position", "current job title", "current role"]
+      patterns: ["current_position", "current_title"]
+      validation: "^[A-Za-z0-9\\s\\-.,()]{0,100}$"
+      required: false
+      
+    current_salary:
+      aliases: ["current salary", "present salary", "current pay"]
+      patterns: ["current_salary", "present_salary"]
+      validation: "^\\$?[0-9,]{1,12}$"
+      format: "$XX,XXX"
+      required: false
+      sensitive: true
+      
+    years_experience:
+      aliases: ["years of experience", "experience", "years in field"]
+      patterns: ["experience", "years_experience"]
+      validation: "^\\d{1,2}$"
+      required: false
+      
+    previous_employer_1:
+      aliases: ["previous employer", "last employer", "former employer"]
+      patterns: ["previous_employer", "last_employer"]
+      validation: "^[A-Za-z0-9\\s\\-.,&]{0,100}$"
+      required: false
+      
+    previous_position_1:
+      aliases: ["previous position", "last position", "former position"]
+      patterns: ["previous_position", "last_position"]
+      validation: "^[A-Za-z0-9\\s\\-.,()]{0,100}$"
+      required: false
+      
+    employment_dates_1:
+      aliases: ["employment dates", "dates worked", "duration"]
+      patterns: ["employment_dates", "dates_worked"]
+      validation: "^[A-Za-z0-9\\s\\-/,]{0,50}$"
+      required: false
+
+  # Education
+  education:
+    highest_education:
+      aliases: ["highest education", "education level", "degree"]
+      patterns: ["education_level", "highest_education", "degree"]
+      validation: "^(high school|associate|bachelor|master|doctorate|other)$"
+      options: ["High School", "Associate Degree", "Bachelor's Degree", "Master's Degree", "Doctorate", "Other"]
+      required: true
+      
+    school_name:
+      aliases: ["school name", "university", "college", "institution"]
+      patterns: ["school", "university", "college", "institution"]
+      validation: "^[A-Za-z0-9\\s\\-.,&]{0,100}$"
+      required: false
+      
+    graduation_year:
+      aliases: ["graduation year", "year graduated", "graduation date"]
+      patterns: ["graduation_year", "grad_year"]
+      validation: "^(19|20)\\d{2}$"
+      required: false
+      
+    major:
+      aliases: ["major", "field of study", "degree in", "studied"]
+      patterns: ["major", "field_of_study"]
+      validation: "^[A-Za-z\\s\\-.,()]{0,100}$"
+      required: false
+
+  # References
+  references:
+    reference_1_name:
+      aliases: ["first reference name", "reference name", "professional reference"]
+      patterns: ["reference_name", "ref1_name"]
+      validation: "^[A-Za-z\\s\\-']{0,100}$"
+      required: false
+      
+    reference_1_phone:
+      aliases: ["first reference phone", "reference phone"]
+      patterns: ["reference_phone", "ref1_phone"]
+      validation: "^\\(?\\d{3}\\)?[\\s\\-]?\\d{3}[\\s\\-]?\\d{4}$"
+      format: "(XXX) XXX-XXXX"
+      required: false
+      
+    reference_1_relationship:
+      aliases: ["reference relationship", "how do you know reference"]
+      patterns: ["reference_relationship", "ref1_relationship"]
+      validation: "^[A-Za-z\\s\\-]{0,50}$"
+      required: false
+
+  # Legal/Background
+  legal:
+    eligible_to_work:
+      aliases: ["eligible to work", "authorized to work", "work authorization"]
+      patterns: ["work_eligible", "work_authorized"]
+      validation: "^(yes|no)$"
+      options: ["Yes", "No"]
+      required: true
+      
+    criminal_background:
+      aliases: ["criminal background", "criminal history", "convicted of crime"]
+      patterns: ["criminal_background", "criminal_history"]
+      validation: "^(yes|no)$"
+      options: ["Yes", "No"]
+      required: true
+      
+    drug_test_consent:
+      aliases: ["drug test consent", "consent to drug test", "drug screening"]
+      patterns: ["drug_test", "drug_screening"]
+      validation: "^(yes|no)$"
+      options: ["Yes", "No"]
+      required: false
+
+# Voice command processing rules
+voice_commands:
+  patterns:
+    - pattern: "I am applying for {position_applied}"
+      fields:
+        - field: "position_applied"
+          value: "{position_applied}"
+          
+    - pattern: "my desired salary is {desired_salary}"
+      fields:
+        - field: "desired_salary"
+          value: "{desired_salary}"
+          
+    - pattern: "I can start on {availability_date}"
+      fields:
+        - field: "availability_date"
+          value: "{availability_date}"
+          
+    - pattern: "I want {employment_type} employment"
+      fields:
+        - field: "employment_type"
+          value: "{employment_type}"
+          
+    - pattern: "I currently work at {current_employer}"
+      fields:
+        - field: "current_employer"
+          value: "{current_employer}"
+          
+    - pattern: "my current position is {current_position}"
+      fields:
+        - field: "current_position"
+          value: "{current_position}"
+          
+    - pattern: "I have {years_experience} years of experience"
+      fields:
+        - field: "years_experience"
+          value: "{years_experience}"
+          
+    - pattern: "my education is {highest_education}"
+      fields:
+        - field: "highest_education"
+          value: "{highest_education}"
+          
+    - pattern: "I graduated from {school_name}"
+      fields:
+        - field: "school_name"
+          value: "{school_name}"
+          
+    - pattern: "I am eligible to work"
+      fields:
+        - field: "eligible_to_work"
+          value: "yes"
+          
+    - pattern: "I am not eligible to work"
+      fields:
+        - field: "eligible_to_work"
+          value: "no"
+
+# Form validation rules
+validation:
+  pre_submit_checks:
+    - check: "required_fields"
+      message: "Please complete all required fields"
+      fields: ["first_name", "last_name", "email", "phone", "position_applied", "employment_type", "eligible_to_work"]
+      
+    - check: "contact_information"
+      message: "Valid contact information is required"
+      fields: ["email", "phone"]
+      
+    - check: "work_authorization"
+      message: "Work authorization status must be specified"
+      fields: ["eligible_to_work"]
+      
+    - check: "salary_format"
+      message: "Salary must be in valid format (e.g., $50,000)"
+      field: "desired_salary"
+      conditional: true
+
+# Employment-specific error handling
+error_handling:
+  retry_attempts: 3
+  timeout_seconds: 30
+  
+  error_responses:
+    position_unclear: "Could you clarify the position you're applying for?"
+    salary_format: "Please provide salary in format like '$50,000' or '50000'"
+    date_format: "Please provide date in MM/DD/YYYY format"
+    work_authorization: "Please confirm if you're authorized to work in this country"
+
+# Multi-language support
+i18n:
+  en:
+    skill_name: "Employment Application Assistant"
+    description: "Fill job applications with voice commands"
+    
+  es:
+    skill_name: "Asistente de aplicación de empleo"
+    description: "Rellena aplicaciones de trabajo con comandos de voz"
+    
+  fr:
+    skill_name: "Assistant de candidature d'emploi"
+    description: "Remplir les candidatures d'emploi avec des commandes vocales"
+    
+  de:
+    skill_name: "Bewerbungsassistent"
+    description: "Fülle Bewerbungen mit Sprachbefehlen aus"
+
+# Advanced features
+advanced_features:
+  resume_integration:
+    enabled: true
+    auto_fill_from_resume: true
+    
+  cover_letter_assistance:
+    enabled: true
+    templates_available: true
+    
+  application_tracking:
+    enabled: true
+    save_application_data: true
+    
+  reference_management:
+    enabled: true
+    store_reference_info: true
+
+# Security and privacy
+security:
+  data_encryption: true
+  local_storage_only: true
+  auto_clear_sensitive: true
+  clear_after_minutes: 30
+  
+  sensitive_fields:
+    - "current_salary"
+    - "desired_salary"
+    - "criminal_background"
+    - "reference_1_phone"
+    
+  privacy_notes:
+    - "All employment data processed locally on device"
+    - "No employment information sent to external servers"
+    - "Sensitive salary information automatically cleared"
+    - "User controls all employment data retention"

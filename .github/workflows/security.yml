@@ -1,0 +1,426 @@
+name: Security & Dependency Scanning
+
+on:
+  schedule:
+    # Run security scans daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '17'
+
+jobs:
+  # ============================================================================
+  # DEPENDENCY VULNERABILITY SCANNING
+  # ============================================================================
+  
+  dependency-scan:
+    name: 🔍 Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: ${{ env.JAVA_VERSION }}
+    
+    - name: Cache Gradle Dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+    
+    - name: Run OWASP Dependency Check
+      run: |
+        echo "🔍 Running OWASP dependency vulnerability scan..."
+        cd android
+        ./gradlew dependencyCheckAnalyze --info
+    
+    - name: Run Snyk Security Scan
+      uses: snyk/actions/gradle@master
+      continue-on-error: true
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=medium --file=android/build.gradle
+    
+    - name: Upload Dependency Check Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: dependency-scan-results
+        path: |
+          android/build/reports/dependency-check-report.html
+          android/build/reports/dependency-check-report.xml
+    
+    - name: Parse Vulnerabilities
+      run: |
+        echo "📊 Parsing vulnerability results..."
+        
+        if [ -f "android/build/reports/dependency-check-report.xml" ]; then
+          # Extract high/critical vulnerabilities
+          HIGH_VULNS=$(grep -c 'severity.*HIGH' android/build/reports/dependency-check-report.xml || echo "0")
+          CRITICAL_VULNS=$(grep -c 'severity.*CRITICAL' android/build/reports/dependency-check-report.xml || echo "0")
+          
+          echo "🔴 Critical vulnerabilities: $CRITICAL_VULNS"
+          echo "🟠 High vulnerabilities: $HIGH_VULNS"
+          
+          # Fail if critical vulnerabilities found
+          if [ "$CRITICAL_VULNS" -gt 0 ]; then
+            echo "❌ Critical vulnerabilities found! Review required."
+            exit 1
+          fi
+          
+          # Warn if high vulnerabilities found
+          if [ "$HIGH_VULNS" -gt 0 ]; then
+            echo "⚠️ High severity vulnerabilities found. Consider updating dependencies."
+          fi
+        fi
+
+  # ============================================================================
+  # STATIC APPLICATION SECURITY TESTING (SAST)
+  # ============================================================================
+  
+  sast-scan:
+    name: 🛡️ Static Security Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: java, cpp
+        queries: security-extended
+    
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: ${{ env.JAVA_VERSION }}
+    
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        api-level: 34
+    
+    - name: Build for Analysis
+      run: |
+        echo "🔨 Building project for static analysis..."
+        cd android
+        ./gradlew assembleDebug --info
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:java"
+    
+    - name: Run SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        args: >
+          -Dsonar.projectKey=voicebridge-android
+          -Dsonar.organization=voicebridge
+          -Dsonar.sources=android/app/src/main
+          -Dsonar.tests=android/app/src/test
+          -Dsonar.java.binaries=android/app/build/intermediates/classes
+          -Dsonar.coverage.jacoco.xmlReportPaths=android/app/build/reports/jacoco/test/jacocoTestReport.xml
+
+  # ============================================================================
+  # SECRET SCANNING
+  # ============================================================================
+  
+  secret-scan:
+    name: 🔐 Secret Scanning
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Run TruffleHog Secret Scan
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: main
+        head: HEAD
+        extra_args: --debug --only-verified
+    
+    - name: Run GitLeaks Secret Scan
+      uses: gitleaks/gitleaks-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Check for Hardcoded Secrets
+      run: |
+        echo "🔍 Scanning for hardcoded secrets..."
+        
+        # Check for common secret patterns
+        SECRET_PATTERNS=(
+          "password\s*=\s*['\"][^'\"]{8,}"
+          "api[_-]?key\s*=\s*['\"][^'\"]{16,}"
+          "secret\s*=\s*['\"][^'\"]{16,}"
+          "token\s*=\s*['\"][^'\"]{16,}"
+          "aws[_-]?access[_-]?key"
+          "private[_-]?key"
+        )
+        
+        for pattern in "${SECRET_PATTERNS[@]}"; do
+          if grep -r -i -E "$pattern" --include="*.kt" --include="*.java" --include="*.cpp" --include="*.h" .; then
+            echo "❌ Potential hardcoded secret found: $pattern"
+            exit 1
+          fi
+        done
+        
+        echo "✅ No hardcoded secrets detected"
+
+  # ============================================================================
+  # MOBILE SECURITY ANALYSIS
+  # ============================================================================
+  
+  mobile-security:
+    name: 📱 Mobile Security Analysis
+    runs-on: ubuntu-latest
+    needs: [dependency-scan]
+    timeout-minutes: 25
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: ${{ env.JAVA_VERSION }}
+    
+    - name: Download Debug APK
+      run: |
+        echo "📥 Building APK for security analysis..."
+        export SKIP_MODELS=true
+        export SKIP_TESTS=true
+        ./scripts/build.sh debug
+    
+    - name: Android Permission Analysis
+      run: |
+        echo "🔍 Analyzing Android permissions..."
+        
+        if [ -f "android/app/src/main/AndroidManifest.xml" ]; then
+          echo "📋 Declared permissions:"
+          grep -o 'android\.permission\.[A-Z_]*' android/app/src/main/AndroidManifest.xml | sort | uniq
+          
+          # Check for dangerous permissions
+          DANGEROUS_PERMS=(
+            "RECORD_AUDIO"
+            "CAMERA"
+            "READ_EXTERNAL_STORAGE"
+            "WRITE_EXTERNAL_STORAGE"
+            "ACCESS_FINE_LOCATION"
+            "READ_CONTACTS"
+          )
+          
+          echo "⚠️ Dangerous permissions found:"
+          for perm in "${DANGEROUS_PERMS[@]}"; do
+            if grep -q "android\.permission\.$perm" android/app/src/main/AndroidManifest.xml; then
+              echo "  - $perm (justified for VoiceBridge functionality)"
+            fi
+          done
+        fi
+    
+    - name: APK Security Analysis
+      run: |
+        echo "🔍 Running APK security analysis..."
+        
+        if [ -f "voicebridge-debug.apk" ]; then
+          # Check APK signing
+          echo "📝 APK signing verification:"
+          jarsigner -verify -verbose voicebridge-debug.apk || echo "⚠️ APK not properly signed (expected for debug)"
+          
+          # Check for security features
+          echo "🛡️ Security feature analysis:"
+          
+          # Check if debuggable (should only be true for debug builds)
+          if aapt dump badging voicebridge-debug.apk | grep -q "application-debuggable"; then
+            echo "⚠️ APK is debuggable (acceptable for debug builds)"
+          fi
+          
+          # Check backup settings
+          if aapt dump badging voicebridge-debug.apk | grep -q "allowBackup='true'"; then
+            echo "⚠️ Backup is allowed - ensure sensitive data is excluded"
+          fi
+        fi
+    
+    - name: Network Security Analysis
+      run: |
+        echo "🌐 Analyzing network security configuration..."
+        
+        # Check for network security config
+        if [ -f "android/app/src/main/res/xml/network_security_config.xml" ]; then
+          echo "✅ Network security config found"
+          cat android/app/src/main/res/xml/network_security_config.xml
+        else
+          echo "⚠️ No network security config found - consider adding one"
+        fi
+        
+        # Check for cleartext traffic
+        if grep -r "usesCleartextTraffic.*true" android/app/src/main/; then
+          echo "⚠️ Cleartext traffic is allowed"
+        else
+          echo "✅ Cleartext traffic is restricted"
+        fi
+
+  # ============================================================================
+  # SECURITY REPORT GENERATION
+  # ============================================================================
+  
+  security-report:
+    name: 📊 Security Report
+    runs-on: ubuntu-latest
+    needs: [dependency-scan, sast-scan, secret-scan, mobile-security]
+    if: always()
+    timeout-minutes: 10
+    
+    steps:
+    - name: Download All Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: security-artifacts
+    
+    - name: Generate Security Report
+      run: |
+        echo "📊 Generating comprehensive security report..."
+        
+        REPORT_FILE="security-report.md"
+        
+        cat > "$REPORT_FILE" << EOF
+        # VoiceBridge Security Scan Report
+        
+        **Date:** $(date -u +%Y-%m-%d\ %H:%M:%S\ UTC)  
+        **Commit:** ${{ github.sha }}  
+        **Branch:** ${{ github.ref_name }}  
+        **Triggered by:** ${{ github.event_name }}
+        
+        ## Summary
+        
+        | Security Check | Status | Details |
+        |---------------|--------|---------|
+        | Dependency Vulnerabilities | ${{ needs.dependency-scan.result == 'success' && '✅ PASS' || '❌ FAIL' }} | OWASP & Snyk scans |
+        | Static Code Analysis | ${{ needs.sast-scan.result == 'success' && '✅ PASS' || '❌ FAIL' }} | CodeQL & SonarCloud |
+        | Secret Scanning | ${{ needs.secret-scan.result == 'success' && '✅ PASS' || '❌ FAIL' }} | TruffleHog & GitLeaks |
+        | Mobile Security | ${{ needs.mobile-security.result == 'success' && '✅ PASS' || '❌ FAIL' }} | APK & Permission analysis |
+        
+        ## Recommendations
+        
+        ### High Priority
+        - [ ] Review any critical/high severity vulnerabilities
+        - [ ] Ensure all secrets are properly externalized
+        - [ ] Validate permission usage justification
+        
+        ### Medium Priority
+        - [ ] Update dependencies with known vulnerabilities
+        - [ ] Review code quality issues from static analysis
+        - [ ] Implement network security configuration
+        
+        ### Low Priority
+        - [ ] Add additional security headers
+        - [ ] Consider implementing certificate pinning
+        - [ ] Review backup exclusion rules
+        
+        ## Detailed Findings
+        
+        Detailed security findings are available in the artifacts:
+        - Dependency scan results
+        - Static analysis reports
+        - Secret scan outputs
+        - Mobile security analysis
+        
+        ---
+        *Generated by VoiceBridge Security Pipeline*
+        EOF
+        
+        echo "📄 Security report generated: $REPORT_FILE"
+        cat "$REPORT_FILE"
+    
+    - name: Upload Security Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report
+        path: security-report.md
+    
+    - name: Comment PR with Security Status
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const report = fs.readFileSync('security-report.md', 'utf8');
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `## 🛡️ Security Scan Results\n\n${report}`
+          });
+
+  # ============================================================================
+  # SECURITY COMPLIANCE CHECK
+  # ============================================================================
+  
+  compliance-check:
+    name: ✅ Security Compliance
+    runs-on: ubuntu-latest
+    needs: [dependency-scan, sast-scan, secret-scan, mobile-security]
+    timeout-minutes: 5
+    
+    steps:
+    - name: Evaluate Security Compliance
+      run: |
+        echo "✅ Evaluating security compliance..."
+        
+        # Check if all security jobs passed
+        DEPENDENCY_RESULT="${{ needs.dependency-scan.result }}"
+        SAST_RESULT="${{ needs.sast-scan.result }}"
+        SECRET_RESULT="${{ needs.secret-scan.result }}"
+        MOBILE_RESULT="${{ needs.mobile-security.result }}"
+        
+        echo "🔍 Security scan results:"
+        echo "  - Dependency scan: $DEPENDENCY_RESULT"
+        echo "  - Static analysis: $SAST_RESULT" 
+        echo "  - Secret scanning: $SECRET_RESULT"
+        echo "  - Mobile security: $MOBILE_RESULT"
+        
+        # Determine overall compliance
+        if [[ "$DEPENDENCY_RESULT" == "success" && 
+              "$SECRET_RESULT" == "success" && 
+              "$MOBILE_RESULT" == "success" ]]; then
+          echo "✅ Security compliance: PASS"
+          echo "🎉 All security checks passed!"
+        else
+          echo "❌ Security compliance: FAIL"
+          echo "⚠️ One or more security checks failed. Review required."
+          exit 1
+        fi

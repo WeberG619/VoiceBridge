@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- French translations for VoiceBridge -->
+    
+    <string name="app_name">VoiceBridge</string>
+    <string name="app_description">Remplissez des formulaires avec votre voix en utilisant l'IA. Hors ligne, accessible et privé.</string>
+    
+    <!-- Main Activity -->
+    <string name="btn_start_listening">Commencer à écouter</string>
+    <string name="btn_stop_listening">Arrêter d'écouter</string>
+    <string name="btn_capture">Capturer</string>
+    <string name="btn_process_text">Traiter le texte</string>
+    <string name="btn_fill_form">Remplir le formulaire</string>
+    <string name="btn_accessibility_settings">Paramètres d'accessibilité</string>
+    
+    <string name="status_listening">Écoute en cours...</string>
+    <string name="status_processing">Traitement en cours...</string>
+    <string name="status_ready">Prêt</string>
+    <string name="status_error">Erreur : %1$s</string>
+    
+    <string name="transcription_hint">La transcription apparaîtra ici</string>
+    <string name="processed_text_hint">Le texte traité apparaîtra ici</string>
+    <string name="commands_hint">Les commandes détectées apparaîtront ici</string>
+    <string name="ocr_result_hint">Les résultats OCR apparaîtront ici</string>
+    
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">Bienvenue sur VoiceBridge</string>
+    <string name="onboarding_welcome_subtitle">Transformez votre façon d'interagir avec les formulaires et documents en utilisant la puissance de votre voix et la technologie IA.</string>
+    
+    <string name="onboarding_voice_title">Contrôle vocal</string>
+    <string name="onboarding_voice_subtitle">Utilisez votre voix pour remplir des formulaires sans les mains. VoiceBridge comprend la parole naturelle et la convertit en texte.</string>
+    
+    <string name="onboarding_scan_title">Numérisation de documents</string>
+    <string name="onboarding_scan_subtitle">Capturez et extrayez du texte de documents, formulaires et images en utilisant une technologie OCR avancée.</string>
+    
+    <string name="onboarding_automation_title">Automatisation intelligente de formulaires</string>
+    <string name="onboarding_automation_subtitle">VoiceBridge identifie intelligemment les champs de formulaire et les remplit en utilisant la saisie vocale ou le texte scanné.</string>
+    
+    <string name="onboarding_permissions_title">Configuration des autorisations</string>
+    <string name="onboarding_permissions_subtitle">VoiceBridge a besoin de certaines autorisations pour fournir ses fonctionnalités. Toutes les autorisations sont utilisées uniquement pour la fonctionnalité de base.</string>
+    
+    <string name="onboarding_complete_title">Vous êtes prêt !</string>
+    <string name="onboarding_complete_subtitle">VoiceBridge est prêt à vous aider à remplir des formulaires plus rapidement et efficacement que jamais.</string>
+    
+    <string name="btn_next">Suivant</string>
+    <string name="btn_previous">Précédent</string>
+    <string name="btn_skip">Ignorer</string>
+    <string name="btn_get_started">Commencer</string>
+    
+    <!-- Permissions -->
+    <string name="permission_microphone_title">Accès au microphone</string>
+    <string name="permission_microphone_description">Requis pour la saisie vocale et le remplissage de formulaires</string>
+    
+    <string name="permission_camera_title">Accès à la caméra</string>
+    <string name="permission_camera_description">Requis pour la numérisation de documents et l'OCR</string>
+    
+    <string name="permission_accessibility_title">Service d'accessibilité</string>
+    <string name="permission_accessibility_description">Requis pour le remplissage automatique de formulaires</string>
+    
+    <string name="btn_grant_permission">Accorder</string>
+    
+    <!-- Accessibility Settings -->
+    <string name="accessibility_settings_title">Paramètres d'accessibilité</string>
+    <string name="accessibility_voice_feedback">Retour vocal</string>
+    <string name="accessibility_visual_settings">Accessibilité visuelle</string>
+    <string name="accessibility_touch_navigation">Toucher et navigation</string>
+    <string name="accessibility_advanced_settings">Paramètres avancés</string>
+    
+    <string name="speech_feedback_title">Retour vocal</string>
+    <string name="speech_feedback_description">Annoncer les actions et l'état</string>
+    
+    <string name="haptic_feedback_title">Retour haptique</string>
+    <string name="haptic_feedback_description">Vibration pour les pressions de boutons</string>
+    
+    <string name="sound_feedback_title">Retour sonore</string>
+    <string name="sound_feedback_description">Signaux audio pour les interactions</string>
+    
+    <string name="high_contrast_title">Contraste élevé</string>
+    <string name="high_contrast_description">Contraste de couleur amélioré pour une meilleure visibilité</string>
+    
+    <string name="large_text_title">Texte large</string>
+    <string name="large_text_description">Augmenter la taille du texte pour une meilleure lisibilité</string>
+    
+    <string name="animations_title">Animations</string>
+    <string name="animations_description">Activer ou désactiver les animations de l'interface</string>
+    
+    <string name="touch_exploration_title">Exploration tactile</string>
+    <string name="touch_exploration_description">Activer l'exploration tactile pour les utilisateurs aveugles</string>
+    
+    <string name="keyboard_navigation_title">Navigation au clavier</string>
+    <string name="keyboard_navigation_description">Activer les raccourcis clavier et la navigation</string>
+    
+    <!-- Error Messages -->
+    <string name="error_microphone_permission">Autorisation microphone requise pour l'enregistrement vocal. Allez dans Paramètres pour activer.</string>
+    <string name="error_camera_permission">Autorisation caméra requise pour la numérisation de documents. Allez dans Paramètres pour activer.</string>
+    <string name="error_accessibility_service_disabled">Service d'accessibilité requis pour le remplissage de formulaires. Allez dans Paramètres pour activer le service d'accessibilité VoiceBridge.</string>
+    <string name="error_voice_recognition_failed">Reconnaissance vocale échouée. Veuillez essayer de parler à nouveau clairement.</string>
+    <string name="error_ocr_processing_failed">Numérisation de document échouée. Veuillez vous assurer que le document est clair et bien éclairé.</string>
+    <string name="error_form_not_found">Aucun formulaire compatible trouvé sur cet écran.</string>
+    
+    <!-- Success Messages -->
+    <string name="success_voice_command_processed">Commande vocale traitée avec succès</string>
+    <string name="success_document_scanned">Document numérisé et texte extrait avec succès</string>
+    <string name="success_form_filled">Formulaire rempli automatiquement avec les données vocales</string>
+    <string name="success_form_submitted">Formulaire soumis avec succès</string>
+    
+    <!-- Features -->
+    <string name="feature_voice_control">Le contrôle vocal permet une interaction mains libres avec les formulaires et applications</string>
+    <string name="feature_document_scanning">La numérisation de documents extrait le texte des images pour le remplissage automatique de formulaires</string>
+    <string name="feature_form_automation">L'automatisation de formulaires remplit les formulaires détectés en utilisant la saisie vocale ou le texte scanné</string>
+    <string name="feature_skill_system">Le système de compétences fournit une automatisation préconfigurée pour des formulaires et workflows spécifiques</string>
+    
+    <!-- Voice States -->
+    <string name="voice_state_idle">Le contrôle vocal est inactif, prêt à commencer</string>
+    <string name="voice_state_listening">Écoute de la saisie vocale</string>
+    <string name="voice_state_processing">Traitement de la saisie vocale</string>
+    <string name="voice_state_completed">Traitement vocal terminé</string>
+    <string name="voice_state_error">Erreur de traitement vocal survenue</string>
+    
+    <!-- OCR States -->
+    <string name="ocr_state_idle">Le scanner de documents est prêt</string>
+    <string name="ocr_state_scanning">Numérisation du document</string>
+    <string name="ocr_state_processing">Traitement du texte du document</string>
+    <string name="ocr_state_completed">Traitement du document terminé</string>
+    <string name="ocr_state_error">Erreur de traitement du document survenue</string>
+    
+    <!-- Form States -->
+    <string name="form_state_empty">Le formulaire est vide</string>
+    <string name="form_state_partial">Le formulaire est partiellement rempli</string>
+    <string name="form_state_complete">Le formulaire est complètement rempli</string>
+    <string name="form_state_error">Le formulaire a des erreurs de validation</string>
+    <string name="form_state_submitted">Le formulaire a été soumis</string>
+    
+    <!-- Accessibility Service -->
+    <string name="accessibility_service_description">Le service d'accessibilité VoiceBridge permet le remplissage automatique de formulaires via des commandes vocales et la numérisation de documents. Ce service peut observer vos interactions et récupérer le contenu des fenêtres pour identifier et remplir les champs de formulaire.</string>
+    <string name="accessibility_service_summary">Permet le remplissage de formulaires contrôlé par la voix et le traitement de documents</string>
+</resources>

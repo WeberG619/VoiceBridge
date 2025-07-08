@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Material Design 3 - Dark Theme Colors -->
+    
+    <!-- Primary Colors -->
+    <color name="primary">@color/md_theme_dark_primary</color>
+    <color name="onPrimary">@color/md_theme_dark_onPrimary</color>
+    <color name="primary_container">@color/md_theme_dark_primaryContainer</color>
+    <color name="on_primary_container">@color/md_theme_dark_onPrimaryContainer</color>
+    
+    <!-- Secondary Colors -->
+    <color name="secondary">@color/md_theme_dark_secondary</color>
+    <color name="onSecondary">@color/md_theme_dark_onSecondary</color>
+    <color name="secondary_container">@color/md_theme_dark_secondaryContainer</color>
+    <color name="on_secondary_container">@color/md_theme_dark_onSecondaryContainer</color>
+    
+    <!-- Tertiary Colors -->
+    <color name="tertiary">@color/md_theme_dark_tertiary</color>
+    <color name="onTertiary">@color/md_theme_dark_onTertiary</color>
+    <color name="tertiary_container">@color/md_theme_dark_tertiaryContainer</color>
+    <color name="on_tertiary_container">@color/md_theme_dark_onTertiaryContainer</color>
+    
+    <!-- Error Colors -->
+    <color name="error">@color/md_theme_dark_error</color>
+    <color name="onError">@color/md_theme_dark_onError</color>
+    <color name="error_container">@color/md_theme_dark_errorContainer</color>
+    <color name="on_error_container">@color/md_theme_dark_onErrorContainer</color>
+    
+    <!-- Background Colors -->
+    <color name="background">@color/md_theme_dark_background</color>
+    <color name="on_background">@color/md_theme_dark_onBackground</color>
+    <color name="surface">@color/md_theme_dark_surface</color>
+    <color name="on_surface">@color/md_theme_dark_onSurface</color>
+    
+    <!-- Surface Variants -->
+    <color name="surface_variant">@color/md_theme_dark_surfaceVariant</color>
+    <color name="on_surface_variant">@color/md_theme_dark_onSurfaceVariant</color>
+    <color name="outline">@color/md_theme_dark_outline</color>
+    <color name="outline_variant">@color/md_theme_dark_outlineVariant</color>
+    
+    <!-- Inverse Colors -->
+    <color name="inverse_surface">@color/md_theme_dark_inverseSurface</color>
+    <color name="inverse_on_surface">@color/md_theme_dark_inverseOnSurface</color>
+    <color name="inverse_primary">@color/md_theme_dark_inversePrimary</color>
+    
+    <!-- VoiceBridge Dark Theme Adjustments -->
+    <color name="voice_active">#34D399</color>  <!-- Brighter green for dark theme -->
+    <color name="voice_inactive">#9CA3AF</color>  <!-- Lighter gray for visibility -->
+    <color name="voice_listening">#FBBF24</color>  <!-- Brighter yellow -->
+    <color name="voice_processing">#A78BFA</color>  <!-- Lighter purple -->
+    <color name="voice_error">#F87171</color>  <!-- Lighter red -->
+    
+    <!-- OCR Dark Theme Status Colors -->
+    <color name="ocr_scanning">#22D3EE</color>
+    <color name="ocr_processing">#A78BFA</color>
+    <color name="ocr_success">#34D399</color>
+    <color name="ocr_failed">#F87171</color>
+    
+    <!-- Form Dark Theme Status Colors -->
+    <color name="form_empty">#6B7280</color>
+    <color name="form_partial">#FBBF24</color>
+    <color name="form_complete">#34D399</color>
+    <color name="form_error">#F87171</color>
+    
+    <!-- Accessibility Dark Theme Colors -->
+    <color name="accessibility_focus">#93C5FD</color>
+    <color name="accessibility_highlight">#1E3A8A</color>
+    <color name="accessibility_announcement">#6EE7B7</color>
+    
+    <!-- Semantic Dark Theme Colors -->
+    <color name="success">#34D399</color>
+    <color name="warning">#FBBF24</color>
+    <color name="info">#60A5FA</color>
+    <color name="danger">#F87171</color>
+    
+    <!-- Brand Colors (maintained for consistency) -->
+    <color name="brand_primary">#93C5FD</color>
+    <color name="brand_secondary">#6EE7B7</color>
+    <color name="brand_accent">#FBBF24</color>
+</resources>

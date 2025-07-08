@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- German translations for VoiceBridge -->
+    
+    <string name="app_name">VoiceBridge</string>
+    <string name="app_description">Füllen Sie Formulare mit Ihrer Stimme mit KI aus. Offline, zugänglich und privat.</string>
+    
+    <!-- Main Activity -->
+    <string name="btn_start_listening">Zuhören beginnen</string>
+    <string name="btn_stop_listening">Zuhören stoppen</string>
+    <string name="btn_capture">Aufnehmen</string>
+    <string name="btn_process_text">Text verarbeiten</string>
+    <string name="btn_fill_form">Formular ausfüllen</string>
+    <string name="btn_accessibility_settings">Barrierefreiheits-Einstellungen</string>
+    
+    <string name="status_listening">Höre zu...</string>
+    <string name="status_processing">Verarbeite...</string>
+    <string name="status_ready">Bereit</string>
+    <string name="status_error">Fehler: %1$s</string>
+    
+    <string name="transcription_hint">Die Transkription wird hier erscheinen</string>
+    <string name="processed_text_hint">Der verarbeitete Text wird hier erscheinen</string>
+    <string name="commands_hint">Erkannte Befehle werden hier erscheinen</string>
+    <string name="ocr_result_hint">OCR-Ergebnisse werden hier erscheinen</string>
+    
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">Willkommen bei VoiceBridge</string>
+    <string name="onboarding_welcome_subtitle">Verwandeln Sie, wie Sie mit Formularen und Dokumenten interagieren, mit der Kraft Ihrer Stimme und KI-Technologie.</string>
+    
+    <string name="onboarding_voice_title">Sprachsteuerung</string>
+    <string name="onboarding_voice_subtitle">Verwenden Sie Ihre Stimme, um Formulare freihändig auszufüllen. VoiceBridge versteht natürliche Sprache und wandelt sie in Text um.</string>
+    
+    <string name="onboarding_scan_title">Dokumentenscannen</string>
+    <string name="onboarding_scan_subtitle">Erfassen und extrahieren Sie Text aus Dokumenten, Formularen und Bildern mit fortschrittlicher OCR-Technologie.</string>
+    
+    <string name="onboarding_automation_title">Intelligente Formular-Automatisierung</string>
+    <string name="onboarding_automation_subtitle">VoiceBridge identifiziert intelligent Formularfelder und füllt sie mit Spracheingabe oder gescanntem Text aus.</string>
+    
+    <string name="onboarding_permissions_title">Berechtigungs-Setup</string>
+    <string name="onboarding_permissions_subtitle">VoiceBridge benötigt bestimmte Berechtigungen, um seine Funktionen bereitzustellen. Alle Berechtigungen werden nur für Kernfunktionalität verwendet.</string>
+    
+    <string name="onboarding_complete_title">Sie sind bereit!</string>
+    <string name="onboarding_complete_subtitle">VoiceBridge ist bereit, Ihnen zu helfen, Formulare schneller und effizienter als je zuvor auszufüllen.</string>
+    
+    <string name="btn_next">Weiter</string>
+    <string name="btn_previous">Zurück</string>
+    <string name="btn_skip">Überspringen</string>
+    <string name="btn_get_started">Loslegen</string>
+    
+    <!-- Permissions -->
+    <string name="permission_microphone_title">Mikrofon-Zugriff</string>
+    <string name="permission_microphone_description">Erforderlich für Spracheingabe und Formular-Ausfüllung</string>
+    
+    <string name="permission_camera_title">Kamera-Zugriff</string>
+    <string name="permission_camera_description">Erforderlich für Dokumentenscannen und OCR</string>
+    
+    <string name="permission_accessibility_title">Barrierefreiheitsdienst</string>
+    <string name="permission_accessibility_description">Erforderlich für automatisches Formular-Ausfüllen</string>
+    
+    <string name="btn_grant_permission">Gewähren</string>
+    
+    <!-- Accessibility Settings -->
+    <string name="accessibility_settings_title">Barrierefreiheits-Einstellungen</string>
+    <string name="accessibility_voice_feedback">Sprach-Rückmeldung</string>
+    <string name="accessibility_visual_settings">Visuelle Barrierefreiheit</string>
+    <string name="accessibility_touch_navigation">Berührung und Navigation</string>
+    <string name="accessibility_advanced_settings">Erweiterte Einstellungen</string>
+    
+    <string name="speech_feedback_title">Sprach-Rückmeldung</string>
+    <string name="speech_feedback_description">Aktionen und Status ankündigen</string>
+    
+    <string name="haptic_feedback_title">Haptische Rückmeldung</string>
+    <string name="haptic_feedback_description">Vibration für Tastendrücke</string>
+    
+    <string name="sound_feedback_title">Ton-Rückmeldung</string>
+    <string name="sound_feedback_description">Audio-Signale für Interaktionen</string>
+    
+    <string name="high_contrast_title">Hoher Kontrast</string>
+    <string name="high_contrast_description">Verbesserter Farbkontrast für bessere Sichtbarkeit</string>
+    
+    <string name="large_text_title">Großer Text</string>
+    <string name="large_text_description">Textgröße für bessere Lesbarkeit erhöhen</string>
+    
+    <string name="animations_title">Animationen</string>
+    <string name="animations_description">UI-Animationen aktivieren oder deaktivieren</string>
+    
+    <string name="touch_exploration_title">Berührungserkundung</string>
+    <string name="touch_exploration_description">Berührungserkundung für blinde Benutzer aktivieren</string>
+    
+    <string name="keyboard_navigation_title">Tastatur-Navigation</string>
+    <string name="keyboard_navigation_description">Tastaturkürzel und Navigation aktivieren</string>
+    
+    <!-- Error Messages -->
+    <string name="error_microphone_permission">Mikrofon-Berechtigung für Sprachaufnahme erforderlich. Gehen Sie zu Einstellungen zum Aktivieren.</string>
+    <string name="error_camera_permission">Kamera-Berechtigung für Dokumentenscannen erforderlich. Gehen Sie zu Einstellungen zum Aktivieren.</string>
+    <string name="error_accessibility_service_disabled">Barrierefreiheitsdienst für Formular-Ausfüllung erforderlich. Gehen Sie zu Einstellungen, um VoiceBridge-Barrierefreiheitsdienst zu aktivieren.</string>
+    <string name="error_voice_recognition_failed">Spracherkennung fehlgeschlagen. Bitte versuchen Sie, wieder deutlich zu sprechen.</string>
+    <string name="error_ocr_processing_failed">Dokumentenscannen fehlgeschlagen. Bitte stellen Sie sicher, dass das Dokument klar und gut beleuchtet ist.</string>
+    <string name="error_form_not_found">Kein kompatibles Formular auf diesem Bildschirm gefunden.</string>
+    
+    <!-- Success Messages -->
+    <string name="success_voice_command_processed">Sprachbefehl erfolgreich verarbeitet</string>
+    <string name="success_document_scanned">Dokument gescannt und Text erfolgreich extrahiert</string>
+    <string name="success_form_filled">Formular automatisch mit Sprachdaten ausgefüllt</string>
+    <string name="success_form_submitted">Formular erfolgreich übermittelt</string>
+    
+    <!-- Features -->
+    <string name="feature_voice_control">Sprachsteuerung ermöglicht freihändige Interaktion mit Formularen und Anwendungen</string>
+    <string name="feature_document_scanning">Dokumentenscannen extrahiert Text aus Bildern für automatisches Formular-Ausfüllen</string>
+    <string name="feature_form_automation">Formular-Automatisierung füllt erkannte Formulare mit Spracheingabe oder gescanntem Text aus</string>
+    <string name="feature_skill_system">Skill-System bietet vorkonfigurierte Automatisierung für spezifische Formulare und Workflows</string>
+    
+    <!-- Voice States -->
+    <string name="voice_state_idle">Sprachsteuerung ist inaktiv, bereit zu starten</string>
+    <string name="voice_state_listening">Hört auf Spracheingabe</string>
+    <string name="voice_state_processing">Verarbeitet Spracheingabe</string>
+    <string name="voice_state_completed">Sprachverarbeitung abgeschlossen</string>
+    <string name="voice_state_error">Sprachverarbeitungsfehler aufgetreten</string>
+    
+    <!-- OCR States -->
+    <string name="ocr_state_idle">Dokumentenscanner ist bereit</string>
+    <string name="ocr_state_scanning">Scannt Dokument</string>
+    <string name="ocr_state_processing">Verarbeitet Dokumententext</string>
+    <string name="ocr_state_completed">Dokumentenverarbeitung abgeschlossen</string>
+    <string name="ocr_state_error">Dokumentenverarbeitungsfehler aufgetreten</string>
+    
+    <!-- Form States -->
+    <string name="form_state_empty">Formular ist leer</string>
+    <string name="form_state_partial">Formular ist teilweise ausgefüllt</string>
+    <string name="form_state_complete">Formular ist vollständig ausgefüllt</string>
+    <string name="form_state_error">Formular hat Validierungsfehler</string>
+    <string name="form_state_submitted">Formular wurde übermittelt</string>
+    
+    <!-- Accessibility Service -->
+    <string name="accessibility_service_description">Der VoiceBridge-Barrierefreiheitsdienst ermöglicht automatisches Formular-Ausfüllen durch Sprachbefehle und Dokumentenscannen. Dieser Dienst kann Ihre Interaktionen beobachten und Fensterinhalte abrufen, um Formularfelder zu identifizieren und auszufüllen.</string>
+    <string name="accessibility_service_summary">Ermöglicht sprachgesteuertes Formular-Ausfüllen und Dokumentenverarbeitung</string>
+</resources>

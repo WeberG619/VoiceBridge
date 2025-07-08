@@ -1,0 +1,30 @@
+Version 1.0.0 - Initial Release
+
+🎆 NEW FEATURES:
+• Voice-controlled form filling using Whisper AI
+• Document scanning with OCR text extraction
+• Offline AI processing with LLaMA
+• Material Design 3 with dark mode support
+• Interactive onboarding tutorial
+• Accessibility-first design (WCAG 2.1 AA)
+• Multi-language voice recognition
+• Smart skill templates for common forms
+
+🔧 TECHNICAL:
+• Android 7.0+ support (API 24)
+• Optimized for ARM64 and ARMv7
+• Battery-efficient processing
+• Minimal storage footprint
+
+🔒 PRIVACY:
+• 100% offline operation
+• No data collection
+• No internet required
+• Open source transparency
+
+🐛 KNOWN ISSUES:
+• First launch may take longer while initializing AI models
+• Some complex forms may require manual adjustment
+
+📧 FEEDBACK:
+We'd love to hear from you! Email support@voicebridge.app

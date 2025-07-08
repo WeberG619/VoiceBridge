@@ -1,0 +1,355 @@
+# Medical Form Skill Template
+# Specialized skill for medical intake and insurance forms
+
+name: "Medical Form Assistant"
+version: "1.0"
+description: "Comprehensive skill for filling medical intake forms, insurance claims, and healthcare applications"
+category: "healthcare"
+languages: ["en", "es", "fr", "de"]
+
+# Skill metadata
+metadata:
+  author: "VoiceBridge Team"
+  created: "2025-01-01"
+  updated: "2025-01-01"
+  difficulty: "intermediate"
+  estimated_time: "3-8 minutes"
+  supported_forms:
+    - "Patient intake forms"
+    - "Insurance claims"
+    - "Medical history forms"
+    - "Prescription forms"
+    - "Emergency contact forms"
+    - "HIPAA authorization forms"
+
+# Field mappings for medical forms
+field_mappings:
+  # Patient Information
+  patient:
+    patient_name:
+      aliases: ["patient name", "full name", "name of patient"]
+      patterns: ["patient_name", "name", "full_name"]
+      validation: "^[A-Za-z\\s\\-']{1,100}$"
+      required: true
+      
+    date_of_birth:
+      aliases: ["date of birth", "birth date", "dob", "birthday"]
+      patterns: ["dob", "birth_date", "date_of_birth"]
+      validation: "^(0[1-9]|1[0-2])/(0[1-9]|[12]\\d|3[01])/(19|20)\\d{2}$"
+      format: "MM/DD/YYYY"
+      required: true
+      
+    gender:
+      aliases: ["gender", "sex", "male or female"]
+      patterns: ["gender", "sex"]
+      validation: "^(male|female|other|prefer not to say)$"
+      options: ["Male", "Female", "Other", "Prefer not to say"]
+      required: true
+      
+    marital_status:
+      aliases: ["marital status", "married", "single"]
+      patterns: ["marital_status", "marital"]
+      validation: "^(single|married|divorced|widowed|separated)$"
+      options: ["Single", "Married", "Divorced", "Widowed", "Separated"]
+      required: false
+
+  # Contact Information
+  contact:
+    phone:
+      aliases: ["phone number", "telephone", "mobile", "cell phone"]
+      patterns: ["phone", "telephone", "mobile"]
+      validation: "^\\(?\\d{3}\\)?[\\s\\-]?\\d{3}[\\s\\-]?\\d{4}$"
+      format: "(XXX) XXX-XXXX"
+      required: true
+      
+    email:
+      aliases: ["email address", "email", "e-mail"]
+      patterns: ["email", "email_address"]
+      validation: "^[\\w\\.-]+@[\\w\\.-]+\\.[a-zA-Z]{2,}$"
+      required: false
+      
+    address:
+      aliases: ["home address", "address", "street address"]
+      patterns: ["address", "street_address", "home_address"]
+      validation: "^[A-Za-z0-9\\s\\-#.,]{1,100}$"
+      required: true
+      
+    city:
+      aliases: ["city", "town"]
+      patterns: ["city", "town"]
+      validation: "^[A-Za-z\\s\\-']{1,50}$"
+      required: true
+      
+    state:
+      aliases: ["state", "province"]
+      patterns: ["state", "province"]
+      validation: "^[A-Za-z\\s]{2,50}$"
+      required: true
+      
+    zip_code:
+      aliases: ["zip code", "postal code", "zip"]
+      patterns: ["zip", "zip_code", "postal_code"]
+      validation: "^\\d{5}(-\\d{4})?$"
+      format: "XXXXX or XXXXX-XXXX"
+      required: true
+
+  # Insurance Information
+  insurance:
+    insurance_company:
+      aliases: ["insurance company", "insurance provider", "insurer"]
+      patterns: ["insurance_company", "insurance_provider", "insurer"]
+      validation: "^[A-Za-z\\s\\-.,&]{1,100}$"
+      required: true
+      
+    policy_number:
+      aliases: ["policy number", "insurance policy", "policy id"]
+      patterns: ["policy_number", "policy_id", "insurance_policy"]
+      validation: "^[A-Za-z0-9\\-]{5,20}$"
+      required: true
+      sensitive: true
+      
+    group_number:
+      aliases: ["group number", "group id", "plan number"]
+      patterns: ["group_number", "group_id", "plan_number"]
+      validation: "^[A-Za-z0-9\\-]{3,15}$"
+      required: false
+      
+    subscriber_name:
+      aliases: ["subscriber name", "policy holder", "insured name"]
+      patterns: ["subscriber_name", "policy_holder", "insured_name"]
+      validation: "^[A-Za-z\\s\\-']{1,100}$"
+      required: true
+      
+    relationship_to_patient:
+      aliases: ["relationship to patient", "relationship", "relation"]
+      patterns: ["relationship", "relation_to_patient"]
+      validation: "^(self|spouse|child|parent|other)$"
+      options: ["Self", "Spouse", "Child", "Parent", "Other"]
+      required: true
+
+  # Emergency Contact
+  emergency_contact:
+    emergency_name:
+      aliases: ["emergency contact name", "emergency contact", "emergency person"]
+      patterns: ["emergency_contact", "emergency_name"]
+      validation: "^[A-Za-z\\s\\-']{1,100}$"
+      required: true
+      
+    emergency_phone:
+      aliases: ["emergency phone", "emergency number", "emergency contact phone"]
+      patterns: ["emergency_phone", "emergency_number"]
+      validation: "^\\(?\\d{3}\\)?[\\s\\-]?\\d{3}[\\s\\-]?\\d{4}$"
+      format: "(XXX) XXX-XXXX"
+      required: true
+      
+    emergency_relationship:
+      aliases: ["emergency relationship", "relationship to emergency contact"]
+      patterns: ["emergency_relationship", "emergency_relation"]
+      validation: "^[A-Za-z\\s]{1,50}$"
+      required: true
+
+  # Medical History
+  medical_history:
+    primary_physician:
+      aliases: ["primary doctor", "primary care physician", "family doctor"]
+      patterns: ["primary_physician", "primary_doctor", "family_doctor"]
+      validation: "^[A-Za-z\\s\\-'.,]{1,100}$"
+      required: false
+      
+    allergies:
+      aliases: ["allergies", "drug allergies", "medical allergies"]
+      patterns: ["allergies", "drug_allergies", "medical_allergies"]
+      validation: "^[A-Za-z0-9\\s\\-.,;]{0,500}$"
+      required: false
+      multiline: true
+      
+    current_medications:
+      aliases: ["current medications", "medications", "drugs", "prescriptions"]
+      patterns: ["medications", "current_medications", "prescriptions"]
+      validation: "^[A-Za-z0-9\\s\\-.,;()]{0,500}$"
+      required: false
+      multiline: true
+      
+    medical_conditions:
+      aliases: ["medical conditions", "health conditions", "medical problems"]
+      patterns: ["medical_conditions", "health_conditions"]
+      validation: "^[A-Za-z0-9\\s\\-.,;()]{0,500}$"
+      required: false
+      multiline: true
+      
+    previous_surgeries:
+      aliases: ["previous surgeries", "surgeries", "operations"]
+      patterns: ["surgeries", "previous_surgeries", "operations"]
+      validation: "^[A-Za-z0-9\\s\\-.,;()]{0,500}$"
+      required: false
+      multiline: true
+
+  # Visit Information
+  visit:
+    reason_for_visit:
+      aliases: ["reason for visit", "chief complaint", "main concern"]
+      patterns: ["reason_for_visit", "chief_complaint", "visit_reason"]
+      validation: "^[A-Za-z0-9\\s\\-.,;()]{1,500}$"
+      required: true
+      multiline: true
+      
+    symptoms:
+      aliases: ["symptoms", "what symptoms", "problems"]
+      patterns: ["symptoms", "current_symptoms"]
+      validation: "^[A-Za-z0-9\\s\\-.,;()]{0,500}$"
+      required: false
+      multiline: true
+      
+    appointment_date:
+      aliases: ["appointment date", "visit date", "today's date"]
+      patterns: ["appointment_date", "visit_date"]
+      validation: "^(0[1-9]|1[0-2])/(0[1-9]|[12]\\d|3[01])/(19|20)\\d{2}$"
+      format: "MM/DD/YYYY"
+      auto_fill: "current_date"
+      required: true
+
+# Voice command processing rules
+voice_commands:
+  patterns:
+    - pattern: "patient name is {patient_name}"
+      fields:
+        - field: "patient_name"
+          value: "{patient_name}"
+          
+    - pattern: "I was born on {date_of_birth}"
+      fields:
+        - field: "date_of_birth"
+          value: "{date_of_birth}"
+          
+    - pattern: "my gender is {gender}"
+      fields:
+        - field: "gender"
+          value: "{gender}"
+          
+    - pattern: "my phone number is {phone}"
+      fields:
+        - field: "phone"
+          value: "{phone}"
+          
+    - pattern: "my insurance is {insurance_company}"
+      fields:
+        - field: "insurance_company"
+          value: "{insurance_company}"
+          
+    - pattern: "policy number {policy_number}"
+      fields:
+        - field: "policy_number"
+          value: "{policy_number}"
+          
+    - pattern: "emergency contact is {emergency_name} at {emergency_phone}"
+      fields:
+        - field: "emergency_name"
+          value: "{emergency_name}"
+        - field: "emergency_phone"
+          value: "{emergency_phone}"
+          
+    - pattern: "I am allergic to {allergies}"
+      fields:
+        - field: "allergies"
+          value: "{allergies}"
+          
+    - pattern: "I take {current_medications}"
+      fields:
+        - field: "current_medications"
+          value: "{current_medications}"
+          
+    - pattern: "reason for visit is {reason_for_visit}"
+      fields:
+        - field: "reason_for_visit"
+          value: "{reason_for_visit}"
+          
+    - pattern: "my symptoms are {symptoms}"
+      fields:
+        - field: "symptoms"
+          value: "{symptoms}"
+
+# Form validation rules
+validation:
+  pre_submit_checks:
+    - check: "required_fields"
+      message: "Please complete all required fields"
+      fields: ["patient_name", "date_of_birth", "gender", "phone", "address", "city", "state", "zip_code"]
+      
+    - check: "insurance_required"
+      message: "Insurance information is required"
+      fields: ["insurance_company", "policy_number", "subscriber_name", "relationship_to_patient"]
+      conditional: true
+      
+    - check: "emergency_contact_required"
+      message: "Emergency contact information is required"
+      fields: ["emergency_name", "emergency_phone", "emergency_relationship"]
+      
+    - check: "visit_reason_required"
+      message: "Reason for visit must be provided"
+      fields: ["reason_for_visit"]
+
+# Medical-specific error handling
+error_handling:
+  retry_attempts: 3
+  timeout_seconds: 45
+  
+  error_responses:
+    sensitive_data: "This appears to be sensitive medical information. Please ensure privacy before continuing."
+    incomplete_insurance: "Insurance information seems incomplete. Please verify all details."
+    missing_emergency_contact: "Emergency contact is required for medical forms."
+    unclear_symptoms: "Could you describe your symptoms more clearly?"
+
+# HIPAA compliance features
+hipaa_compliance:
+  enabled: true
+  privacy_notice_required: true
+  authorization_required: true
+  data_encryption: true
+  audit_logging: true
+  
+  privacy_reminders:
+    - "This form contains protected health information"
+    - "All data is processed locally and securely"
+    - "You have the right to control your medical information"
+    - "Data will be cleared automatically after use"
+
+# Multi-language support
+i18n:
+  en:
+    skill_name: "Medical Form Assistant"
+    description: "Fill medical forms with voice commands"
+    
+  es:
+    skill_name: "Asistente de formularios médicos"
+    description: "Rellena formularios médicos con comandos de voz"
+    
+  fr:
+    skill_name: "Assistant de formulaires médicaux"
+    description: "Remplir les formulaires médicaux avec des commandes vocales"
+    
+  de:
+    skill_name: "Medizinischer Formular-Assistent"
+    description: "Fülle medizinische Formulare mit Sprachbefehlen aus"
+
+# Security and privacy (enhanced for medical data)
+security:
+  data_encryption: true
+  local_storage_only: true
+  auto_clear_sensitive: true
+  clear_after_minutes: 15  # Shorter for medical data
+  
+  sensitive_fields:
+    - "policy_number"
+    - "group_number"
+    - "medical_conditions"
+    - "allergies"
+    - "current_medications"
+    - "symptoms"
+    - "reason_for_visit"
+    
+  privacy_notes:
+    - "All medical data processed locally on device"
+    - "HIPAA compliant data handling"
+    - "No medical information sent to external servers"
+    - "Automatic secure data clearing after use"
+    - "User maintains full control over health information"

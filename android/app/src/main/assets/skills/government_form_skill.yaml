@@ -1,0 +1,374 @@
+# Government Form Skill Template
+# Advanced skill for common government application forms
+
+name: "Government Form Application"
+version: "1.0"
+description: "Comprehensive skill for filling government application forms including tax forms, permits, and official documents"
+category: "government"
+languages: ["en", "es", "fr", "de"]
+
+# Skill metadata
+metadata:
+  author: "VoiceBridge Team"
+  created: "2025-01-01"
+  updated: "2025-01-01"
+  difficulty: "advanced"
+  estimated_time: "5-10 minutes"
+  supported_forms:
+    - "Tax returns (1040, 1099)"
+    - "Immigration forms (I-485, N-400)"
+    - "Business permits"
+    - "Social security applications"
+    - "Driver's license renewals"
+    - "Passport applications"
+
+# Field mappings for common government form fields
+field_mappings:
+  # Personal Information
+  personal:
+    first_name:
+      aliases: ["first name", "given name", "forename", "christian name"]
+      patterns: ["fname", "first_name", "given_name", "firstName"]
+      validation: "^[A-Za-z\\s\\-']{1,50}$"
+      required: true
+      
+    middle_name:
+      aliases: ["middle name", "middle initial", "second name"]
+      patterns: ["mname", "middle_name", "middleName", "mi"]
+      validation: "^[A-Za-z\\s\\-']{0,50}$"
+      required: false
+      
+    last_name:
+      aliases: ["last name", "surname", "family name", "lastname"]
+      patterns: ["lname", "last_name", "surname", "lastName"]
+      validation: "^[A-Za-z\\s\\-']{1,50}$"
+      required: true
+      
+    full_name:
+      aliases: ["full name", "complete name", "legal name"]
+      patterns: ["full_name", "fullName", "name", "legal_name"]
+      validation: "^[A-Za-z\\s\\-']{1,100}$"
+      required: true
+      
+    maiden_name:
+      aliases: ["maiden name", "birth name", "former name"]
+      patterns: ["maiden_name", "birth_name", "former_name"]
+      validation: "^[A-Za-z\\s\\-']{0,50}$"
+      required: false
+
+  # Identification
+  identification:
+    ssn:
+      aliases: ["social security number", "ssn", "social security", "ss number"]
+      patterns: ["ssn", "social_security", "ss_number", "social_security_number"]
+      validation: "^\\d{3}-?\\d{2}-?\\d{4}$"
+      format: "XXX-XX-XXXX"
+      required: true
+      sensitive: true
+      
+    drivers_license:
+      aliases: ["driver's license", "drivers license", "dl number", "license number"]
+      patterns: ["drivers_license", "dl_number", "license_number"]
+      validation: "^[A-Z0-9]{8,20}$"
+      required: false
+      
+    passport_number:
+      aliases: ["passport number", "passport", "passport id"]
+      patterns: ["passport_number", "passport", "passport_id"]
+      validation: "^[A-Z0-9]{6,9}$"
+      required: false
+      
+    alien_number:
+      aliases: ["alien registration number", "a-number", "alien number"]
+      patterns: ["alien_number", "a_number", "registration_number"]
+      validation: "^A\\d{8,9}$"
+      format: "AXXXXXXXXX"
+      required: false
+
+  # Contact Information
+  contact:
+    email:
+      aliases: ["email address", "email", "e-mail", "electronic mail"]
+      patterns: ["email", "email_address", "e_mail"]
+      validation: "^[\\w\\.-]+@[\\w\\.-]+\\.[a-zA-Z]{2,}$"
+      required: true
+      
+    phone:
+      aliases: ["phone number", "telephone", "phone", "mobile", "cell phone"]
+      patterns: ["phone", "telephone", "mobile", "cell"]
+      validation: "^\\(?\\d{3}\\)?[\\s\\-]?\\d{3}[\\s\\-]?\\d{4}$"
+      format: "(XXX) XXX-XXXX"
+      required: true
+      
+    alternate_phone:
+      aliases: ["alternate phone", "secondary phone", "other phone"]
+      patterns: ["alt_phone", "alternate_phone", "phone2"]
+      validation: "^\\(?\\d{3}\\)?[\\s\\-]?\\d{3}[\\s\\-]?\\d{4}$"
+      format: "(XXX) XXX-XXXX"
+      required: false
+
+  # Address Information
+  address:
+    street_address:
+      aliases: ["street address", "address line 1", "street", "address"]
+      patterns: ["address", "street", "address1", "street_address"]
+      validation: "^[A-Za-z0-9\\s\\-#.,]{1,100}$"
+      required: true
+      
+    address_line_2:
+      aliases: ["address line 2", "apartment", "unit", "suite", "apt"]
+      patterns: ["address2", "apt", "unit", "suite"]
+      validation: "^[A-Za-z0-9\\s\\-#.,]{0,50}$"
+      required: false
+      
+    city:
+      aliases: ["city", "town", "municipality"]
+      patterns: ["city", "town", "municipality"]
+      validation: "^[A-Za-z\\s\\-']{1,50}$"
+      required: true
+      
+    state:
+      aliases: ["state", "province", "region"]
+      patterns: ["state", "province", "region"]
+      validation: "^[A-Za-z\\s]{2,50}$"
+      required: true
+      
+    zip_code:
+      aliases: ["zip code", "postal code", "zip", "postcode"]
+      patterns: ["zip", "postal_code", "zipcode"]
+      validation: "^\\d{5}(-\\d{4})?$"
+      format: "XXXXX" or "XXXXX-XXXX"
+      required: true
+      
+    country:
+      aliases: ["country", "nation"]
+      patterns: ["country", "nation"]
+      validation: "^[A-Za-z\\s]{1,50}$"
+      default: "United States"
+      required: true
+
+  # Date Information
+  dates:
+    date_of_birth:
+      aliases: ["date of birth", "birth date", "dob", "birthday"]
+      patterns: ["dob", "birth_date", "date_of_birth"]
+      validation: "^(0[1-9]|1[0-2])/(0[1-9]|[12]\\d|3[01])/(19|20)\\d{2}$"
+      format: "MM/DD/YYYY"
+      required: true
+      
+    application_date:
+      aliases: ["application date", "date of application", "today's date"]
+      patterns: ["application_date", "date_applied"]
+      validation: "^(0[1-9]|1[0-2])/(0[1-9]|[12]\\d|3[01])/(19|20)\\d{2}$"
+      format: "MM/DD/YYYY"
+      auto_fill: "current_date"
+      required: true
+
+  # Employment Information
+  employment:
+    employer:
+      aliases: ["employer", "company", "organization", "workplace"]
+      patterns: ["employer", "company", "organization"]
+      validation: "^[A-Za-z0-9\\s\\-.,&]{1,100}$"
+      required: false
+      
+    job_title:
+      aliases: ["job title", "position", "occupation", "title"]
+      patterns: ["job_title", "position", "occupation"]
+      validation: "^[A-Za-z\\s\\-]{1,50}$"
+      required: false
+      
+    annual_income:
+      aliases: ["annual income", "yearly income", "salary", "income"]
+      patterns: ["income", "salary", "annual_income"]
+      validation: "^\\$?[0-9,]{1,12}$"
+      format: "$XX,XXX"
+      required: false
+
+# Voice command processing rules
+voice_commands:
+  # Natural language patterns for form filling
+  patterns:
+    - pattern: "my name is {first_name} {last_name}"
+      fields:
+        - field: "first_name"
+          value: "{first_name}"
+        - field: "last_name"
+          value: "{last_name}"
+        - field: "full_name"
+          value: "{first_name} {last_name}"
+          
+    - pattern: "I am {first_name} {middle_name} {last_name}"
+      fields:
+        - field: "first_name"
+          value: "{first_name}"
+        - field: "middle_name"
+          value: "{middle_name}"
+        - field: "last_name"
+          value: "{last_name}"
+        - field: "full_name"
+          value: "{first_name} {middle_name} {last_name}"
+          
+    - pattern: "my social security number is {ssn}"
+      fields:
+        - field: "ssn"
+          value: "{ssn}"
+          
+    - pattern: "my email is {email}"
+      fields:
+        - field: "email"
+          value: "{email}"
+          
+    - pattern: "my phone number is {phone}"
+      fields:
+        - field: "phone"
+          value: "{phone}"
+          
+    - pattern: "I live at {street_address} in {city} {state} {zip_code}"
+      fields:
+        - field: "street_address"
+          value: "{street_address}"
+        - field: "city"
+          value: "{city}"
+        - field: "state"
+          value: "{state}"
+        - field: "zip_code"
+          value: "{zip_code}"
+          
+    - pattern: "my address is {street_address} {city} {state} {zip_code}"
+      fields:
+        - field: "street_address"
+          value: "{street_address}"
+        - field: "city"
+          value: "{city}"
+        - field: "state"
+          value: "{state}"
+        - field: "zip_code"
+          value: "{zip_code}"
+          
+    - pattern: "I was born on {date_of_birth}"
+      fields:
+        - field: "date_of_birth"
+          value: "{date_of_birth}"
+          
+    - pattern: "my date of birth is {date_of_birth}"
+      fields:
+        - field: "date_of_birth"
+          value: "{date_of_birth}"
+
+  # Command aliases for navigation
+  navigation_commands:
+    - "next field"
+    - "previous field"
+    - "skip this field"
+    - "clear field"
+    - "submit form"
+    - "review form"
+    - "start over"
+
+# Form validation rules
+validation:
+  pre_submit_checks:
+    - check: "required_fields"
+      message: "Please fill all required fields"
+      fields: ["first_name", "last_name", "ssn", "email", "phone", "street_address", "city", "state", "zip_code", "date_of_birth"]
+      
+    - check: "ssn_format"
+      message: "Social Security Number must be in format XXX-XX-XXXX"
+      field: "ssn"
+      
+    - check: "email_format"
+      message: "Please enter a valid email address"
+      field: "email"
+      
+    - check: "phone_format"
+      message: "Phone number must be in format (XXX) XXX-XXXX"
+      field: "phone"
+      
+    - check: "date_format"
+      message: "Date must be in format MM/DD/YYYY"
+      fields: ["date_of_birth", "application_date"]
+
+# Error handling and recovery
+error_handling:
+  retry_attempts: 3
+  timeout_seconds: 30
+  
+  error_responses:
+    field_not_found: "I couldn't find that field. Could you try describing it differently?"
+    validation_failed: "The information doesn't match the required format. Please try again."
+    voice_unclear: "I didn't catch that clearly. Could you repeat it?"
+    form_not_supported: "This form type isn't fully supported yet. You may need to fill some fields manually."
+
+# Accessibility features
+accessibility:
+  screen_reader_support: true
+  high_contrast_mode: true
+  keyboard_navigation: true
+  voice_feedback: true
+  
+  announcements:
+    field_focus: "Now filling {field_name}"
+    field_completed: "Filled {field_name} with {value}"
+    form_progress: "Form is {percentage}% complete"
+    validation_error: "Error in {field_name}: {error_message}"
+    form_submitted: "Form submitted successfully"
+
+# Multi-language support
+i18n:
+  en:
+    skill_name: "Government Form Application"
+    description: "Fill government forms with voice commands"
+    
+  es:
+    skill_name: "Aplicación de formulario gubernamental"
+    description: "Rellena formularios gubernamentales con comandos de voz"
+    
+  fr:
+    skill_name: "Application de formulaire gouvernemental"
+    description: "Remplir les formulaires gouvernementaux avec des commandes vocales"
+    
+  de:
+    skill_name: "Regierungsformular-Anwendung"
+    description: "Fülle Regierungsformulare mit Sprachbefehlen aus"
+
+# Advanced features
+advanced_features:
+  auto_completion:
+    enabled: true
+    confidence_threshold: 0.8
+    
+  context_awareness:
+    enabled: true
+    learn_from_corrections: true
+    
+  smart_field_detection:
+    enabled: true
+    use_ml_models: true
+    
+  data_prefill:
+    enabled: true
+    source: "user_profile"
+    
+  batch_processing:
+    enabled: true
+    max_forms: 10
+
+# Security and privacy
+security:
+  data_encryption: true
+  local_storage_only: true
+  auto_clear_sensitive: true
+  clear_after_minutes: 30
+  
+  sensitive_fields:
+    - "ssn"
+    - "passport_number"
+    - "drivers_license"
+    - "alien_number"
+    
+  privacy_notes:
+    - "All data processed locally on device"
+    - "No information sent to external servers"
+    - "Sensitive data automatically cleared after use"
+    - "User has full control over data retention"

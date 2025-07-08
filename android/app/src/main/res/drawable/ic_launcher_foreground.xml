@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Background circle for contrast -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,54m-32,0a32,32 0,1 1,64 0a32,32 0,1 1,-64 0"
+        android:fillAlpha="0.9"/>
+    
+    <!-- Microphone icon -->
+    <group
+        android:translateX="54"
+        android:translateY="54">
+        
+        <!-- Microphone body -->
+        <path
+            android:fillColor="#2196F3"
+            android:pathData="M-8,-16
+                C-8,-20.42 -4.42,-24 0,-24
+                C4.42,-24 8,-20.42 8,-16
+                L8,0
+                C8,4.42 4.42,8 0,8
+                C-4.42,8 -8,4.42 -8,0
+                Z"/>
+        
+        <!-- Microphone stand arc -->
+        <path
+            android:strokeColor="#2196F3"
+            android:strokeWidth="3"
+            android:fillColor="#00000000"
+            android:pathData="M-16,0
+                C-16,8.84 -8.84,16 0,16
+                C8.84,16 16,8.84 16,0"/>
+        
+        <!-- Microphone base -->
+        <path
+            android:fillColor="#2196F3"
+            android:pathData="M0,16 L0,24 M-8,24 L8,24"/>
+        <path
+            android:strokeColor="#2196F3"
+            android:strokeWidth="3"
+            android:fillColor="#00000000"
+            android:pathData="M0,16 L0,20"/>
+        <path
+            android:strokeColor="#2196F3"
+            android:strokeWidth="3"
+            android:fillColor="#00000000"
+            android:pathData="M-8,20 L8,20"/>
+        
+        <!-- Voice waves (left) -->
+        <path
+            android:strokeColor="#03DAC6"
+            android:strokeWidth="2"
+            android:fillColor="#00000000"
+            android:pathData="M-20,-8
+                Q-24,-4 -20,0
+                Q-16,4 -20,8"
+            android:strokeAlpha="0.8"/>
+        
+        <!-- Voice waves (right) -->
+        <path
+            android:strokeColor="#03DAC6"
+            android:strokeWidth="2"
+            android:fillColor="#00000000"
+            android:pathData="M20,-8
+                Q24,-4 20,0
+                Q16,4 20,8"
+            android:strokeAlpha="0.8"/>
+            
+        <!-- Small accent dots -->
+        <circle
+            android:fillColor="#FF9800"
+            android:fillAlpha="0.9"
+            android:cx="0"
+            android:cy="-8"
+            android:r="2"/>
+        <circle
+            android:fillColor="#FF9800"
+            android:fillAlpha="0.7"
+            android:cx="0"
+            android:cy="-2"
+            android:r="1.5"/>
+        <circle
+            android:fillColor="#FF9800"
+            android:fillAlpha="0.5"
+            android:cx="0"
+            android:cy="3"
+            android:r="1"/>
+    </group>
+</vector>

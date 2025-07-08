@@ -1,0 +1,147 @@
+id: florida_snap_renewal
+language: en
+name: Florida SNAP Renewal Form
+description: Automated form filling for Florida SNAP benefits renewal
+version: 1.0
+
+prompts:
+  - field: full_name
+    ask: "What is your full legal name?"
+    hint: "Please provide your first and last name as it appears on your ID"
+    type: name
+    required: true
+    validation: "^[A-Za-z\\s\\-']{2,50}$"
+    
+  - field: social_security_number
+    ask: "What is your Social Security Number?"
+    hint: "Please provide your 9-digit Social Security Number"
+    type: ssn
+    required: true
+    validation: "^\\d{3}-\\d{2}-\\d{4}$"
+    format: "XXX-XX-XXXX"
+    
+  - field: date_of_birth
+    ask: "What is your date of birth?"
+    hint: "Please provide your birth date in month, day, year format"
+    type: date
+    required: true
+    format: "MM/DD/YYYY"
+    
+  - field: phone_number
+    ask: "What is your phone number?"
+    hint: "Please provide your primary phone number"
+    type: phone
+    required: true
+    format: "(XXX) XXX-XXXX"
+    
+  - field: email_address
+    ask: "What is your email address?"
+    hint: "Please provide your email address for communication"
+    type: email
+    required: false
+    validation: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+    
+  - field: home_address
+    ask: "What is your current home address?"
+    hint: "Please provide your complete street address"
+    type: address
+    required: true
+    
+  - field: city
+    ask: "What city do you live in?"
+    hint: "Please provide your city"
+    type: text
+    required: true
+    
+  - field: state
+    ask: "What state do you live in?"
+    hint: "Please provide your state"
+    type: text
+    required: true
+    default: "Florida"
+    
+  - field: zip_code
+    ask: "What is your ZIP code?"
+    hint: "Please provide your 5-digit ZIP code"
+    type: text
+    required: true
+    validation: "^\\d{5}$"
+    
+  - field: household_size
+    ask: "How many people live in your household?"
+    hint: "Include yourself and all family members living with you"
+    type: number
+    required: true
+    min: 1
+    max: 20
+    
+  - field: monthly_income
+    ask: "What is your total monthly household income?"
+    hint: "Include all sources of income before taxes"
+    type: currency
+    required: true
+    format: "$X,XXX.XX"
+    
+  - field: employment_status
+    ask: "What is your current employment status?"
+    hint: "Select your primary employment situation"
+    type: select
+    required: true
+    options:
+      - "Employed full-time"
+      - "Employed part-time"
+      - "Self-employed"
+      - "Unemployed"
+      - "Retired"
+      - "Disabled"
+      - "Student"
+
+postprocess:
+  - action: format_phone
+    field: phone_number
+    format: "(XXX) XXX-XXXX"
+    
+  - action: format_ssn
+    field: social_security_number
+    format: "XXX-XX-XXXX"
+    
+  - action: capitalize_name
+    field: full_name
+    
+  - action: uppercase_state
+    field: state
+    
+  - action: validate_zip
+    field: zip_code
+    pattern: "^\\d{5}$"
+    
+  - action: format_currency
+    field: monthly_income
+    format: "$X,XXX.XX"
+
+accessibility:
+  target_app: "com.florida.gov.snap"
+  form_selectors:
+    full_name: "input[name='fullName']"
+    social_security_number: "input[name='ssn']"
+    date_of_birth: "input[name='dob']"
+    phone_number: "input[name='phone']"
+    email_address: "input[name='email']"
+    home_address: "input[name='address']"
+    city: "input[name='city']"
+    state: "select[name='state']"
+    zip_code: "input[name='zip']"
+    household_size: "input[name='householdSize']"
+    monthly_income: "input[name='monthlyIncome']"
+    employment_status: "select[name='employmentStatus']"
+    
+  submit_button: "button[type='submit']"
+  
+commands:
+  - trigger: "fill snap renewal form"
+    action: execute_skill
+    skill: florida_snap_renewal
+    
+  - trigger: "start snap application"
+    action: execute_skill
+    skill: florida_snap_renewal

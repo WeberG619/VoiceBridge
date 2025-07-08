@@ -1,0 +1,26 @@
+Primary Category: Productivity
+Secondary Category: Tools
+
+Google Play Category ID: PRODUCTIVITY
+
+Relevant Subcategories:
+- Accessibility
+- Business
+- Education
+- Medical
+
+App Type: Application (not Game)
+
+Content Rating: Everyone
+
+Target Age Groups:
+- Teens (13-17)
+- Adults (18+)
+- Seniors (65+)
+
+Special Designations:
+- Accessibility App
+- Offline Capable
+- Privacy Focused
+- No Ads
+- No In-App Purchases
