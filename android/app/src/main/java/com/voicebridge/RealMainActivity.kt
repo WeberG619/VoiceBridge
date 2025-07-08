@@ -92,8 +92,7 @@ class RealMainActivity : AppCompatActivity() {
         checkAPIKeys()
         checkPermissions()
         
-        // Initialize camera after permissions
-        initializeCamera()
+        // Camera will be initialized after permissions are granted
     }
     
     private fun createUI() {
@@ -455,11 +454,16 @@ class RealMainActivity : AppCompatActivity() {
         }
         
         if (missingPermissions.isNotEmpty()) {
+            updateStatus("Requesting camera and microphone permissions...")
+            speak("I need camera and microphone permissions to help you see and hear.")
             ActivityCompat.requestPermissions(
                 this,
                 missingPermissions.toTypedArray(),
                 PERMISSION_REQUEST_CODE
             )
+        } else {
+            // Permissions already granted, initialize camera
+            initializeCamera()
         }
     }
     
@@ -605,9 +609,29 @@ class RealMainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-                updateStatus("Permissions granted!")
+                updateStatus("Permissions granted! Initializing camera...")
+                speak("Permissions granted. Setting up camera for live vision.")
+                // Now initialize camera with permissions
+                initializeCamera()
             } else {
-                updateStatus("Permissions needed for voice & camera")
+                updateStatus("Camera and microphone permissions needed")
+                speak("I need camera permission to help you see. Please grant permissions in settings.")
+                
+                // Show dialog explaining why permissions are needed
+                androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Permissions Required for Accessibility")
+                    .setMessage("VoiceBridge needs camera permission to provide live vision assistance for visual impairments and reading difficulties. Please grant permissions in Settings.")
+                    .setPositiveButton("Settings") { _, _ ->
+                        // Open app settings
+                        val intent = android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                        intent.data = android.net.Uri.fromParts("package", packageName, null)
+                        startActivity(intent)
+                    }
+                    .setNegativeButton("Voice Only") { _, _ ->
+                        updateStatus("Voice mode only - camera features disabled")
+                        speak("Operating in voice mode only. Camera features are disabled.")
+                    }
+                    .show()
             }
         }
     }
@@ -821,43 +845,63 @@ class RealMainActivity : AppCompatActivity() {
      * Analyze current camera frame for accessibility
      */
     private fun analyzeLiveFrame() {
-        // Capture current frame from preview
-        val bitmap = cameraPreview.getBitmap() ?: return
+        if (!isLiveVisionActive || !APIConfig.hasVisionAPI()) {
+            return
+        }
         
-        lifecycleScope.launch {
-            try {
-                // Use Google Vision for scene analysis
-                val ocrResult = googleVisionAPI.extractTextFromImage(bitmap)
-                
-                // Create accessibility-focused prompt
-                val prompt = buildString {
-                    append("You are an AI sight assistant helping someone navigate their environment. ")
-                    append("Describe what you see in this scene briefly and helpfully. ")
-                    append("Focus on: obstacles, text to read, objects, people, navigation help. ")
-                    append("Be concise but descriptive. ")
-                    if (ocrResult.text.isNotEmpty()) {
-                        append("Text visible: ${ocrResult.text}")
-                    }
-                }
-                
-                // Get Claude's description
-                val description = claudeAPI.chatAboutForm(
-                    userMessage = prompt,
-                    formText = ocrResult.text,
-                    conversationHistory = emptyList() // Keep it fresh for live analysis
-                )
-                
-                // Only speak if there's something meaningful to say
-                if (description.length > 10 && !description.contains("I can't see")) {
-                    runOnUiThread {
-                        updateStatus("👁️ ${description.take(50)}...")
-                    }
-                    // Don't speak every frame - only on voice request
-                }
-                
-            } catch (e: Exception) {
-                Log.e(TAG, "Live vision analysis error", e)
+        try {
+            // Capture current frame from preview
+            val bitmap = cameraPreview.getBitmap()
+            
+            if (bitmap == null) {
+                Log.w(TAG, "Could not capture frame from camera preview")
+                return
             }
+            
+            Log.d(TAG, "📸 Captured frame for live vision analysis")
+            
+            lifecycleScope.launch {
+                try {
+                    // Use Google Vision for scene analysis
+                    val ocrResult = googleVisionAPI.extractTextFromImage(bitmap)
+                    
+                    // Create accessibility-focused prompt
+                    val prompt = buildString {
+                        append("You are an AI sight assistant helping someone navigate their environment. ")
+                        append("Describe what you see in this scene briefly and helpfully. ")
+                        append("Focus on: obstacles, text to read, objects, people, navigation help. ")
+                        append("Be concise but descriptive. ")
+                        if (ocrResult.text.isNotEmpty()) {
+                            append("Text visible: ${ocrResult.text}")
+                        }
+                    }
+                    
+                    // Get Claude's description
+                    val description = claudeAPI.chatAboutForm(
+                        userMessage = prompt,
+                        formText = ocrResult.text,
+                        conversationHistory = emptyList() // Keep it fresh for live analysis
+                    )
+                    
+                    // Update status with brief description
+                    if (description.length > 10 && !description.contains("I can't see")) {
+                        runOnUiThread {
+                            updateStatus("👁️ Live: ${description.take(60)}...")
+                        }
+                        Log.d(TAG, "✅ Live vision analysis: $description")
+                        // Don't speak every frame - only on voice request
+                    }
+                    
+                } catch (e: Exception) {
+                    Log.e(TAG, "Live vision analysis error", e)
+                    runOnUiThread {
+                        updateStatus("👁️ Live vision active (analysis paused)")
+                    }
+                }
+            }
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error capturing frame for live vision", e)
         }
     }
     
@@ -865,24 +909,35 @@ class RealMainActivity : AppCompatActivity() {
      * Initialize camera for both photo capture AND live vision
      */
     private fun initializeCamera() {
+        // Check if we have camera permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "Camera permission not granted")
+            updateStatus("Camera permission needed")
+            return
+        }
+        
+        updateStatus("Setting up camera...")
+        
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         
         cameraProviderFuture.addListener({
-            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-            
-            // Preview for live vision
-            preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(cameraPreview.surfaceProvider)
-            }
-            
-            // Image capture for photos
-            imageCapture = ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                .build()
-            
-            val cameraSelector = androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA
-            
             try {
+                val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+                
+                // Preview for live vision
+                preview = Preview.Builder()
+                    .build()
+                    .also {
+                        it.setSurfaceProvider(cameraPreview.surfaceProvider)
+                    }
+                
+                // Image capture for photos
+                imageCapture = ImageCapture.Builder()
+                    .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                    .build()
+                
+                val cameraSelector = androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA
+                
                 // Unbind use cases before rebinding
                 cameraProvider.unbindAll()
                 
@@ -894,10 +949,31 @@ class RealMainActivity : AppCompatActivity() {
                     imageCapture
                 )
                 
-                Log.d(TAG, "Camera initialized for live vision and photo capture")
+                updateStatus("Camera ready! 📷 Tap green for photos, 👁️ golden for live vision")
+                speak("Camera is ready. You can now use photo capture and live vision features.")
+                
+                Log.d(TAG, "✅ Camera successfully initialized for live vision and photo capture")
                 
             } catch (exc: Exception) {
-                Log.e(TAG, "Camera initialization failed", exc)
+                Log.e(TAG, "❌ Camera initialization failed", exc)
+                updateStatus("Camera setup failed - please restart app")
+                speak("Camera setup failed. Please restart the app and grant camera permission.")
+                
+                // Show helpful error dialog
+                androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Camera Setup Failed")
+                    .setMessage("Unable to initialize camera. This may be because:\n\n• Another app is using the camera\n• Camera permission was denied\n• Device camera is not available\n\nPlease restart the app and ensure camera permission is granted.")
+                    .setPositiveButton("Restart App") { _, _ ->
+                        // Restart the app
+                        val intent = intent
+                        finish()
+                        startActivity(intent)
+                    }
+                    .setNegativeButton("Voice Only") { _, _ ->
+                        updateStatus("Voice mode only")
+                        speak("Operating in voice mode only.")
+                    }
+                    .show()
             }
             
         }, ContextCompat.getMainExecutor(this))
