@@ -137,6 +137,81 @@ class ClaudeAPI(private val apiKey: String) {
     }
     
     /**
+     * Have a natural conversation with Claude about vision/sight assistance
+     */
+    suspend fun chatAboutVision(
+        userMessage: String,
+        sceneText: String? = null,
+        conversationHistory: List<String> = emptyList()
+    ): String = withContext(Dispatchers.IO) {
+        
+        try {
+            // Build conversation context
+            val messages = mutableListOf<Message>()
+            
+            // System message for vision assistance
+            val systemPrompt = buildString {
+                append("You are VoiceBridge AI, a sight assistant helping people see and understand their environment. ")
+                append("You describe what you see clearly and helpfully, like a caring friend. ")
+                append("You help people with visual impairments, reading difficulties, and navigation. ")
+                append("Be descriptive but concise. Focus on what's useful and important. ")
+                append("Describe objects, people, text, obstacles, and surroundings naturally. ")
+                if (sceneText != null && sceneText.isNotEmpty()) {
+                    append("I can see this text in the image: '$sceneText'. ")
+                }
+                append("Answer their question about what you see directly and helpfully.")
+            }
+            
+            messages.add(Message("user", systemPrompt))
+            
+            // Add conversation history (keep recent for context)
+            conversationHistory.takeLast(6).forEach { history ->
+                messages.add(Message("assistant", history))
+            }
+            
+            // Add current user message
+            messages.add(Message("user", userMessage))
+            
+            val request = ClaudeRequest(
+                model = MODEL,
+                maxTokens = 200, // Longer for vision descriptions
+                messages = messages
+            )
+            
+            val requestBody = gson.toJson(request)
+                .toRequestBody("application/json".toMediaType())
+            
+            val httpRequest = Request.Builder()
+                .url(BASE_URL)
+                .post(requestBody)
+                .build()
+            
+            val response = client.newCall(httpRequest).execute()
+            
+            if (response.isSuccessful) {
+                val responseBody = response.body?.string()
+                val claudeResponse = gson.fromJson(responseBody, ClaudeResponse::class.java)
+                
+                val aiResponse = claudeResponse.content.firstOrNull()?.text ?: "I'm here to help you see!"
+                
+                Log.d(TAG, "Claude vision response: $aiResponse")
+                return@withContext aiResponse
+                
+            } else {
+                Log.e(TAG, "Claude API error: ${response.code} - ${response.message}")
+                return@withContext "I'm having trouble seeing right now. Please try again."
+            }
+            
+        } catch (e: IOException) {
+            Log.e(TAG, "Network error calling Claude API", e)
+            return@withContext "I can't connect to analyze what you're seeing. Please check your internet."
+        } catch (e: Exception) {
+            Log.e(TAG, "Error calling Claude API", e)
+            return@withContext "Something went wrong with my vision. Let me try again."
+        }
+    }
+    
+    /**
      * Analyze form text and suggest what to do next
      */
     suspend fun analyzeForm(formText: String): FormAnalysis = withContext(Dispatchers.IO) {

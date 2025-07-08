@@ -110,67 +110,77 @@ class RealMainActivity : AppCompatActivity() {
             )
         }
         
-        // App title
+        // App title - Enhanced with modern styling
         val titleText = TextView(this).apply {
             text = "🎤 VoiceBridge AI"
-            textSize = 32f
+            textSize = 36f
             setTextColor(Color.WHITE)
             typeface = android.graphics.Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
-            setPadding(0, 80, 0, 10)
+            setPadding(0, 60, 0, 10)
+            // Add text shadow for depth
+            setShadowLayer(8f, 0f, 4f, Color.parseColor("#000000"))
         }
         container.addView(titleText)
         
         val subtitleText = TextView(this).apply {
             text = "🌟 AI Assistant for Everyone • Accessible • Empowering"
-            textSize = 16f
-            setTextColor(Color.parseColor("#a0a0a0"))
+            textSize = 18f
+            setTextColor(Color.parseColor("#c0c0c0"))
             gravity = Gravity.CENTER
-            setPadding(0, 0, 0, 20)
+            setPadding(0, 0, 0, 30)
+            // Add subtle glow effect
+            setShadowLayer(6f, 0f, 0f, Color.parseColor("#60a5fa"))
         }
         container.addView(subtitleText)
         
-        // Live camera preview (initially hidden)
+        // Live camera preview (initially hidden) - Made larger and more modern
         cameraPreview = PreviewView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(350, 250).apply {
-                setMargins(0, 20, 0, 20)
+            layoutParams = LinearLayout.LayoutParams(600, 400).apply {
+                setMargins(20, 20, 20, 20)
             }
             visibility = android.view.View.GONE
             background = GradientDrawable().apply {
-                cornerRadius = 20f
-                setStroke(3, Color.parseColor("#60a5fa"))
+                cornerRadius = 30f
+                setStroke(4, Color.parseColor("#60a5fa"))
+                // Add subtle shadow effect
+                setColor(Color.parseColor("#1a1a2e"))
             }
+            elevation = 16f
         }
         container.addView(cameraPreview)
         
-        // Status text
+        // Status text - Enhanced with modern styling
         statusText = TextView(this).apply {
             text = "Setting up..."
-            textSize = 18f
+            textSize = 20f
             setTextColor(Color.parseColor("#60a5fa"))
             gravity = Gravity.CENTER
             setPadding(40, 0, 40, 30)
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+            // Add subtle glow effect
+            setShadowLayer(4f, 0f, 0f, Color.parseColor("#3b82f6"))
         }
         container.addView(statusText)
         
-        // Main voice button (like ChatGPT) - Enhanced with gradient
+        // Main voice button (like ChatGPT) - Enhanced with modern gradient
         mainButton = ImageButton(this).apply {
-            layoutParams = LinearLayout.LayoutParams(250, 250)
+            layoutParams = LinearLayout.LayoutParams(280, 280)
             
             background = GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
                 intArrayOf(
-                    Color.parseColor("#3b82f6"), // Beautiful blue
-                    Color.parseColor("#1e40af")  // Deeper blue
+                    Color.parseColor("#4f46e5"), // Modern indigo
+                    Color.parseColor("#3730a3")  // Deeper indigo
                 )
             ).apply {
                 shape = GradientDrawable.OVAL
-                setStroke(6, Color.parseColor("#60a5fa")) // Light blue border
+                setStroke(8, Color.parseColor("#818cf8")) // Light indigo border
             }
             
             setImageResource(android.R.drawable.ic_btn_speak_now)
             scaleType = android.widget.ImageView.ScaleType.CENTER
-            elevation = 12f
+            elevation = 16f
             isEnabled = false
             
             setOnTouchListener { _, event ->
@@ -191,26 +201,26 @@ class RealMainActivity : AppCompatActivity() {
         }
         container.addView(mainButton)
         
-        // Camera button - Enhanced with gradient
+        // Camera button - Enhanced with modern gradient
         cameraButton = ImageButton(this).apply {
-            layoutParams = LinearLayout.LayoutParams(180, 180).apply {
-                setMargins(0, 30, 0, 0)
+            layoutParams = LinearLayout.LayoutParams(200, 200).apply {
+                setMargins(0, 40, 0, 0)
             }
             
             background = GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
                 intArrayOf(
-                    Color.parseColor("#10b981"), // Emerald green
-                    Color.parseColor("#059669")  // Deeper green
+                    Color.parseColor("#059669"), // Modern emerald
+                    Color.parseColor("#047857")  // Deeper emerald
                 )
             ).apply {
                 shape = GradientDrawable.OVAL
-                setStroke(4, Color.parseColor("#34d399")) // Light green border
+                setStroke(6, Color.parseColor("#6ee7b7")) // Light emerald border
             }
             
             setImageResource(android.R.drawable.ic_menu_camera)
             scaleType = android.widget.ImageView.ScaleType.CENTER
-            elevation = 8f
+            elevation = 12f
             
             setOnClickListener {
                 capturePhoto()
@@ -218,10 +228,10 @@ class RealMainActivity : AppCompatActivity() {
         }
         container.addView(cameraButton)
         
-        // Live Vision Button (GAME CHANGER!) - Enhanced with gradient
+        // Live Vision Button (GAME CHANGER!) - Enhanced with modern gradient
         liveVisionButton = ImageButton(this).apply {
-            layoutParams = LinearLayout.LayoutParams(180, 180).apply {
-                setMargins(0, 20, 0, 0)
+            layoutParams = LinearLayout.LayoutParams(200, 200).apply {
+                setMargins(0, 30, 0, 0)
             }
             
             background = GradientDrawable(
@@ -232,12 +242,12 @@ class RealMainActivity : AppCompatActivity() {
                 )
             ).apply {
                 shape = GradientDrawable.OVAL
-                setStroke(4, Color.parseColor("#fbbf24")) // Light golden border
+                setStroke(6, Color.parseColor("#fde68a")) // Light golden border
             }
             
             setImageResource(android.R.drawable.ic_menu_view)
             scaleType = android.widget.ImageView.ScaleType.CENTER
-            elevation = 8f
+            elevation = 12f
             
             setOnClickListener {
                 toggleLiveVision()
@@ -245,47 +255,58 @@ class RealMainActivity : AppCompatActivity() {
         }
         container.addView(liveVisionButton)
         
-        // Instructions
+        // Instructions - Enhanced with modern styling
         val instructionText = TextView(this).apply {
             text = "🎤 Hold to talk • 📷 Tap photo • 👁️ Live vision assistant"
-            textSize = 14f
-            setTextColor(Color.parseColor("#9ca3af"))
+            textSize = 16f
+            setTextColor(Color.parseColor("#d1d5db"))
             gravity = Gravity.CENTER
-            setPadding(40, 40, 40, 0)
+            setPadding(40, 50, 40, 0)
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
         }
         container.addView(instructionText)
         
-        // Accessibility description
+        // Accessibility description - Enhanced with modern styling
         val accessibilityText = TextView(this).apply {
             text = "♿ Designed for visual impairments, dyslexia, and accessibility"
-            textSize = 12f
-            setTextColor(Color.parseColor("#60a5fa"))
+            textSize = 14f
+            setTextColor(Color.parseColor("#93c5fd"))
             gravity = Gravity.CENTER
-            setPadding(40, 20, 40, 0)
+            setPadding(40, 25, 40, 0)
             typeface = android.graphics.Typeface.DEFAULT_BOLD
+            // Add subtle glow effect
+            setShadowLayer(4f, 0f, 0f, Color.parseColor("#3b82f6"))
         }
         container.addView(accessibilityText)
         
-        // Setup button
+        // Setup button - Enhanced with modern gradient
         setupButton = Button(this).apply {
             text = "⚙️ Setup API Keys"
-            textSize = 16f
+            textSize = 18f
             setTextColor(Color.WHITE)
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
             
-            background = GradientDrawable().apply {
+            background = GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                intArrayOf(
+                    Color.parseColor("#f59e0b"), // Golden orange
+                    Color.parseColor("#d97706")  // Deeper orange
+                )
+            ).apply {
                 shape = GradientDrawable.RECTANGLE
-                cornerRadius = 25f
-                setColor(Color.parseColor("#f59e0b")) // Orange
+                cornerRadius = 30f
+                setStroke(3, Color.parseColor("#fbbf24"))
             }
             
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
-                setMargins(0, 50, 0, 0)
+                setMargins(0, 60, 0, 0)
             }
             
-            setPadding(40, 20, 40, 20)
+            setPadding(50, 25, 50, 25)
+            elevation = 8f
             
             setOnClickListener { showAPISetupDialog() }
         }
@@ -535,26 +556,24 @@ class RealMainActivity : AppCompatActivity() {
             
             if (isVisionRequest && isLiveVisionActive) {
                 // Get current frame for immediate vision response
+                updateStatus("📸 Analyzing what you're pointing at...")
+                
                 val bitmap = cameraPreview.getBitmap()
                 if (bitmap != null) {
                     val ocrResult = googleVisionAPI.extractTextFromImage(bitmap)
                     
-                    val visionPrompt = buildString {
-                        append("The user asked: '$userInput'. ")
-                        append("Describe what you see in detail to help them. ")
-                        append("Focus on what they're asking about. ")
-                        if (ocrResult.text.isNotEmpty()) {
-                            append("Text visible: ${ocrResult.text}")
-                        }
-                    }
-                    
-                    response = claudeAPI.chatAboutForm(
-                        userMessage = visionPrompt,
-                        formText = ocrResult.text,
+                    // Use the new vision-specific method
+                    response = claudeAPI.chatAboutVision(
+                        userMessage = userInput,
+                        sceneText = ocrResult.text,
                         conversationHistory = conversationHistory
                     )
+                    
+                    Log.d(TAG, "✅ Live vision analysis completed for: $userInput")
+                    
                 } else {
                     response = "I can see the camera view but couldn't capture the current frame. Please try asking again."
+                    Log.w(TAG, "⚠️ Could not capture frame from camera preview")
                 }
             } else {
                 // Regular conversation
@@ -876,10 +895,10 @@ class RealMainActivity : AppCompatActivity() {
                         }
                     }
                     
-                    // Get Claude's description
-                    val description = claudeAPI.chatAboutForm(
+                    // Get Claude's description using vision method
+                    val description = claudeAPI.chatAboutVision(
                         userMessage = prompt,
-                        formText = ocrResult.text,
+                        sceneText = ocrResult.text,
                         conversationHistory = emptyList() // Keep it fresh for live analysis
                     )
                     
