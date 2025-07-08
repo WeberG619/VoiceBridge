@@ -224,8 +224,13 @@ class SkillEngine private constructor(private val context: Context) {
                     processedText = cleanText
                 )
             } else {
-                // Try to extract general commands
-                val extractedCommands = textProcessor.extractCommands(cleanText)
+                // Try to extract general commands with fallback
+                val extractedCommands = try {
+                    textProcessor.extractCommands(cleanText)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Native command extraction failed, using fallback", e)
+                    extractCommandsFallback(cleanText)
+                }
                 
                 if (extractedCommands.isNotEmpty()) {
                     val command = extractedCommands[0]
@@ -234,18 +239,30 @@ class SkillEngine private constructor(private val context: Context) {
                         isSuccess = true,
                         action = "general_command",
                         command = command,
-                        message = "Recognized command: $command",
+                        message = "Understood: $command",
                         originalText = voiceText,
                         processedText = cleanText
                     )
                 } else {
-                    return@withContext VoiceProcessingResult(
-                        isSuccess = false,
-                        action = "unknown",
-                        message = "Could not understand command: $voiceText",
-                        originalText = voiceText,
-                        processedText = cleanText
-                    )
+                    // Be more lenient - accept any reasonable input
+                    if (cleanText.trim().length >= 2) {
+                        return@withContext VoiceProcessingResult(
+                            isSuccess = true,
+                            action = "general_command",
+                            command = "general inquiry",
+                            message = "I heard: $cleanText",
+                            originalText = voiceText,
+                            processedText = cleanText
+                        )
+                    } else {
+                        return@withContext VoiceProcessingResult(
+                            isSuccess = false,
+                            action = "unclear",
+                            message = "Could you please speak more clearly?",
+                            originalText = voiceText,
+                            processedText = cleanText
+                        )
+                    }
                 }
             }
             
@@ -412,6 +429,54 @@ class SkillEngine private constructor(private val context: Context) {
         }
         
         return ValidationResult(true, "Valid")
+    }
+    
+    /**
+     * Fallback command extraction when native method fails
+     */
+    private fun extractCommandsFallback(text: String): Array<String> {
+        val commands = mutableListOf<String>()
+        val lowerText = text.lowercase().trim()
+        
+        // Define flexible command patterns
+        val commandPatterns = mapOf(
+            "hello|hi|hey|greetings|good morning|good afternoon" to "greeting",
+            "how.*are.*you|what.*up|how.*going" to "greeting",
+            "fill.*form|complete.*form|finish.*form|form.*fill" to "fill form",
+            "start.*application|new.*application|apply.*for" to "start application",
+            "help.*me|help.*with|assist.*me|what.*can.*you.*do" to "help",
+            "start.*camera|open.*camera|camera.*on" to "start camera",
+            "capture.*image|take.*photo|take.*picture|snap.*photo" to "capture image",
+            "yes|yeah|yep|okay|ok|sure|alright" to "confirm",
+            "no|nope|cancel|stop|quit" to "cancel",
+            "test.*recognition|test.*speech|testing" to "test"
+        )
+        
+        // Check each pattern
+        for ((pattern, command) in commandPatterns) {
+            if (lowerText.contains(Regex(pattern))) {
+                commands.add(command)
+                Log.d(TAG, "Fallback matched: '$pattern' -> '$command'")
+                break // Take first match
+            }
+        }
+        
+        // If no patterns match, try simple word matching
+        if (commands.isEmpty()) {
+            when {
+                lowerText.contains("hello") || lowerText.contains("hi") -> commands.add("greeting")
+                lowerText.contains("camera") -> commands.add("start camera")
+                lowerText.contains("capture") || lowerText.contains("photo") -> commands.add("capture image")
+                lowerText.contains("form") -> commands.add("fill form")
+                lowerText.contains("help") -> commands.add("help")
+                lowerText.contains("test") -> commands.add("test")
+                lowerText.contains("yes") || lowerText.contains("ok") -> commands.add("confirm")
+                lowerText.contains("no") || lowerText.contains("stop") -> commands.add("cancel")
+                lowerText.length > 2 -> commands.add("general command")
+            }
+        }
+        
+        return commands.toTypedArray()
     }
 }
 

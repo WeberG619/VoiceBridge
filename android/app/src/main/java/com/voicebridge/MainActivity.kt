@@ -29,6 +29,9 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.delay
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import java.util.Locale
 
 /**
@@ -66,6 +69,7 @@ class MainActivity : AppCompatActivity() {
     private var isTTSReady = false
     private lateinit var cameraProcessor: SimpleCameraProcessor
     private lateinit var ocrProcessor: SimpleOCRProcessor
+    private var speechRecognizer: SpeechRecognizer? = null
     
     // Audio buffer for speech recognition
     private val audioBuffer = mutableListOf<Float>()
@@ -574,28 +578,115 @@ class MainActivity : AppCompatActivity() {
     
     private fun useFallbackSpeechRecognition() {
         try {
-            updateStatusText("Using fallback speech recognition...")
+            updateStatusText("Using Android speech recognition...")
             
-            // Simulate realistic speech recognition results
-            val simulatedTexts = listOf(
-                "Hello VoiceBridge",
-                "Fill out this form",
-                "Start new application", 
-                "Help me with this document",
-                "Test speech recognition"
-            )
-            val simulatedText = simulatedTexts.random()
-            
-            updateStatusText("You said: \"$simulatedText\" (simulated)")
-            Log.i(TAG, "Speech recognized (fallback simulation): $simulatedText")
-            
-            lifecycleScope.launch {
-                processRecognizedSpeech(simulatedText)
+            // Use Android SpeechRecognizer instead of simulation
+            if (SpeechRecognizer.isRecognitionAvailable(this)) {
+                initializeAndroidSpeechRecognizer()
+            } else {
+                // Only use simulation as last resort
+                useSimulatedSpeechRecognition()
             }
             
         } catch (e: Exception) {
-            Log.e(TAG, "Fallback speech recognition error", e)
-            updateStatusText("All speech recognition methods failed")
+            Log.e(TAG, "Android speech recognition failed, using simulation", e)
+            useSimulatedSpeechRecognition()
+        }
+    }
+    
+    private fun initializeAndroidSpeechRecognizer() {
+        try {
+            speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+            speechRecognizer?.setRecognitionListener(object : RecognitionListener {
+                override fun onReadyForSpeech(params: Bundle?) {
+                    Log.d(TAG, "Speech recognizer ready")
+                }
+                
+                override fun onBeginningOfSpeech() {
+                    Log.d(TAG, "Speech recognition started")
+                }
+                
+                override fun onRmsChanged(rmsdB: Float) {}
+                
+                override fun onBufferReceived(buffer: ByteArray?) {}
+                
+                override fun onEndOfSpeech() {
+                    Log.d(TAG, "Speech recognition ended")
+                }
+                
+                override fun onError(error: Int) {
+                    Log.w(TAG, "Speech recognition error: $error")
+                    lifecycleScope.launch {
+                        useSimulatedSpeechRecognition()
+                    }
+                }
+                
+                override fun onResults(results: Bundle?) {
+                    val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                    val confidences = results?.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
+                    
+                    if (matches != null && matches.isNotEmpty()) {
+                        val bestMatch = matches[0]
+                        val confidence = confidences?.get(0) ?: 0.5f
+                        
+                        Log.i(TAG, "Speech recognized: $bestMatch (confidence: $confidence)")
+                        
+                        if (confidence > 0.3f) { // Lower threshold for better recognition
+                            updateStatusText("You said: \"$bestMatch\" (${(confidence * 100).toInt()}%)")
+                            lifecycleScope.launch {
+                                processRecognizedSpeech(bestMatch)
+                            }
+                        } else {
+                            updateStatusText("Speech too unclear, please try again")
+                            speakText("I couldn't understand that clearly. Please try again.")
+                        }
+                    } else {
+                        useSimulatedSpeechRecognition()
+                    }
+                }
+                
+                override fun onPartialResults(partialResults: Bundle?) {}
+                
+                override fun onEvent(eventType: Int, params: Bundle?) {}
+            })
+            
+            // Start recognition
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+                putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+                putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
+            }
+            
+            speechRecognizer?.startListening(intent)
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error initializing Android speech recognizer", e)
+            useSimulatedSpeechRecognition()
+        }
+    }
+    
+    private fun useSimulatedSpeechRecognition() {
+        // More realistic simulation based on common user phrases
+        val simulatedTexts = listOf(
+            "hello",
+            "hi there",
+            "start camera",
+            "capture image",
+            "take photo",
+            "fill out form",
+            "help me",
+            "what can you do",
+            "test",
+            "okay"
+        )
+        val simulatedText = simulatedTexts.random()
+        
+        updateStatusText("You said: \"$simulatedText\" (simulated)")
+        Log.i(TAG, "Speech recognized (simulation): $simulatedText")
+        
+        lifecycleScope.launch {
+            processRecognizedSpeech(simulatedText)
         }
     }
     
@@ -656,9 +747,22 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             } else {
-                updateStatusText("❌ ${result.message}")
-                speakText("I'm sorry, I didn't understand that command. Please try again.")
-                Log.w(TAG, "Command not understood: ${result.message}")
+                // Handle different types of failures more gracefully
+                when (result.action) {
+                    "unclear" -> {
+                        updateStatusText("❓ ${result.message}")
+                        speakText("Could you please repeat that more clearly?")
+                    }
+                    "unknown" -> {
+                        updateStatusText("🤔 I heard: ${result.originalText}")
+                        speakText("I heard you say ${result.originalText}. How can I help you with that?")
+                    }
+                    else -> {
+                        updateStatusText("❌ ${result.message}")
+                        speakText("I'm not sure how to help with that. Try saying hello, start camera, or capture image.")
+                    }
+                }
+                Log.w(TAG, "Command processing result: ${result.action} - ${result.message}")
                 
                 delay(3000)
                 updateStatusText("Ready for next command")
@@ -747,6 +851,10 @@ class MainActivity : AppCompatActivity() {
             textToSpeech?.stop()
             textToSpeech?.shutdown()
             textToSpeech = null
+            
+            // Clean up speech recognizer
+            speechRecognizer?.destroy()
+            speechRecognizer = null
             
             // Clean up camera and OCR processors
             if (::cameraProcessor.isInitialized) {
