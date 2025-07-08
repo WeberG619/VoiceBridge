@@ -401,7 +401,7 @@ class MainActivity : AppCompatActivity() {
         // Update UI with real-time audio information
         runOnUiThread {
             if (audioData.isVoiceActive) {
-                updateStatusText("Voice detected! Volume: ${audioData.volume.toInt()}%")
+                updateStatusText("Voice detected! Volume: ${audioData.volume.toInt()}% | Buffer: ${audioBuffer.size}")
             } else {
                 updateStatusText("Listening... (no voice)")
             }
@@ -412,8 +412,8 @@ class MainActivity : AppCompatActivity() {
             val audioChunk = synchronized(audioBuffer) {
                 audioBuffer.addAll(audioData.samples.toList())
                 
-                // If we have enough audio data (approximately 3 seconds at 16kHz)
-                if (audioBuffer.size >= 48000) {
+                // If we have enough audio data (approximately 1.5 seconds at 16kHz)  
+                if (audioBuffer.size >= 24000) {
                     val chunk = audioBuffer.toFloatArray()
                     audioBuffer.clear()
                     chunk
@@ -473,8 +473,15 @@ class MainActivity : AppCompatActivity() {
         try {
             updateStatusText("Using fallback speech recognition...")
             
-            // For now, simulate speech recognition working
-            val simulatedText = "Hello, this is a test command"
+            // Simulate realistic speech recognition results
+            val simulatedTexts = listOf(
+                "Hello VoiceBridge",
+                "Fill out this form",
+                "Start new application", 
+                "Help me with this document",
+                "Test speech recognition"
+            )
+            val simulatedText = simulatedTexts.random()
             
             updateStatusText("You said: \"$simulatedText\" (simulated)")
             Log.i(TAG, "Speech recognized (fallback simulation): $simulatedText")
