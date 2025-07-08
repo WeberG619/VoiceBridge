@@ -558,23 +558,32 @@ class RealMainActivity : AppCompatActivity() {
                 // Get current frame for immediate vision response
                 updateStatus("📸 Analyzing what you're pointing at...")
                 
-                val bitmap = cameraPreview.getBitmap()
-                if (bitmap != null) {
-                    val ocrResult = googleVisionAPI.extractTextFromImage(bitmap)
-                    
-                    // Use the new vision-specific method
-                    response = claudeAPI.chatAboutVision(
-                        userMessage = userInput,
-                        sceneText = ocrResult.text,
-                        conversationHistory = conversationHistory
-                    )
-                    
-                    Log.d(TAG, "✅ Live vision analysis completed for: $userInput")
-                    
+                // Ensure camera is ready
+                if (camera == null || preview == null) {
+                    response = "Camera is not ready yet. Please wait a moment and try again."
+                    Log.w(TAG, "⚠️ Camera not initialized for live vision")
                 } else {
-                    response = "I can see the camera view but couldn't capture the current frame. Please try asking again."
-                    Log.w(TAG, "⚠️ Could not capture frame from camera preview")
+                    val bitmap = cameraPreview.getBitmap()
+                    if (bitmap != null) {
+                        Log.d(TAG, "📸 Successfully captured frame from camera preview")
+                        val ocrResult = googleVisionAPI.extractTextFromImage(bitmap)
+                        
+                        // Use the new vision-specific method with better prompt
+                        response = claudeAPI.chatAboutVision(
+                            userMessage = "The user is asking: '$userInput'. Describe what you see in this live camera view. Be specific about objects, people, text, colors, and surroundings.",
+                            sceneText = ocrResult.text,
+                            conversationHistory = conversationHistory
+                        )
+                        
+                        Log.d(TAG, "✅ Live vision analysis completed for: $userInput")
+                        
+                    } else {
+                        response = "I can't capture the current camera frame. Make sure live vision is on and the camera has permission."
+                        Log.w(TAG, "⚠️ Could not capture frame from camera preview - bitmap is null")
+                    }
                 }
+            } else if (isVisionRequest && !isLiveVisionActive) {
+                response = "Please tap the golden Live Vision button first to activate the camera, then ask me what I see."
             } else {
                 // Regular conversation
                 response = claudeAPI.chatAboutForm(
@@ -790,6 +799,22 @@ class RealMainActivity : AppCompatActivity() {
      * Start Live Vision - Continuous AI sight assistant
      */
     private fun startLiveVision() {
+        // Make sure camera is initialized first
+        if (camera == null || preview == null) {
+            updateStatus("Initializing camera for live vision...")
+            speak("Setting up camera for live vision")
+            initializeCamera()
+            // Wait a moment for camera to initialize
+            liveVisionHandler.postDelayed({
+                startLiveVisionAfterCameraReady()
+            }, 1000)
+            return
+        }
+        
+        startLiveVisionAfterCameraReady()
+    }
+    
+    private fun startLiveVisionAfterCameraReady() {
         cameraPreview.visibility = android.view.View.VISIBLE
         
         // Update button appearance
@@ -804,13 +829,13 @@ class RealMainActivity : AppCompatActivity() {
             setStroke(4, Color.parseColor("#f87171"))
         }
         
-        updateStatus("👁️ Live Vision Active - I can see what you see!")
-        speak("Live vision activated. I can now see your surroundings and help you navigate the world. Ask me what I see!")
+        updateStatus("👁️ Live Vision Active - Camera is ON and I can see!")
+        speak("Live vision activated. Camera is now on and I can see your surroundings. Ask me what I see!")
         
         // Start continuous vision analysis
         startContinuousVisionAnalysis()
         
-        Log.d(TAG, "Live Vision started - Accessibility mode active")
+        Log.d(TAG, "✅ Live Vision started - Camera active and ready")
     }
     
     /**
@@ -972,6 +997,9 @@ class RealMainActivity : AppCompatActivity() {
                 speak("Camera is ready. You can now use photo capture and live vision features.")
                 
                 Log.d(TAG, "✅ Camera successfully initialized for live vision and photo capture")
+                Log.d(TAG, "✅ Camera object: $camera")
+                Log.d(TAG, "✅ Preview object: $preview")
+                Log.d(TAG, "✅ ImageCapture object: $imageCapture")
                 
             } catch (exc: Exception) {
                 Log.e(TAG, "❌ Camera initialization failed", exc)
