@@ -1,6 +1,7 @@
 package com.voicebridge
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
@@ -105,7 +106,7 @@ class SimpleMainActivity : AppCompatActivity() {
             
             // Microphone icon
             setImageResource(android.R.drawable.ic_btn_speak_now)
-            scaleType = ImageButton.ScaleType.CENTER
+            scaleType = android.widget.ImageView.ScaleType.CENTER
             setPadding(50, 50, 50, 50)
             elevation = 10f
             

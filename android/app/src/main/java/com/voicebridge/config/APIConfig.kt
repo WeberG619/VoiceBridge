@@ -17,12 +17,15 @@ package com.voicebridge.config
  */
 object APIConfig {
     
-    // You already have this API key
-    const val CLAUDE_API_KEY = "sk-ant-api03-YOUR_CLAUDE_API_KEY_HERE"
+    // SECURITY NOTE: Replace these placeholders with your actual API keys
+    // For production, consider using Android's EncryptedSharedPreferences or BuildConfig fields
+    
+    // Get from https://console.anthropic.com
+    const val CLAUDE_API_KEY = "YOUR_CLAUDE_API_KEY_HERE"
     
     // Get from https://platform.openai.com/api-keys
     // Cost: $0.006 per minute of audio (very affordable)
-    const val OPENAI_API_KEY = "sk-YOUR_OPENAI_API_KEY_HERE"
+    const val OPENAI_API_KEY = "YOUR_OPENAI_API_KEY_HERE"
     
     // Get from https://cloud.google.com/vision/docs/setup
     // FREE TIER: 1000 requests per month
@@ -32,8 +35,21 @@ object APIConfig {
      * Check if APIs are configured
      */
     fun isConfigured(): Boolean {
-        return CLAUDE_API_KEY.startsWith("sk-ant-") && CLAUDE_API_KEY != "sk-ant-api03-YOUR_CLAUDE_API_KEY_HERE" &&
-               OPENAI_API_KEY.startsWith("sk-") && OPENAI_API_KEY != "sk-YOUR_OPENAI_API_KEY_HERE"
+        return CLAUDE_API_KEY.startsWith("sk-ant-") && CLAUDE_API_KEY != "YOUR_CLAUDE_API_KEY_HERE"
+    }
+    
+    /**
+     * Check if speech recognition is available
+     */
+    fun hasSpeechAPI(): Boolean {
+        return OPENAI_API_KEY.startsWith("sk-") && OPENAI_API_KEY != "YOUR_OPENAI_API_KEY_HERE"
+    }
+    
+    /**
+     * Check if OCR is available
+     */
+    fun hasVisionAPI(): Boolean {
+        return GOOGLE_VISION_API_KEY != "YOUR_GOOGLE_VISION_API_KEY_HERE"
     }
     
     /**

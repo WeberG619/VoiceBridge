@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import com.voicebridge.api.ClaudeAPI
 import com.voicebridge.api.WhisperAPI
 import com.voicebridge.api.GoogleVisionAPI
+import com.voicebridge.config.APIConfig
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -35,11 +36,6 @@ class RealMainActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "VoiceBridge"
         private const val PERMISSION_REQUEST_CODE = 100
-        
-        // API Keys - User needs to add these
-        private const val CLAUDE_API_KEY = "YOUR_CLAUDE_API_KEY_HERE" // User has this
-        private const val WHISPER_API_KEY = "YOUR_OPENAI_API_KEY_HERE" // User needs this
-        private const val GOOGLE_VISION_API_KEY = "YOUR_GOOGLE_VISION_API_KEY_HERE" // Free tier
     }
     
     // UI Components
@@ -56,7 +52,357 @@ class RealMainActivity : AppCompatActivity() {
     
     // State
     private var isListening = false
-    private var conversationHistory = mutableListOf<String>()\    private var isSetup = false
+    private var conversationHistory = mutableListOf<String>()
+    private var isSetup = false
     
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)\n        \n        createUI()\n        checkAPIKeys()\n        checkPermissions()\n    }\n    \n    private fun createUI() {\n        // Main container with beautiful gradient\n        container = LinearLayout(this).apply {\n            orientation = LinearLayout.VERTICAL\n            gravity = Gravity.CENTER\n            \n            background = GradientDrawable(\n                GradientDrawable.Orientation.TOP_BOTTOM,\n                intArrayOf(\n                    Color.parseColor(\"#0f0f23\"), // Dark\n                    Color.parseColor(\"#1a1a2e\")  // Slightly lighter\n                )\n            )\n        }\n        \n        // App title\n        val titleText = TextView(this).apply {\n            text = \"\ud83c\udfa4 VoiceBridge AI\"\n            textSize = 32f\n            setTextColor(Color.WHITE)\n            typeface = android.graphics.Typeface.DEFAULT_BOLD\n            gravity = Gravity.CENTER\n            setPadding(0, 80, 0, 10)\n        }\n        container.addView(titleText)\n        \n        val subtitleText = TextView(this).apply {\n            text = \"Real AI \u2022 Natural Speech \u2022 Any Accent\"\n            textSize = 16f\n            setTextColor(Color.parseColor(\"#a0a0a0\"))\n            gravity = Gravity.CENTER\n            setPadding(0, 0, 0, 40)\n        }\n        container.addView(subtitleText)\n        \n        // Status text\n        statusText = TextView(this).apply {\n            text = \"Setting up...\"\n            textSize = 18f\n            setTextColor(Color.parseColor(\"#60a5fa\"))\n            gravity = Gravity.CENTER\n            setPadding(40, 0, 40, 30)\n        }\n        container.addView(statusText)\n        \n        // Main voice button (like ChatGPT)\n        mainButton = ImageButton(this).apply {\n            layoutParams = LinearLayout.LayoutParams(250, 250)\n            \n            background = GradientDrawable().apply {\n                shape = GradientDrawable.OVAL\n                setColor(Color.parseColor(\"#6366f1\")) // Indigo\n                setStroke(6, Color.parseColor(\"#8b5cf6\")) // Purple border\n            }\n            \n            setImageResource(android.R.drawable.ic_btn_speak_now)\n            scaleType = ImageButton.ScaleType.CENTER\n            elevation = 12f\n            isEnabled = false\n            \n            setOnTouchListener { _, event ->\n                if (!isSetup) return@setOnTouchListener false\n                \n                when (event.action) {\n                    MotionEvent.ACTION_DOWN -> {\n                        startListening()\n                        animateButton(true)\n                    }\n                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {\n                        stopListening()\n                        animateButton(false)\n                    }\n                }\n                true\n            }\n        }\n        container.addView(mainButton)\n        \n        // Instructions\n        val instructionText = TextView(this).apply {\n            text = \"Hold to speak \u2022 Natural conversation \u2022 Any form\"\n            textSize = 14f\n            setTextColor(Color.parseColor(\"#9ca3af\"))\n            gravity = Gravity.CENTER\n            setPadding(40, 40, 40, 0)\n        }\n        container.addView(instructionText)\n        \n        // Setup button\n        setupButton = Button(this).apply {\n            text = \"\u2699\ufe0f Setup API Keys\"\n            textSize = 16f\n            setTextColor(Color.WHITE)\n            \n            background = GradientDrawable().apply {\n                shape = GradientDrawable.RECTANGLE\n                cornerRadius = 25f\n                setColor(Color.parseColor(\"#f59e0b\")) // Orange\n            }\n            \n            layoutParams = LinearLayout.LayoutParams(\n                LinearLayout.LayoutParams.WRAP_CONTENT,\n                LinearLayout.LayoutParams.WRAP_CONTENT\n            ).apply {\n                setMargins(0, 50, 0, 0)\n            }\n            \n            setPadding(40, 20, 40, 20)\n            \n            setOnClickListener { showAPISetupDialog() }\n        }\n        container.addView(setupButton)\n        \n        setContentView(container)\n    }\n    \n    private fun checkAPIKeys() {\n        // Check if API keys are set up\n        if (CLAUDE_API_KEY != \"YOUR_CLAUDE_API_KEY_HERE\" && \n            WHISPER_API_KEY != \"YOUR_OPENAI_API_KEY_HERE\") {\n            \n            initializeAPIs()\n            isSetup = true\n            setupButton.visibility = Button.GONE\n            updateStatus(\"Ready! Hold button to speak\")\n            mainButton.isEnabled = true\n            \n        } else {\n            updateStatus(\"Please set up API keys first\")\n            showAPISetupDialog()\n        }\n    }\n    \n    private fun showAPISetupDialog() {\n        val dialogView = LinearLayout(this).apply {\n            orientation = LinearLayout.VERTICAL\n            setPadding(40, 40, 40, 40)\n        }\n        \n        val titleText = TextView(this).apply {\n            text = \"API Keys Setup\"\n            textSize = 20f\n            typeface = android.graphics.Typeface.DEFAULT_BOLD\n            setPadding(0, 0, 0, 20)\n        }\n        dialogView.addView(titleText)\n        \n        val instructionText = TextView(this).apply {\n            text = buildString {\n                append(\"To use VoiceBridge with real AI, you need:\\n\\n\")\n                append(\"\ud83c\udfa4 Claude API Key (you have this)\\n\")\n                append(\"\ud83d\udd0a OpenAI API Key (for Whisper speech)\\n\")\n                append(\"\ud83d\udcf7 Google Vision API Key (free tier)\\n\\n\")\n                append(\"Costs: ~\\$5-15/month for heavy use\\n\")\n                append(\"Free tier covers most personal use\")\n            }\n            textSize = 14f\n            setPadding(0, 0, 0, 20)\n        }\n        dialogView.addView(instructionText)\n        \n        val setupInstructionsText = TextView(this).apply {\n            text = buildString {\n                append(\"Quick Setup:\\n\")\n                append(\"1. Get OpenAI API key at platform.openai.com\\n\")\n                append(\"2. Get Google Vision API key at cloud.google.com\\n\")\n                append(\"3. Update the API keys in RealMainActivity.kt\\n\")\n                append(\"4. Rebuild the app\")\n            }\n            textSize = 12f\n            setTextColor(Color.parseColor(\"#666666\"))\n        }\n        dialogView.addView(setupInstructionsText)\n        \n        AlertDialog.Builder(this)\n            .setView(dialogView)\n            .setPositiveButton(\"OK\") { _, _ -> }\n            .setNegativeButton(\"Use Demo Mode\") { _, _ -> \n                // Enable demo mode with simulated responses\n                enableDemoMode()\n            }\n            .show()\n    }\n    \n    private fun enableDemoMode() {\n        updateStatus(\"Demo mode - Hold button to try\")\n        mainButton.isEnabled = true\n        isSetup = true\n        setupButton.visibility = Button.GONE\n        \n        // Initialize TTS for demo\n        textToSpeech = TextToSpeech(this) { status ->\n            if (status == TextToSpeech.SUCCESS) {\n                textToSpeech?.setLanguage(Locale.US)\n                speak(\"Demo mode ready! This simulates the real experience.\")\n            }\n        }\n    }\n    \n    private fun initializeAPIs() {\n        claudeAPI = ClaudeAPI(CLAUDE_API_KEY)\n        whisperAPI = WhisperAPI(WHISPER_API_KEY, this)\n        googleVisionAPI = GoogleVisionAPI(GOOGLE_VISION_API_KEY)\n        \n        // Initialize TTS\n        textToSpeech = TextToSpeech(this) { status ->\n            if (status == TextToSpeech.SUCCESS) {\n                textToSpeech?.setLanguage(Locale.US)\n                speak(\"VoiceBridge ready! I understand any accent and can help with forms.\")\n            }\n        }\n    }\n    \n    private fun checkPermissions() {\n        val permissions = arrayOf(\n            Manifest.permission.RECORD_AUDIO,\n            Manifest.permission.CAMERA\n        )\n        \n        val missingPermissions = permissions.filter {\n            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED\n        }\n        \n        if (missingPermissions.isNotEmpty()) {\n            ActivityCompat.requestPermissions(\n                this,\n                missingPermissions.toTypedArray(),\n                PERMISSION_REQUEST_CODE\n            )\n        }\n    }\n    \n    private fun startListening() {\n        if (isListening) return\n        isListening = true\n        \n        updateStatus(\"Listening... speak naturally\")\n        \n        // Change button to red when listening\n        mainButton.background = GradientDrawable().apply {\n            shape = GradientDrawable.OVAL\n            setColor(Color.parseColor(\"#ef4444\")) // Red\n            setStroke(8, Color.parseColor(\"#f87171\"))\n        }\n        \n        if (isSetup && ::whisperAPI.isInitialized) {\n            // Real speech recognition\n            whisperAPI.startRecording()\n        }\n    }\n    \n    private fun stopListening() {\n        if (!isListening) return\n        isListening = false\n        \n        updateStatus(\"Processing...\")\n        \n        // Change button back to blue\n        mainButton.background = GradientDrawable().apply {\n            shape = GradientDrawable.OVAL\n            setColor(Color.parseColor(\"#6366f1\")) // Indigo\n            setStroke(6, Color.parseColor(\"#8b5cf6\"))\n        }\n        \n        if (isSetup && ::whisperAPI.isInitialized) {\n            // Real transcription\n            lifecycleScope.launch {\n                val transcription = whisperAPI.stopRecordingAndTranscribe()\n                if (transcription.isNotEmpty()) {\n                    processUserInput(transcription)\n                } else {\n                    updateStatus(\"Didn't catch that. Try again!\")\n                    speak(\"I didn't catch that. Please try again.\")\n                }\n            }\n        } else {\n            // Demo mode\n            val demoResponses = listOf(\n                \"I can help you fill out forms\",\n                \"Point your camera at any form\",\n                \"I understand any accent\",\n                \"Just speak naturally\"\n            )\n            val response = demoResponses.random()\n            updateStatus(\"You: Demo input\")\n            speak(response)\n        }\n    }\n    \n    private suspend fun processUserInput(userInput: String) {\n        updateStatus(\"You: $userInput\")\n        \n        try {\n            // Use Claude for natural conversation\n            val response = claudeAPI.chatAboutForm(\n                userMessage = userInput,\n                conversationHistory = conversationHistory\n            )\n            \n            // Add to conversation history\n            conversationHistory.add(userInput)\n            conversationHistory.add(response)\n            \n            // Keep history manageable\n            if (conversationHistory.size > 10) {\n                conversationHistory = conversationHistory.takeLast(6).toMutableList()\n            }\n            \n            updateStatus(\"AI: $response\")\n            speak(response)\n            \n        } catch (e: Exception) {\n            Log.e(TAG, \"Error processing input\", e)\n            updateStatus(\"Having trouble. Try again!\")\n            speak(\"I'm having trouble right now. Please try again.\")\n        }\n    }\n    \n    private fun speak(text: String) {\n        textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)\n    }\n    \n    private fun updateStatus(status: String) {\n        runOnUiThread {\n            statusText.text = status\n        }\n    }\n    \n    private fun animateButton(pressed: Boolean) {\n        mainButton.animate()\n            .scaleX(if (pressed) 0.9f else 1.0f)\n            .scaleY(if (pressed) 0.9f else 1.0f)\n            .setDuration(100)\n            .start()\n    }\n    \n    override fun onRequestPermissionsResult(\n        requestCode: Int,\n        permissions: Array<out String>,\n        grantResults: IntArray\n    ) {\n        super.onRequestPermissionsResult(requestCode, permissions, grantResults)\n        if (requestCode == PERMISSION_REQUEST_CODE) {\n            if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {\n                updateStatus(\"Permissions granted!\")\n            } else {\n                updateStatus(\"Permissions needed for voice & camera\")\n            }\n        }\n    }\n    \n    override fun onDestroy() {\n        super.onDestroy()\n        textToSpeech?.shutdown()\n        if (::whisperAPI.isInitialized) {\n            whisperAPI.cleanup()\n        }\n    }\n}"
+        super.onCreate(savedInstanceState)
+        
+        createUI()
+        checkAPIKeys()
+        checkPermissions()
+    }
+    
+    private fun createUI() {
+        // Main container with beautiful gradient
+        container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            
+            background = GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(
+                    Color.parseColor("#0f0f23"), // Dark
+                    Color.parseColor("#1a1a2e")  // Slightly lighter
+                )
+            )
+        }
+        
+        // App title
+        val titleText = TextView(this).apply {
+            text = "🎤 VoiceBridge AI"
+            textSize = 32f
+            setTextColor(Color.WHITE)
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
+            setPadding(0, 80, 0, 10)
+        }
+        container.addView(titleText)
+        
+        val subtitleText = TextView(this).apply {
+            text = "Real AI • Natural Speech • Any Accent"
+            textSize = 16f
+            setTextColor(Color.parseColor("#a0a0a0"))
+            gravity = Gravity.CENTER
+            setPadding(0, 0, 0, 40)
+        }
+        container.addView(subtitleText)
+        
+        // Status text
+        statusText = TextView(this).apply {
+            text = "Setting up..."
+            textSize = 18f
+            setTextColor(Color.parseColor("#60a5fa"))
+            gravity = Gravity.CENTER
+            setPadding(40, 0, 40, 30)
+        }
+        container.addView(statusText)
+        
+        // Main voice button (like ChatGPT)
+        mainButton = ImageButton(this).apply {
+            layoutParams = LinearLayout.LayoutParams(250, 250)
+            
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Color.parseColor("#6366f1")) // Indigo
+                setStroke(6, Color.parseColor("#8b5cf6")) // Purple border
+            }
+            
+            setImageResource(android.R.drawable.ic_btn_speak_now)
+            scaleType = android.widget.ImageView.ScaleType.CENTER
+            elevation = 12f
+            isEnabled = false
+            
+            setOnTouchListener { _, event ->
+                if (!isSetup) return@setOnTouchListener false
+                
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        startListening()
+                        animateButton(true)
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        stopListening()
+                        animateButton(false)
+                    }
+                }
+                true
+            }
+        }
+        container.addView(mainButton)
+        
+        // Instructions
+        val instructionText = TextView(this).apply {
+            text = "Hold to speak • Natural conversation • Any form"
+            textSize = 14f
+            setTextColor(Color.parseColor("#9ca3af"))
+            gravity = Gravity.CENTER
+            setPadding(40, 40, 40, 0)
+        }
+        container.addView(instructionText)
+        
+        // Setup button
+        setupButton = Button(this).apply {
+            text = "⚙️ Setup API Keys"
+            textSize = 16f
+            setTextColor(Color.WHITE)
+            
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 25f
+                setColor(Color.parseColor("#f59e0b")) // Orange
+            }
+            
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, 50, 0, 0)
+            }
+            
+            setPadding(40, 20, 40, 20)
+            
+            setOnClickListener { showAPISetupDialog() }
+        }
+        container.addView(setupButton)
+        
+        setContentView(container)
+    }
+    
+    private fun checkAPIKeys() {
+        // Use APIConfig to check setup
+        if (APIConfig.isConfigured()) {
+            initializeAPIs()
+            isSetup = true
+            setupButton.visibility = Button.GONE
+            updateStatus("Ready! Hold button to speak")
+            mainButton.isEnabled = true
+            
+        } else {
+            updateStatus("Please set up API keys first")
+            showAPISetupDialog()
+        }
+    }
+    
+    private fun showAPISetupDialog() {
+        val dialogView = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(40, 40, 40, 40)
+        }
+        
+        val titleText = TextView(this).apply {
+            text = "API Keys Setup"
+            textSize = 20f
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+            setPadding(0, 0, 0, 20)
+        }
+        dialogView.addView(titleText)
+        
+        val instructionText = TextView(this).apply {
+            text = APIConfig.getSetupInstructions()
+            textSize = 14f
+            setPadding(0, 0, 0, 20)
+        }
+        dialogView.addView(instructionText)
+        
+        AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setPositiveButton("OK") { _, _ -> }
+            .setNegativeButton("Use Demo Mode") { _, _ -> 
+                // Enable demo mode with simulated responses
+                enableDemoMode()
+            }
+            .show()
+    }
+    
+    private fun enableDemoMode() {
+        updateStatus("Demo mode - Hold button to try")
+        mainButton.isEnabled = true
+        isSetup = true
+        setupButton.visibility = Button.GONE
+        
+        // Initialize TTS for demo
+        textToSpeech = TextToSpeech(this) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                textToSpeech?.setLanguage(Locale.US)
+                speak("Demo mode ready! This simulates the real experience.")
+            }
+        }
+    }
+    
+    private fun initializeAPIs() {
+        claudeAPI = ClaudeAPI(APIConfig.CLAUDE_API_KEY)
+        
+        if (APIConfig.hasSpeechAPI()) {
+            whisperAPI = WhisperAPI(APIConfig.OPENAI_API_KEY, this)
+        }
+        
+        if (APIConfig.hasVisionAPI()) {
+            googleVisionAPI = GoogleVisionAPI(APIConfig.GOOGLE_VISION_API_KEY)
+        }
+        
+        // Initialize TTS
+        textToSpeech = TextToSpeech(this) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                textToSpeech?.setLanguage(Locale.US)
+                speak("VoiceBridge ready! I understand any accent and can help with forms.")
+            }
+        }
+    }
+    
+    private fun checkPermissions() {
+        val permissions = arrayOf(
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.CAMERA
+        )
+        
+        val missingPermissions = permissions.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+        
+        if (missingPermissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(
+                this,
+                missingPermissions.toTypedArray(),
+                PERMISSION_REQUEST_CODE
+            )
+        }
+    }
+    
+    private fun startListening() {
+        if (isListening) return
+        isListening = true
+        
+        updateStatus("Listening... speak naturally")
+        
+        // Change button to red when listening
+        mainButton.background = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(Color.parseColor("#ef4444")) // Red
+            setStroke(8, Color.parseColor("#f87171"))
+        }
+        
+        if (isSetup && APIConfig.hasSpeechAPI() && ::whisperAPI.isInitialized) {
+            // Real speech recognition
+            whisperAPI.startRecording()
+        }
+    }
+    
+    private fun stopListening() {
+        if (!isListening) return
+        isListening = false
+        
+        updateStatus("Processing...")
+        
+        // Change button back to blue
+        mainButton.background = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(Color.parseColor("#6366f1")) // Indigo
+            setStroke(6, Color.parseColor("#8b5cf6"))
+        }
+        
+        if (isSetup && APIConfig.hasSpeechAPI() && ::whisperAPI.isInitialized) {
+            // Real transcription
+            lifecycleScope.launch {
+                val transcription = whisperAPI.stopRecordingAndTranscribe()
+                if (transcription.isNotEmpty()) {
+                    processUserInput(transcription)
+                } else {
+                    updateStatus("Didn't catch that. Try again!")
+                    speak("I didn't catch that. Please try again.")
+                }
+            }
+        } else {
+            // Demo mode
+            val demoResponses = listOf(
+                "I can help you fill out forms",
+                "Point your camera at any form",
+                "I understand any accent",
+                "Just speak naturally"
+            )
+            val response = demoResponses.random()
+            updateStatus("You: Demo input")
+            speak(response)
+        }
+    }
+    
+    private suspend fun processUserInput(userInput: String) {
+        updateStatus("You: $userInput")
+        
+        try {
+            // Use Claude for natural conversation
+            val response = claudeAPI.chatAboutForm(
+                userMessage = userInput,
+                conversationHistory = conversationHistory
+            )
+            
+            // Add to conversation history
+            conversationHistory.add(userInput)
+            conversationHistory.add(response)
+            
+            // Keep history manageable
+            if (conversationHistory.size > 10) {
+                conversationHistory = conversationHistory.takeLast(6).toMutableList()
+            }
+            
+            updateStatus("AI: $response")
+            speak(response)
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error processing input", e)
+            updateStatus("Having trouble. Try again!")
+            speak("I'm having trouble right now. Please try again.")
+        }
+    }
+    
+    private fun speak(text: String) {
+        textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+    }
+    
+    private fun updateStatus(status: String) {
+        runOnUiThread {
+            statusText.text = status
+        }
+    }
+    
+    private fun animateButton(pressed: Boolean) {
+        mainButton.animate()
+            .scaleX(if (pressed) 0.9f else 1.0f)
+            .scaleY(if (pressed) 0.9f else 1.0f)
+            .setDuration(100)
+            .start()
+    }
+    
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+                updateStatus("Permissions granted!")
+            } else {
+                updateStatus("Permissions needed for voice & camera")
+            }
+        }
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        textToSpeech?.shutdown()
+        if (APIConfig.hasSpeechAPI() && ::whisperAPI.isInitialized) {
+            whisperAPI.cleanup()
+        }
+    }
+}
