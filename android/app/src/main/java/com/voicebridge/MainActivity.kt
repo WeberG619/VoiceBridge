@@ -15,16 +15,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.voicebridge.telemetry.OfflineCrashReporter
+import com.voicebridge.audio.AudioRecorder
+import com.voicebridge.audio.AudioData
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.Job
 
 /**
- * Main Activity for VoiceBridge - Incremental Implementation
+ * Main Activity for VoiceBridge - Real Audio Implementation
  * 
  * Features:
  * - Basic UI with permission handling
- * - Voice recording preparation
+ * - Real voice recording with AudioRecorder
  * - Camera integration preparation
- * - Step-by-step feature activation
+ * - Voice activity detection and audio processing
  */
 class MainActivity : AppCompatActivity() {
     
@@ -44,6 +48,8 @@ class MainActivity : AppCompatActivity() {
     
     // Core Components
     private lateinit var crashReporter: OfflineCrashReporter
+    private var audioRecorder: AudioRecorder? = null
+    private var recordingJob: Job? = null
     
     // State
     private var isRecording = false
@@ -69,7 +75,7 @@ class MainActivity : AppCompatActivity() {
         // Check and request permissions
         checkPermissions()
         
-        Log.i(TAG, "VoiceBridge MainActivity initialized - Incremental Version")
+        Log.i(TAG, "VoiceBridge MainActivity initialized - Real Audio Version")
     }
     
     private fun createSimpleUI() {
@@ -183,12 +189,19 @@ class MainActivity : AppCompatActivity() {
     
     private suspend fun initializeAudioRecorder() {
         try {
-            // TODO: Initialize AudioRecorder when ready
-            updateStatusText("Audio recorder initialized ✓")
-            Log.d(TAG, "Audio recorder initialization simulated")
+            // Initialize real AudioRecorder
+            audioRecorder = AudioRecorder(this)
+            
+            if (audioRecorder?.initialize() == true) {
+                updateStatusText("Audio recorder initialized ✓")
+                Log.d(TAG, "Real audio recorder initialized successfully")
+            } else {
+                updateStatusText("Audio recorder initialization failed")
+                Log.e(TAG, "Failed to initialize audio recorder")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Audio recorder initialization failed", e)
-            updateStatusText("Audio recorder failed")
+            updateStatusText("Audio recorder failed: ${e.message}")
         }
     }
     
@@ -227,16 +240,37 @@ class MainActivity : AppCompatActivity() {
     
     private fun startRecording() {
         try {
+            val recorder = audioRecorder
+            if (recorder == null) {
+                updateStatusText("Audio recorder not initialized")
+                return
+            }
+            
             isRecording = true
             recordButton.text = "Stop Recording"
-            updateStatusText("Recording simulation... Speak now")
+            updateStatusText("Recording... Speak now")
             
-            // Simulate recording for now
-            Log.d(TAG, "Recording started (simulated)")
+            // Start real audio recording
+            recordingJob = lifecycleScope.launch {
+                try {
+                    recorder.startRecording().collect { audioData ->
+                        // Process audio data in real-time
+                        processAudioData(audioData)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error during recording", e)
+                    updateStatusText("Recording error: ${e.message}")
+                    stopRecording()
+                }
+            }
+            
+            Log.d(TAG, "Real audio recording started")
             
         } catch (e: Exception) {
             Log.e(TAG, "Error starting recording", e)
             updateStatusText("Recording error: ${e.message}")
+            isRecording = false
+            recordButton.text = "Start Recording"
         }
     }
     
@@ -244,15 +278,19 @@ class MainActivity : AppCompatActivity() {
         try {
             isRecording = false
             recordButton.text = "Start Recording"
-            updateStatusText("Processing audio simulation...")
+            updateStatusText("Processing audio...")
             
-            // Simulate processing
-            Log.d(TAG, "Recording stopped (simulated)")
+            // Cancel recording job
+            recordingJob?.cancel()
+            recordingJob = null
             
-            // Show result after delay
-            statusText.postDelayed({
-                updateStatusText("Audio processed! Ready for next command")
-            }, 2000)
+            // Stop audio recorder
+            audioRecorder?.stopRecording()
+            
+            Log.d(TAG, "Real audio recording stopped")
+            
+            // Show completion message
+            updateStatusText("Audio recording complete! Ready for next command")
             
         } catch (e: Exception) {
             Log.e(TAG, "Error stopping recording", e)
@@ -301,6 +339,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
+    private fun processAudioData(audioData: AudioData) {
+        // Update UI with real-time audio information
+        runOnUiThread {
+            if (audioData.isVoiceActive) {
+                updateStatusText("Voice detected! Volume: ${audioData.volume.toInt()}%")
+            } else {
+                updateStatusText("Listening... (no voice)")
+            }
+        }
+        
+        // Log audio statistics
+        Log.d(TAG, "Audio - Voice: ${audioData.isVoiceActive}, Energy: ${audioData.energy}, RMS: ${audioData.rms}")
+    }
+    
     private fun updateStatusText(message: String) {
         runOnUiThread {
             statusText.text = message
@@ -312,7 +364,15 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         
         try {
-            // Clean up any resources
+            // Stop recording if active
+            if (isRecording) {
+                stopRecording()
+            }
+            
+            // Clean up audio recorder
+            audioRecorder?.release()
+            audioRecorder = null
+            
             Log.i(TAG, "MainActivity destroyed and cleaned up")
             
         } catch (e: Exception) {
