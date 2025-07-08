@@ -1,6 +1,6 @@
 # VoiceBridge 🎙️
 
-[![Release](https://img.shields.io/badge/release-v1.0.0--beta.1-blue.svg)](https://github.com/voicebridge/voicebridge/releases)
+[![Release](https://img.shields.io/badge/release-v1.0.0--beta.1-blue.svg)](https://github.com/WeberG619/VoiceBridge/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Android](https://img.shields.io/badge/platform-Android%207.0%2B-brightgreen.svg)](https://developer.android.com/about/versions/nougat)
 [![Privacy](https://img.shields.io/badge/privacy-100%25%20offline-success.svg)](docs/permissions-and-privacy.html)
@@ -257,8 +257,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ### 🆘 **Get Help**
 - [📖 Documentation Website](docs/index.html)
-- [🐛 Report Issues](https://github.com/voicebridge/voicebridge/issues)
-- [💬 Discussions](https://github.com/voicebridge/voicebridge/discussions)
+- [🐛 Report Issues](https://github.com/WeberG619/VoiceBridge/issues)
+- [💬 Discussions](https://github.com/WeberG619/VoiceBridge/discussions)
 
 ### 📧 **Contact**
 - **General**: support@voicebridge.app
