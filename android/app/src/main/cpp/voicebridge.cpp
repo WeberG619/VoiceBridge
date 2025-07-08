@@ -27,7 +27,8 @@ private:
 public:
     bool initializeWhisper(const std::string& modelPath) {
 #ifdef WHISPER_AVAILABLE
-        whisper_ctx = whisper_init_from_file(modelPath.c_str());
+        whisper_context_params params = whisper_context_default_params();
+        whisper_ctx = whisper_init_from_file_with_params(modelPath.c_str(), params);
         if (!whisper_ctx) {
             LOGE("Failed to initialize Whisper model");
             return false;
@@ -35,6 +36,7 @@ public:
         LOGI("Whisper model initialized successfully");
         return true;
 #else
+        (void)modelPath; // Suppress unused parameter warning
         LOGE("Whisper not available");
         return false;
 #endif
@@ -64,6 +66,7 @@ public:
         LOGI("LLaMA model initialized successfully");
         return true;
 #else
+        (void)modelPath; // Suppress unused parameter warning
         LOGE("LLaMA not available");
         return false;
 #endif
@@ -110,6 +113,7 @@ public:
         // this would be more sophisticated
         return "Processed: " + input;
 #else
+        (void)input; // Suppress unused parameter warning
         LOGE("LLaMA not available");
         return "";
 #endif
@@ -133,7 +137,7 @@ public:
 static VoiceBridge* g_voicebridge = nullptr;
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_com_voicebridge_VoiceBridgeNative_initializeWhisper(JNIEnv *env, jobject thiz, jstring model_path) {
+Java_com_voicebridge_VoiceBridgeNative_initializeWhisper(JNIEnv *env, jobject /* thiz */, jstring model_path) {
     if (!g_voicebridge) {
         g_voicebridge = new VoiceBridge();
     }
@@ -146,7 +150,7 @@ Java_com_voicebridge_VoiceBridgeNative_initializeWhisper(JNIEnv *env, jobject th
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_com_voicebridge_VoiceBridgeNative_initializeLLaMA(JNIEnv *env, jobject thiz, jstring model_path) {
+Java_com_voicebridge_VoiceBridgeNative_initializeLLaMA(JNIEnv *env, jobject /* thiz */, jstring model_path) {
     if (!g_voicebridge) {
         g_voicebridge = new VoiceBridge();
     }
@@ -159,7 +163,7 @@ Java_com_voicebridge_VoiceBridgeNative_initializeLLaMA(JNIEnv *env, jobject thiz
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_voicebridge_VoiceBridgeNative_transcribeAudio(JNIEnv *env, jobject thiz, jfloatArray audio_data) {
+Java_com_voicebridge_VoiceBridgeNative_transcribeAudio(JNIEnv *env, jobject /* thiz */, jfloatArray audio_data) {
     if (!g_voicebridge) {
         return env->NewStringUTF("");
     }
@@ -176,7 +180,7 @@ Java_com_voicebridge_VoiceBridgeNative_transcribeAudio(JNIEnv *env, jobject thiz
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_voicebridge_VoiceBridgeNative_processText(JNIEnv *env, jobject thiz, jstring input_text) {
+Java_com_voicebridge_VoiceBridgeNative_processText(JNIEnv *env, jobject /* thiz */, jstring input_text) {
     if (!g_voicebridge) {
         return env->NewStringUTF("");
     }

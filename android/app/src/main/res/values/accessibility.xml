@@ -119,7 +119,6 @@
     <string name="action_open_help">Open help</string>
     
     <!-- Accessibility Service Descriptions -->
-    <string name="accessibility_service_description">VoiceBridge accessibility service enables automatic form filling through voice commands and document scanning. This service can observe your interactions and retrieve window content to identify and fill form fields.</string>
     <string name="accessibility_service_summary">Enables voice-controlled form filling and document processing</string>
     
     <!-- Accessibility Feature Descriptions -->

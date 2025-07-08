@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import com.voicebridge.BuildConfig
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter

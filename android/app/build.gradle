@@ -1,16 +1,17 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.android' version '2.1.0'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.1.0'
 }
 
 android {
     namespace 'com.voicebridge'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.voicebridge"
         minSdk 24
-        targetSdk 34
+        targetSdk 35
         versionCode 1
         versionName "1.0.0-beta.1"
 
@@ -27,11 +28,21 @@ android {
             }
         }
     }
+    
+    signingConfigs {
+        release {
+            storeFile file('../voicebridge-upload-key.keystore')
+            storePassword 'voicebridge123'
+            keyAlias 'upload'
+            keyPassword 'voicebridge123'
+        }
+    }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     
@@ -53,13 +64,16 @@ android {
     
     buildFeatures {
         viewBinding true
+        dataBinding true
     }
 }
 
 dependencies {
+    // Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:2.1.0"
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.7.0'
@@ -83,10 +97,10 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
     
     // Serialization
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1'
     
     // Offline crash reporting
-    implementation 'org.jetbrains.kotlinx:kotlinx-datetime:0.4.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-datetime:0.4.0'
     
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

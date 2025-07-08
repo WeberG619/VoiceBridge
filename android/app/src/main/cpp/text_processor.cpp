@@ -88,7 +88,7 @@ public:
 };
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_voicebridge_TextProcessor_cleanText(JNIEnv *env, jobject thiz, jstring input_text) {
+Java_com_voicebridge_TextProcessor_cleanText(JNIEnv *env, jobject /* thiz */, jstring input_text) {
     const char* text = env->GetStringUTFChars(input_text, 0);
     std::string cleaned = TextProcessor::cleanText(std::string(text));
     env->ReleaseStringUTFChars(input_text, text);
@@ -97,7 +97,7 @@ Java_com_voicebridge_TextProcessor_cleanText(JNIEnv *env, jobject thiz, jstring 
 }
 
 extern "C" JNIEXPORT jobjectArray JNICALL
-Java_com_voicebridge_TextProcessor_extractCommands(JNIEnv *env, jobject thiz, jstring input_text) {
+Java_com_voicebridge_TextProcessor_extractCommands(JNIEnv *env, jobject /* thiz */, jstring input_text) {
     const char* text = env->GetStringUTFChars(input_text, 0);
     std::vector<std::string> commands = TextProcessor::extractCommands(std::string(text));
     env->ReleaseStringUTFChars(input_text, text);
@@ -112,7 +112,7 @@ Java_com_voicebridge_TextProcessor_extractCommands(JNIEnv *env, jobject thiz, js
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_voicebridge_TextProcessor_formatForForm(JNIEnv *env, jobject thiz, jstring input_text, jstring field_type) {
+Java_com_voicebridge_TextProcessor_formatForForm(JNIEnv *env, jobject /* thiz */, jstring input_text, jstring field_type) {
     const char* text = env->GetStringUTFChars(input_text, 0);
     const char* type = env->GetStringUTFChars(field_type, 0);
     

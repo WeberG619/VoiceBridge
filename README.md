@@ -1,7 +1,7 @@
 # VoiceBridge 🎙️
 
 [![Release](https://img.shields.io/badge/release-v1.0.0--beta.1-blue.svg)](https://github.com/WeberG619/VoiceBridge/releases)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
 [![Android](https://img.shields.io/badge/platform-Android%207.0%2B-brightgreen.svg)](https://developer.android.com/about/versions/nougat)
 [![Privacy](https://img.shields.io/badge/privacy-100%25%20offline-success.svg)](docs/permissions-and-privacy.html)
 
@@ -270,6 +270,24 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 - [📱 Google Play Store](https://play.google.com/store/apps/details?id=com.voicebridge) *(coming soon)*
 - [🐦 Twitter](https://twitter.com/voicebridge) *(development updates)*
 - [📧 Newsletter](https://voicebridge.app/newsletter) *(major releases)*
+
+---
+
+## 📄 License & Copyright
+
+**VoiceBridge** is proprietary software owned by **Weber G.**
+
+- ✅ **Personal use permitted** under the VoiceBridge License
+- ❌ **Commercial use prohibited** without explicit licensing agreement
+- 📧 **Commercial licensing**: weber.voicebridge@gmail.com
+
+See the [LICENSE](LICENSE) file for complete terms and conditions.
+
+### Copyright Notice
+```
+VoiceBridge - Voice-Driven Form Automation
+Copyright (c) 2025 Weber G. All rights reserved.
+```
 
 ---
 

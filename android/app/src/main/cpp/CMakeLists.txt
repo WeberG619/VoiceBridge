@@ -12,7 +12,8 @@ endif()
 
 # Platform-specific optimizations
 if(ANDROID)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -O3 -ffast-math")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -O3 -fno-finite-math-only -Wno-format")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -O3 -fno-finite-math-only -Wno-format")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g")
 endif()
@@ -41,8 +42,20 @@ if(EXISTS ${WHISPER_DIR}/CMakeLists.txt)
     set(GGML_HIPBLAS OFF CACHE BOOL "")
     set(GGML_CLBLAST OFF CACHE BOOL "")
     
+    # Suppress format warnings for Whisper/GGML
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-format")
+    
     add_subdirectory(${WHISPER_DIR} whisper_build)
     set(WHISPER_AVAILABLE TRUE)
+    
+    # Apply warning suppressions to whisper target
+    if(TARGET whisper)
+        target_compile_options(whisper PRIVATE -Wno-format -Wno-format-security)
+    endif()
+    if(TARGET ggml)
+        target_compile_options(ggml PRIVATE -Wno-format -Wno-format-security)
+    endif()
     
     # Get whisper include directory
     get_target_property(WHISPER_INCLUDE_DIR whisper INTERFACE_INCLUDE_DIRECTORIES)

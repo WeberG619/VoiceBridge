@@ -68,7 +68,7 @@ public:
 };
 
 extern "C" JNIEXPORT jfloatArray JNICALL
-Java_com_voicebridge_AudioProcessor_convertPCMToFloat(JNIEnv *env, jobject thiz, jshortArray pcm_data) {
+Java_com_voicebridge_AudioProcessor_convertPCMToFloat(JNIEnv *env, jobject /* thiz */, jshortArray pcm_data) {
     jsize len = env->GetArrayLength(pcm_data);
     jshort* data = env->GetShortArrayElements(pcm_data, nullptr);
     
@@ -84,7 +84,7 @@ Java_com_voicebridge_AudioProcessor_convertPCMToFloat(JNIEnv *env, jobject thiz,
 }
 
 extern "C" JNIEXPORT jfloatArray JNICALL
-Java_com_voicebridge_AudioProcessor_normalizeAudio(JNIEnv *env, jobject thiz, jfloatArray audio_data) {
+Java_com_voicebridge_AudioProcessor_normalizeAudio(JNIEnv *env, jobject /* thiz */, jfloatArray audio_data) {
     jsize len = env->GetArrayLength(audio_data);
     jfloat* data = env->GetFloatArrayElements(audio_data, nullptr);
     
@@ -100,7 +100,7 @@ Java_com_voicebridge_AudioProcessor_normalizeAudio(JNIEnv *env, jobject thiz, jf
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_com_voicebridge_AudioProcessor_detectVoiceActivity(JNIEnv *env, jobject thiz, jfloatArray audio_data) {
+Java_com_voicebridge_AudioProcessor_detectVoiceActivity(JNIEnv *env, jobject /* thiz */, jfloatArray audio_data) {
     jsize len = env->GetArrayLength(audio_data);
     jfloat* data = env->GetFloatArrayElements(audio_data, nullptr);
     
