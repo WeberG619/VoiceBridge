@@ -22,7 +22,6 @@ import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.voicebridge.telemetry.OfflineCrashReporter
 import com.voicebridge.audio.AudioRecorder
@@ -142,17 +141,17 @@ class MainActivity : AppCompatActivity() {
             }
             
             val titleText = TextView(this@MainActivity).apply {
-                text = "🎤 VoiceBridge AI"
-                textSize = 28f
-                setTextColor(Color.WHITE)
+                text = "🎤 NEW UI v4.0 - VoiceBridge AI"
+                textSize = 24f
+                setTextColor(Color.YELLOW)  // Bright yellow to be obvious
                 gravity = Gravity.CENTER
                 typeface = android.graphics.Typeface.DEFAULT_BOLD
             }
             
             val subtitleText = TextView(this@MainActivity).apply {
-                text = "Voice-Powered Form Assistant"
-                textSize = 16f
-                setTextColor(Color.parseColor("#E0E0E0"))
+                text = "🎨 EXCITING NEW INTERFACE - Voice-Powered Assistant"
+                textSize = 14f
+                setTextColor(Color.CYAN)  // Bright cyan to be obvious
                 gravity = Gravity.CENTER
                 setPadding(0, 10, 0, 0)
             }
@@ -263,8 +262,8 @@ class MainActivity : AppCompatActivity() {
         
         setContentView(mainContainer)
         
-        // Initial status with animation
-        updateStatusText("🚀 VoiceBridge Ready - Grant permissions to unlock features")
+        // Initial status with animation - VERY OBVIOUS
+        updateStatusText("🎆 NEW UI v4.0 LOADED! - Grant permissions to unlock features")
         animateStatusIcon()
     }
     
