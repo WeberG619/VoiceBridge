@@ -20,6 +20,9 @@ import com.voicebridge.audio.AudioData
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.delay
 
 /**
  * Main Activity for VoiceBridge - Real Audio Implementation
@@ -50,6 +53,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var crashReporter: OfflineCrashReporter
     private var audioRecorder: AudioRecorder? = null
     private var recordingJob: Job? = null
+    private val voiceBridgeNative = VoiceBridgeNative()
+    
+    // Audio buffer for speech recognition
+    private val audioBuffer = mutableListOf<Float>()
     
     // State
     private var isRecording = false
@@ -278,7 +285,7 @@ class MainActivity : AppCompatActivity() {
         try {
             isRecording = false
             recordButton.text = "Start Recording"
-            updateStatusText("Processing audio...")
+            updateStatusText("Processing final audio...")
             
             // Cancel recording job
             recordingJob?.cancel()
@@ -287,10 +294,27 @@ class MainActivity : AppCompatActivity() {
             // Stop audio recorder
             audioRecorder?.stopRecording()
             
-            Log.d(TAG, "Real audio recording stopped")
+            // Process any remaining audio in buffer
+            val finalAudio = synchronized(audioBuffer) {
+                if (audioBuffer.isNotEmpty()) {
+                    val audio = audioBuffer.toFloatArray()
+                    audioBuffer.clear()
+                    audio
+                } else {
+                    null
+                }
+            }
             
-            // Show completion message
-            updateStatusText("Audio recording complete! Ready for next command")
+            // Process speech recognition outside the synchronized block
+            if (finalAudio != null) {
+                lifecycleScope.launch {
+                    performSpeechRecognition(finalAudio)
+                }
+            } else {
+                updateStatusText("Audio recording complete! Ready for next command")
+            }
+            
+            Log.d(TAG, "Real audio recording stopped")
             
         } catch (e: Exception) {
             Log.e(TAG, "Error stopping recording", e)
@@ -349,8 +373,75 @@ class MainActivity : AppCompatActivity() {
             }
         }
         
+        // Accumulate audio data for speech recognition
+        if (audioData.isVoiceActive) {
+            val audioChunk = synchronized(audioBuffer) {
+                audioBuffer.addAll(audioData.samples.toList())
+                
+                // If we have enough audio data (approximately 3 seconds at 16kHz)
+                if (audioBuffer.size >= 48000) {
+                    val chunk = audioBuffer.toFloatArray()
+                    audioBuffer.clear()
+                    chunk
+                } else {
+                    null
+                }
+            }
+            
+            // Process speech recognition outside the synchronized block
+            if (audioChunk != null) {
+                lifecycleScope.launch {
+                    performSpeechRecognition(audioChunk)
+                }
+            }
+        }
+        
         // Log audio statistics
         Log.d(TAG, "Audio - Voice: ${audioData.isVoiceActive}, Energy: ${audioData.energy}, RMS: ${audioData.rms}")
+    }
+    
+    private suspend fun performSpeechRecognition(audioData: FloatArray) {
+        try {
+            updateStatusText("Processing speech...")
+            
+            // Perform speech recognition using native Whisper
+            val recognizedText = withContext(Dispatchers.Default) {
+                voiceBridgeNative.transcribeAudio(audioData)
+            }
+            
+            // Update UI with recognized text
+            if (recognizedText.isNotBlank()) {
+                updateStatusText("You said: \"$recognizedText\"")
+                Log.i(TAG, "Speech recognized: $recognizedText")
+                
+                // Process the recognized text with skills engine
+                processRecognizedSpeech(recognizedText)
+            } else {
+                updateStatusText("Could not understand speech")
+                Log.w(TAG, "Speech recognition returned empty result")
+            }
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Speech recognition error", e)
+            updateStatusText("Speech recognition error: ${e.message}")
+        }
+    }
+    
+    private suspend fun processRecognizedSpeech(recognizedText: String) {
+        try {
+            // Here we'll integrate with SkillEngine to process voice commands
+            updateStatusText("Processing command: \"$recognizedText\"")
+            
+            // For now, just show the recognized text
+            delay(2000)
+            updateStatusText("Ready for next command")
+            
+            Log.i(TAG, "Processed speech: $recognizedText")
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error processing speech", e)
+            updateStatusText("Command processing error: ${e.message}")
+        }
     }
     
     private fun updateStatusText(message: String) {
