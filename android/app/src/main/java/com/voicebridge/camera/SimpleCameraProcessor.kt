@@ -134,10 +134,11 @@ class SimpleCameraProcessor private constructor(
      */
     suspend fun captureImage(): Boolean = withContext(Dispatchers.IO) {
         try {
-            val imageCapture = this@SimpleCameraProcessor.imageCapture ?: {
+            val imageCapture = this@SimpleCameraProcessor.imageCapture
+            if (imageCapture == null) {
                 Log.e(TAG, "ImageCapture not initialized")
                 return@withContext false
-            }()
+            }
             
             Log.d(TAG, "Starting image capture...")
             
@@ -147,27 +148,37 @@ class SimpleCameraProcessor private constructor(
             
             Log.d(TAG, "Output file: ${outputFile.absolutePath}")
             
-            // Capture image
+            // Capture image with timeout
             val result = suspendCoroutine<Boolean> { continuation ->
+                var completed = false
+                
                 imageCapture.takePicture(
                     outputFileOptions,
                     ContextCompat.getMainExecutor(context),
                     object : ImageCapture.OnImageSavedCallback {
                         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                            if (completed) return
+                            completed = true
+                            
                             try {
                                 Log.d(TAG, "Image saved successfully")
                                 val bitmap = BitmapFactory.decodeFile(outputFile.absolutePath)
                                 if (bitmap != null) {
                                     Log.d(TAG, "Bitmap created successfully: ${bitmap.width}x${bitmap.height}")
                                     onImageCapturedListener?.invoke(bitmap)
+                                    continuation.resume(true)
                                 } else {
                                     Log.e(TAG, "Failed to decode bitmap from file")
+                                    continuation.resume(false)
                                 }
                                 
                                 // Clean up temp file
-                                outputFile.delete()
+                                try {
+                                    outputFile.delete()
+                                } catch (e: Exception) {
+                                    Log.w(TAG, "Failed to delete temp file", e)
+                                }
                                 
-                                continuation.resume(true)
                             } catch (e: Exception) {
                                 Log.e(TAG, "Error loading captured image", e)
                                 continuation.resume(false)
@@ -175,12 +186,25 @@ class SimpleCameraProcessor private constructor(
                         }
                         
                         override fun onError(exception: ImageCaptureException) {
+                            if (completed) return
+                            completed = true
+                            
                             Log.e(TAG, "Image capture failed", exception)
                             onErrorListener?.invoke("Image capture failed: ${exception.message}")
                             continuation.resume(false)
                         }
                     }
                 )
+                
+                // Add timeout protection
+                kotlinx.coroutines.GlobalScope.launch {
+                    kotlinx.coroutines.delay(8000) // 8 second timeout
+                    if (!completed) {
+                        completed = true
+                        Log.e(TAG, "Image capture timed out")
+                        continuation.resume(false)
+                    }
+                }
             }
             
             return@withContext result
