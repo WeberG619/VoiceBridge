@@ -58,6 +58,9 @@ class RealMainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        // Initialize secure API key storage
+        APIConfig.initialize(this)
+        
         createUI()
         checkAPIKeys()
         checkPermissions()
@@ -201,7 +204,7 @@ class RealMainActivity : AppCompatActivity() {
         }
         
         val titleText = TextView(this).apply {
-            text = "API Keys Setup"
+            text = "🔑 Enter Your API Keys"
             textSize = 20f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
             setPadding(0, 0, 0, 20)
@@ -209,19 +212,87 @@ class RealMainActivity : AppCompatActivity() {
         dialogView.addView(titleText)
         
         val instructionText = TextView(this).apply {
-            text = APIConfig.getSetupInstructions()
+            text = "Enter your API keys below. They'll be stored securely on your device."
             textSize = 14f
             setPadding(0, 0, 0, 20)
         }
         dialogView.addView(instructionText)
         
+        // Claude API Key Input
+        val claudeLabel = TextView(this).apply {
+            text = "Claude API Key (Required)"
+            textSize = 16f
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+            setPadding(0, 20, 0, 8)
+        }
+        dialogView.addView(claudeLabel)
+        
+        val claudeInput = android.widget.EditText(this).apply {
+            hint = "sk-ant-..."
+            setText(APIConfig.getClaudeApiKey())
+            inputType = android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+        }
+        dialogView.addView(claudeInput)
+        
+        // OpenAI API Key Input
+        val openaiLabel = TextView(this).apply {
+            text = "OpenAI API Key (Optional - for speech)"
+            textSize = 16f
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+            setPadding(0, 20, 0, 8)
+        }
+        dialogView.addView(openaiLabel)
+        
+        val openaiInput = android.widget.EditText(this).apply {
+            hint = "sk-proj-..."
+            setText(APIConfig.getOpenAiApiKey())
+            inputType = android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+        }
+        dialogView.addView(openaiInput)
+        
+        // Google Vision API Key Input
+        val visionLabel = TextView(this).apply {
+            text = "Google Vision API Key (Optional - for OCR)"
+            textSize = 16f
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+            setPadding(0, 20, 0, 8)
+        }
+        dialogView.addView(visionLabel)
+        
+        val visionInput = android.widget.EditText(this).apply {
+            hint = "AIza..."
+            setText(APIConfig.getGoogleVisionApiKey())
+            inputType = android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+        }
+        dialogView.addView(visionInput)
+        
+        val helpText = TextView(this).apply {
+            text = "\nGet API keys:\n• Claude: console.anthropic.com\n• OpenAI: platform.openai.com\n• Google: cloud.google.com/vision"
+            textSize = 12f
+            setTextColor(Color.parseColor("#666666"))
+            setPadding(0, 20, 0, 0)
+        }
+        dialogView.addView(helpText)
+        
         AlertDialog.Builder(this)
             .setView(dialogView)
-            .setPositiveButton("OK") { _, _ -> }
+            .setPositiveButton("Save & Continue") { _, _ -> 
+                // Save API keys securely
+                APIConfig.setClaudeApiKey(claudeInput.text.toString().trim())
+                APIConfig.setOpenAiApiKey(openaiInput.text.toString().trim())
+                APIConfig.setGoogleVisionApiKey(visionInput.text.toString().trim())
+                
+                // Re-check configuration
+                checkAPIKeys()
+            }
             .setNegativeButton("Use Demo Mode") { _, _ -> 
-                // Enable demo mode with simulated responses
                 enableDemoMode()
             }
+            .setNeutralButton("Clear All") { _, _ ->
+                APIConfig.clearAllKeys()
+                updateStatus("API keys cleared")
+            }
+            .setCancelable(false)
             .show()
     }
     
@@ -241,14 +312,14 @@ class RealMainActivity : AppCompatActivity() {
     }
     
     private fun initializeAPIs() {
-        claudeAPI = ClaudeAPI(APIConfig.CLAUDE_API_KEY)
+        claudeAPI = ClaudeAPI(APIConfig.getClaudeApiKey())
         
         if (APIConfig.hasSpeechAPI()) {
-            whisperAPI = WhisperAPI(APIConfig.OPENAI_API_KEY, this)
+            whisperAPI = WhisperAPI(APIConfig.getOpenAiApiKey(), this)
         }
         
         if (APIConfig.hasVisionAPI()) {
-            googleVisionAPI = GoogleVisionAPI(APIConfig.GOOGLE_VISION_API_KEY)
+            googleVisionAPI = GoogleVisionAPI(APIConfig.getGoogleVisionApiKey())
         }
         
         // Initialize TTS

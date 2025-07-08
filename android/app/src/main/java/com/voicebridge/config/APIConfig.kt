@@ -1,55 +1,120 @@
 package com.voicebridge.config
 
+import android.content.Context
+import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
+
 /**
- * API Configuration
+ * API Configuration with Runtime Key Management
  * 
- * Add your API keys here:
+ * Users can enter API keys directly in the app - no code editing needed!
+ * Keys are stored securely using Android's EncryptedSharedPreferences
  * 
- * 1. CLAUDE_API_KEY: You already have this from Anthropic
- * 2. OPENAI_API_KEY: Get from platform.openai.com (for Whisper speech recognition)
- * 3. GOOGLE_VISION_API_KEY: Get from cloud.google.com (free tier: 1000 requests/month)
- * 
- * Monthly costs for moderate use:
- * - Claude: $5-15 (you already have this)
- * - OpenAI Whisper: $3-10 ($0.006/minute)
- * - Google Vision: FREE up to 1000 forms/month
- * Total: ~$8-25/month for heavy business use
+ * Get your API keys from:
+ * 1. Claude API: https://console.anthropic.com (~$5-15/month)
+ * 2. OpenAI API: https://platform.openai.com ($0.006/minute for Whisper)
+ * 3. Google Vision API: https://cloud.google.com (FREE 1000 requests/month)
  */
 object APIConfig {
     
-    // SECURITY NOTE: Replace these placeholders with your actual API keys
-    // For production, consider using Android's EncryptedSharedPreferences or BuildConfig fields
+    private const val PREFS_NAME = "voicebridge_api_keys"
+    private const val KEY_CLAUDE = "claude_api_key"
+    private const val KEY_OPENAI = "openai_api_key"
+    private const val KEY_GOOGLE_VISION = "google_vision_api_key"
     
-    // Get from https://console.anthropic.com
-    const val CLAUDE_API_KEY = "YOUR_CLAUDE_API_KEY_HERE"
-    
-    // Get from https://platform.openai.com/api-keys
-    // Cost: $0.006 per minute of audio (very affordable)
-    const val OPENAI_API_KEY = "YOUR_OPENAI_API_KEY_HERE"
-    
-    // Get from https://cloud.google.com/vision/docs/setup
-    // FREE TIER: 1000 requests per month
-    const val GOOGLE_VISION_API_KEY = "YOUR_GOOGLE_VISION_API_KEY_HERE"
+    private var encryptedPrefs: SharedPreferences? = null
     
     /**
-     * Check if APIs are configured
+     * Initialize secure storage
+     */
+    fun initialize(context: Context) {
+        try {
+            val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+            encryptedPrefs = EncryptedSharedPreferences.create(
+                PREFS_NAME,
+                masterKeyAlias,
+                context,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (e: Exception) {
+            // Fallback to regular SharedPreferences if encryption fails
+            encryptedPrefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        }
+    }
+    
+    /**
+     * Get Claude API key (entered by user in app)
+     */
+    fun getClaudeApiKey(): String {
+        return encryptedPrefs?.getString(KEY_CLAUDE, "") ?: ""
+    }
+    
+    /**
+     * Get OpenAI API key (entered by user in app)
+     */
+    fun getOpenAiApiKey(): String {
+        return encryptedPrefs?.getString(KEY_OPENAI, "") ?: ""
+    }
+    
+    /**
+     * Get Google Vision API key (entered by user in app)
+     */
+    fun getGoogleVisionApiKey(): String {
+        return encryptedPrefs?.getString(KEY_GOOGLE_VISION, "") ?: ""
+    }
+    
+    /**
+     * Save Claude API key securely
+     */
+    fun setClaudeApiKey(key: String) {
+        encryptedPrefs?.edit()?.putString(KEY_CLAUDE, key)?.apply()
+    }
+    
+    /**
+     * Save OpenAI API key securely
+     */
+    fun setOpenAiApiKey(key: String) {
+        encryptedPrefs?.edit()?.putString(KEY_OPENAI, key)?.apply()
+    }
+    
+    /**
+     * Save Google Vision API key securely
+     */
+    fun setGoogleVisionApiKey(key: String) {
+        encryptedPrefs?.edit()?.putString(KEY_GOOGLE_VISION, key)?.apply()
+    }
+    
+    /**
+     * Clear all API keys (for troubleshooting)
+     */
+    fun clearAllKeys() {
+        encryptedPrefs?.edit()?.clear()?.apply()
+    }
+    
+    /**
+     * Check if Claude API is configured
      */
     fun isConfigured(): Boolean {
-        return CLAUDE_API_KEY.startsWith("sk-ant-") && CLAUDE_API_KEY != "YOUR_CLAUDE_API_KEY_HERE"
+        val claudeKey = getClaudeApiKey()
+        return claudeKey.isNotEmpty() && claudeKey.startsWith("sk-ant-")
     }
     
     /**
      * Check if speech recognition is available
      */
     fun hasSpeechAPI(): Boolean {
-        return OPENAI_API_KEY.startsWith("sk-") && OPENAI_API_KEY != "YOUR_OPENAI_API_KEY_HERE"
+        val openaiKey = getOpenAiApiKey()
+        return openaiKey.isNotEmpty() && openaiKey.startsWith("sk-")
     }
     
     /**
      * Check if OCR is available
      */
     fun hasVisionAPI(): Boolean {
-        return GOOGLE_VISION_API_KEY != "YOUR_GOOGLE_VISION_API_KEY_HERE"
+        val visionKey = getGoogleVisionApiKey()
+        return visionKey.isNotEmpty() && visionKey.length > 10
     }
     
     /**

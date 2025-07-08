@@ -119,6 +119,9 @@ dependencies {
     // Serialization
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1'
     
+    // Encrypted SharedPreferences for secure API key storage
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+    
     // Offline crash reporting
     implementation 'org.jetbrains.kotlinx:kotlinx-datetime:0.4.0'
     
