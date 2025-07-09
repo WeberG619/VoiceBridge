@@ -29,6 +29,7 @@ import com.voicebridge.api.ClaudeAPI
 import com.voicebridge.api.WhisperAPI
 import com.voicebridge.api.GoogleVisionAPI
 import com.voicebridge.config.APIConfig
+import com.voicebridge.vision.VisionLLMService
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -49,9 +50,7 @@ class RealMainActivity : AppCompatActivity() {
     }
     
     // UI Components
-    private lateinit var mainButton: ImageButton
-    private lateinit var cameraButton: ImageButton
-    private lateinit var liveVisionButton: ImageButton
+    private lateinit var visionButton: ImageButton
     private lateinit var cameraPreview: PreviewView
     private lateinit var statusText: TextView
     private lateinit var container: LinearLayout
@@ -63,19 +62,19 @@ class RealMainActivity : AppCompatActivity() {
     private var camera: Camera? = null
     private lateinit var cameraExecutor: ExecutorService
     
-    // Live Vision State
-    private var isLiveVisionActive = false
-    private var liveVisionHandler = Handler(Looper.getMainLooper())
-    private var liveVisionRunnable: Runnable? = null
+    // Vision State
+    private var isVisionActive = false
+    private var visionHandler = Handler(Looper.getMainLooper())
+    private var visionRunnable: Runnable? = null
     
     // APIs
     private lateinit var claudeAPI: ClaudeAPI
     private lateinit var whisperAPI: WhisperAPI
     private lateinit var googleVisionAPI: GoogleVisionAPI
+    private lateinit var visionLLMService: VisionLLMService
     private var textToSpeech: TextToSpeech? = null
     
     // State
-    private var isListening = false
     private var conversationHistory = mutableListOf<String>()
     private var isSetup = false
     
@@ -124,7 +123,7 @@ class RealMainActivity : AppCompatActivity() {
         container.addView(titleText)
         
         val subtitleText = TextView(this).apply {
-            text = "🌟 Universal Vision Assistant • Read Anything • See Everything"
+            text = "🌟 One Button • See Everything • Understand Anything"
             textSize = 18f
             setTextColor(Color.parseColor("#c0c0c0"))
             gravity = Gravity.CENTER
@@ -134,9 +133,9 @@ class RealMainActivity : AppCompatActivity() {
         }
         container.addView(subtitleText)
         
-        // Live camera preview (initially hidden) - Made larger and more modern
+        // Universal camera preview - Always visible when active
         cameraPreview = PreviewView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(600, 400).apply {
+            layoutParams = LinearLayout.LayoutParams(700, 500).apply {
                 setMargins(20, 20, 20, 20)
             }
             visibility = android.view.View.GONE
@@ -163,9 +162,9 @@ class RealMainActivity : AppCompatActivity() {
         }
         container.addView(statusText)
         
-        // Main voice button (like ChatGPT) - Enhanced with modern gradient
-        mainButton = ImageButton(this).apply {
-            layoutParams = LinearLayout.LayoutParams(280, 280)
+        // Universal Vision Button - One button for everything
+        visionButton = ImageButton(this).apply {
+            layoutParams = LinearLayout.LayoutParams(350, 350)
             
             background = GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
@@ -178,9 +177,9 @@ class RealMainActivity : AppCompatActivity() {
                 setStroke(8, Color.parseColor("#818cf8")) // Light indigo border
             }
             
-            setImageResource(android.R.drawable.ic_btn_speak_now)
+            setImageResource(android.R.drawable.ic_menu_view)
             scaleType = android.widget.ImageView.ScaleType.CENTER
-            elevation = 16f
+            elevation = 20f
             isEnabled = false
             
             setOnTouchListener { _, event ->
@@ -188,77 +187,23 @@ class RealMainActivity : AppCompatActivity() {
                 
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        startListening()
+                        startVisionMode()
                         animateButton(true)
                     }
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                        stopListening()
+                        processVisionInput()
                         animateButton(false)
                     }
                 }
                 true
             }
         }
-        container.addView(mainButton)
-        
-        // Camera button - Enhanced with modern gradient
-        cameraButton = ImageButton(this).apply {
-            layoutParams = LinearLayout.LayoutParams(200, 200).apply {
-                setMargins(0, 40, 0, 0)
-            }
-            
-            background = GradientDrawable(
-                GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(
-                    Color.parseColor("#059669"), // Modern emerald
-                    Color.parseColor("#047857")  // Deeper emerald
-                )
-            ).apply {
-                shape = GradientDrawable.OVAL
-                setStroke(6, Color.parseColor("#6ee7b7")) // Light emerald border
-            }
-            
-            setImageResource(android.R.drawable.ic_menu_camera)
-            scaleType = android.widget.ImageView.ScaleType.CENTER
-            elevation = 12f
-            
-            setOnClickListener {
-                capturePhoto()
-            }
-        }
-        container.addView(cameraButton)
-        
-        // Live Vision Button (GAME CHANGER!) - Enhanced with modern gradient
-        liveVisionButton = ImageButton(this).apply {
-            layoutParams = LinearLayout.LayoutParams(200, 200).apply {
-                setMargins(0, 30, 0, 0)
-            }
-            
-            background = GradientDrawable(
-                GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(
-                    Color.parseColor("#f59e0b"), // Golden orange
-                    Color.parseColor("#d97706")  // Deeper orange
-                )
-            ).apply {
-                shape = GradientDrawable.OVAL
-                setStroke(6, Color.parseColor("#fde68a")) // Light golden border
-            }
-            
-            setImageResource(android.R.drawable.ic_menu_view)
-            scaleType = android.widget.ImageView.ScaleType.CENTER
-            elevation = 12f
-            
-            setOnClickListener {
-                toggleLiveVision()
-            }
-        }
-        container.addView(liveVisionButton)
+        container.addView(visionButton)
         
         // Instructions - Enhanced with modern styling
         val instructionText = TextView(this).apply {
-            text = "🎤 Hold to talk • 📷 Capture anything • 👁️ Live vision for everything"
-            textSize = 16f
+            text = "👁️ HOLD to see and understand anything • Release to hear response"
+            textSize = 18f
             setTextColor(Color.parseColor("#d1d5db"))
             gravity = Gravity.CENTER
             setPadding(40, 50, 40, 0)
@@ -268,7 +213,7 @@ class RealMainActivity : AppCompatActivity() {
         
         // Accessibility description - Enhanced with modern styling
         val accessibilityText = TextView(this).apply {
-            text = "♿ Read medicine labels • Identify objects • Navigate the world"
+            text = "♿ Medicine labels • Forms • Signs • Objects • Everything you need to see"
             textSize = 14f
             setTextColor(Color.parseColor("#93c5fd"))
             gravity = Gravity.CENTER
@@ -321,8 +266,8 @@ class RealMainActivity : AppCompatActivity() {
             initializeAPIs()
             isSetup = true
             setupButton.visibility = Button.GONE
-            updateStatus("Ready! Hold button to speak")
-            mainButton.isEnabled = true
+            updateStatus("Ready! Hold button to see and understand anything")
+            visionButton.isEnabled = true
             
         } else {
             updateStatus("Please set up API keys first")
@@ -431,7 +376,7 @@ class RealMainActivity : AppCompatActivity() {
     
     private fun enableDemoMode() {
         updateStatus("Please set up API keys for full functionality")
-        mainButton.isEnabled = false
+        visionButton.isEnabled = false
         isSetup = false
         setupButton.visibility = Button.VISIBLE
         
@@ -455,11 +400,19 @@ class RealMainActivity : AppCompatActivity() {
             googleVisionAPI = GoogleVisionAPI(APIConfig.getGoogleVisionApiKey())
         }
         
+        // Initialize the new VLM service
+        visionLLMService = VisionLLMService(this, claudeAPI)
+        
+        // Initialize BLIP-2 model asynchronously
+        lifecycleScope.launch {
+            visionLLMService.initializeBLIP2()
+        }
+        
         // Initialize TTS
         textToSpeech = TextToSpeech(this) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 textToSpeech?.setLanguage(Locale.US)
-                speak("VoiceBridge ready! I can see and describe anything you point your camera at.")
+                speak("VoiceBridge ready! I can see and describe anything you point your camera at using advanced vision AI.")
             }
         }
     }
@@ -488,118 +441,106 @@ class RealMainActivity : AppCompatActivity() {
         }
     }
     
-    private fun startListening() {
-        if (isListening) return
-        isListening = true
+    private fun startVisionMode() {
+        if (isVisionActive) return
+        isVisionActive = true
         
-        updateStatus("Listening... speak naturally")
+        // Make sure camera is initialized first
+        if (camera == null || preview == null) {
+            updateStatus("Initializing camera...")
+            speak("Setting up camera for vision")
+            initializeCamera()
+            // Wait a moment for camera to initialize
+            visionHandler.postDelayed({
+                startVisionModeAfterCameraReady()
+            }, 1000)
+            return
+        }
         
-        // Change button to red when listening
-        mainButton.background = GradientDrawable().apply {
+        startVisionModeAfterCameraReady()
+    }
+    
+    private fun startVisionModeAfterCameraReady() {
+        cameraPreview.visibility = android.view.View.VISIBLE
+        
+        // Change button to active state
+        visionButton.background = GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(
+                Color.parseColor("#dc2626"), // Red when active
+                Color.parseColor("#b91c1c")  // Deeper red
+            )
+        ).apply {
             shape = GradientDrawable.OVAL
-            setColor(Color.parseColor("#ef4444")) // Red
             setStroke(8, Color.parseColor("#f87171"))
         }
         
-        if (isSetup && APIConfig.hasSpeechAPI() && ::whisperAPI.isInitialized) {
-            // Real speech recognition
-            whisperAPI.startRecording()
-        }
+        updateStatus("👁️ Vision Active - I can see what you're pointing at!")
+        speak("Vision activated. I can see what you're pointing at.")
+        
+        // Start continuous vision analysis
+        startContinuousVisionAnalysis()
+        
+        Log.d(TAG, "✅ Vision mode started")
     }
     
-    private fun stopListening() {
-        if (!isListening) return
-        isListening = false
+    private fun processVisionInput() {
+        if (!isVisionActive) return
         
-        updateStatus("Processing...")
+        updateStatus("📸 Analyzing what I see...")
         
-        // Change button back to blue
-        mainButton.background = GradientDrawable().apply {
+        // Change button back to normal
+        visionButton.background = GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(
+                Color.parseColor("#4f46e5"), // Modern indigo
+                Color.parseColor("#3730a3")  // Deeper indigo
+            )
+        ).apply {
             shape = GradientDrawable.OVAL
-            setColor(Color.parseColor("#6366f1")) // Indigo
-            setStroke(6, Color.parseColor("#8b5cf6"))
+            setStroke(8, Color.parseColor("#818cf8"))
         }
         
-        if (isSetup && APIConfig.hasSpeechAPI() && ::whisperAPI.isInitialized) {
-            // Real transcription
+        // Capture current frame and analyze
+        val bitmap = cameraPreview.getBitmap()
+        if (bitmap != null) {
             lifecycleScope.launch {
-                val transcription = whisperAPI.stopRecordingAndTranscribe()
-                if (transcription.isNotEmpty()) {
-                    processUserInput(transcription)
-                } else {
-                    updateStatus("Didn't catch that. Try again!")
-                    speak("I didn't catch that. Please try again.")
-                }
+                val visionResult = visionLLMService.analyzeImage(
+                    bitmap, 
+                    "Tell me about what you see in this image. If it's medicine, tell me about the medicine. If it's a form, help me understand it. If it's text, read it to me. Describe anything important."
+                )
+                
+                updateStatus("AI sees: ${visionResult.description.take(50)}...")
+                speak(visionResult.description)
+                
+                // Add to conversation history
+                conversationHistory.add("Vision capture analyzed")
+                conversationHistory.add(visionResult.description)
+                
+                Log.d(TAG, "✅ Vision analysis: Tier ${visionResult.tier}, ${visionResult.processingTime}ms")
             }
         } else {
-            // No speech API - still try to process as text
-            updateStatus("Voice input not available. Please set up speech API key.")
-            speak("Please add your speech API key to use voice input.")
+            updateStatus("Couldn't capture image")
+            speak("I couldn't capture what you're pointing at. Please try again.")
         }
+        
+        // Stop vision mode
+        stopVisionMode()
     }
     
-    private suspend fun processUserInput(userInput: String) {
-        updateStatus("You: $userInput")
+    private fun stopVisionMode() {
+        isVisionActive = false
+        cameraPreview.visibility = android.view.View.GONE
         
-        try {
-            var response = ""
-            
-            // Always check if live vision is active first
-            if (isLiveVisionActive) {
-                // Live vision is on - analyze what camera sees
-                updateStatus("📸 Analyzing what you're pointing at...")
-                
-                // Ensure camera is ready
-                if (camera == null || preview == null) {
-                    response = "Camera is not ready yet. Please wait a moment and try again."
-                    Log.w(TAG, "⚠️ Camera not initialized for live vision")
-                } else {
-                    val bitmap = cameraPreview.getBitmap()
-                    if (bitmap != null) {
-                        Log.d(TAG, "📸 Successfully captured frame from camera preview")
-                        val ocrResult = googleVisionAPI.extractTextFromImage(bitmap)
-                        
-                        // Pure vision assistance - let AI decide what it sees
-                        response = claudeAPI.chatAboutVision(
-                            userMessage = userInput,
-                            sceneText = ocrResult.text,
-                            conversationHistory = conversationHistory
-                        )
-                        
-                        Log.d(TAG, "✅ Live vision analysis completed for: $userInput")
-                        
-                    } else {
-                        response = "I can't capture the current camera frame. Make sure live vision is on and the camera has permission."
-                        Log.w(TAG, "⚠️ Could not capture frame from camera preview - bitmap is null")
-                    }
-                }
-            } else {
-                // No live vision - regular conversation
-                response = claudeAPI.chatAboutVision(
-                    userMessage = userInput,
-                    sceneText = null,
-                    conversationHistory = conversationHistory
-                )
-            }
-            
-            // Add to conversation history
-            conversationHistory.add(userInput)
-            conversationHistory.add(response)
-            
-            // Keep history manageable
-            if (conversationHistory.size > 10) {
-                conversationHistory = conversationHistory.takeLast(6).toMutableList()
-            }
-            
-            updateStatus("AI: $response")
-            speak(response)
-            
-        } catch (e: Exception) {
-            Log.e(TAG, "Error processing input", e)
-            updateStatus("Having trouble. Try again!")
-            speak("I'm having trouble right now. Please try again.")
+        // Stop continuous analysis
+        visionRunnable?.let { 
+            visionHandler.removeCallbacks(it)
         }
+        
+        Log.d(TAG, "Vision mode stopped")
     }
+    
+    // Removed processUserInput - using direct vision analysis instead
     
     private fun speak(text: String) {
         textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
@@ -612,7 +553,7 @@ class RealMainActivity : AppCompatActivity() {
     }
     
     private fun animateButton(pressed: Boolean) {
-        mainButton.animate()
+        visionButton.animate()
             .scaleX(if (pressed) 0.9f else 1.0f)
             .scaleY(if (pressed) 0.9f else 1.0f)
             .setDuration(100)
@@ -654,230 +595,33 @@ class RealMainActivity : AppCompatActivity() {
         }
     }
     
-    /**
-     * Capture photo using camera for OCR processing
-     */
-    private fun capturePhoto() {
-        if (!APIConfig.hasVisionAPI()) {
-            updateStatus("Add Google Vision API key for camera features")
-            speak("Please add your Google Vision API key to use camera features")
-            showAPISetupDialog()
-            return
-        }
-        
-        // Create image file
-        val name = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
-            .format(System.currentTimeMillis())
-        val contentValues = android.content.ContentValues().apply {
-            put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, name)
-            put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-        }
-        
-        // Create output options
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(
-            contentResolver,
-            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            contentValues
-        ).build()
-        
-        // Set up image capture listener
-        imageCapture?.takePicture(
-            outputOptions,
-            ContextCompat.getMainExecutor(this),
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onError(exception: ImageCaptureException) {
-                    Log.e(TAG, "Photo capture failed: ${exception.message}", exception)
-                    updateStatus("Camera error - try again")
-                    speak("Camera error, please try again")
-                }
-                
-                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    updateStatus("Photo captured! Processing...")
-                    speak("Photo captured, analyzing form")
-                    
-                    // Process the captured image with OCR
-                    output.savedUri?.let { uri ->
-                        processImageWithOCR(uri)
-                    }
-                }
-            }
-        )
-        
-        // Visual feedback
-        cameraButton.animate()
-            .scaleX(0.8f)
-            .scaleY(0.8f)
-            .setDuration(100)
-            .withEndAction {
-                cameraButton.animate()
-                    .scaleX(1.0f)
-                    .scaleY(1.0f)
-                    .setDuration(100)
-                    .start()
-            }
-            .start()
-    }
+    // Removed photo capture functions - using single vision button instead
     
-    /**
-     * Process captured image with Google Vision OCR - Pure vision analysis
-     */
-    private fun processImageWithOCR(imageUri: android.net.Uri) {
-        lifecycleScope.launch {
-            try {
-                // Convert URI to bitmap
-                val inputStream = contentResolver.openInputStream(imageUri)
-                val bitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
-                inputStream?.close()
-                
-                if (bitmap != null) {
-                    // Use Google Vision API for OCR
-                    val ocrResult = googleVisionAPI.extractTextFromImage(bitmap)
-                    
-                    // Always analyze what's in the image, regardless of text
-                    val claudeResponse = claudeAPI.chatAboutVision(
-                        userMessage = "I took a photo. Please describe what you see in this image and read any text that's visible.",
-                        sceneText = ocrResult.text,
-                        conversationHistory = conversationHistory
-                    )
-                    
-                    updateStatus("Photo analyzed! Listen to response...")
-                    speak(claudeResponse)
-                    
-                    // Add to conversation history
-                    conversationHistory.add("Photo captured with text: ${ocrResult.text}")
-                    conversationHistory.add(claudeResponse)
-                    
-                    Log.d(TAG, "✅ Photo processed successfully")
-                    Log.d(TAG, "📝 OCR Text found: ${ocrResult.text}")
-                    
-                } else {
-                    updateStatus("Error processing image")
-                    speak("Error processing the image. Please try again.")
-                }
-                
-            } catch (e: Exception) {
-                Log.e(TAG, "Error processing image", e)
-                updateStatus("Image processing failed")
-                speak("Error analyzing the image. Please try again.")
-            }
-        }
-    }
-    
-    /**
-     * Toggle Live Vision Mode - ACCESSIBILITY GAME CHANGER!
-     */
-    private fun toggleLiveVision() {
-        if (!APIConfig.hasVisionAPI()) {
-            updateStatus("Add Google Vision API key for live vision")
-            speak("Please add your Google Vision API key to use the live vision assistant")
-            showAPISetupDialog()
-            return
-        }
-        
-        isLiveVisionActive = !isLiveVisionActive
-        
-        if (isLiveVisionActive) {
-            startLiveVision()
-        } else {
-            stopLiveVision()
-        }
-    }
-    
-    /**
-     * Start Live Vision - Continuous AI sight assistant
-     */
-    private fun startLiveVision() {
-        // Make sure camera is initialized first
-        if (camera == null || preview == null) {
-            updateStatus("Initializing camera for live vision...")
-            speak("Setting up camera for live vision")
-            initializeCamera()
-            // Wait a moment for camera to initialize
-            liveVisionHandler.postDelayed({
-                startLiveVisionAfterCameraReady()
-            }, 1000)
-            return
-        }
-        
-        startLiveVisionAfterCameraReady()
-    }
-    
-    private fun startLiveVisionAfterCameraReady() {
-        cameraPreview.visibility = android.view.View.VISIBLE
-        
-        // Update button appearance
-        liveVisionButton.background = GradientDrawable(
-            GradientDrawable.Orientation.TOP_BOTTOM,
-            intArrayOf(
-                Color.parseColor("#dc2626"), // Red when active
-                Color.parseColor("#b91c1c")  // Deeper red
-            )
-        ).apply {
-            shape = GradientDrawable.OVAL
-            setStroke(4, Color.parseColor("#f87171"))
-        }
-        
-        updateStatus("👁️ Live Vision Active - Camera is ON and I can see!")
-        speak("Live vision activated. Camera is now on and I can see your surroundings. Ask me what I see!")
-        
-        // Start continuous vision analysis
-        startContinuousVisionAnalysis()
-        
-        Log.d(TAG, "✅ Live Vision started - Camera active and ready")
-    }
-    
-    /**
-     * Stop Live Vision
-     */
-    private fun stopLiveVision() {
-        cameraPreview.visibility = android.view.View.GONE
-        
-        // Reset button appearance
-        liveVisionButton.background = GradientDrawable(
-            GradientDrawable.Orientation.TOP_BOTTOM,
-            intArrayOf(
-                Color.parseColor("#f59e0b"), // Golden orange
-                Color.parseColor("#d97706")  // Deeper orange
-            )
-        ).apply {
-            shape = GradientDrawable.OVAL
-            setStroke(4, Color.parseColor("#fbbf24"))
-        }
-        
-        // Stop continuous analysis
-        liveVisionRunnable?.let { 
-            liveVisionHandler.removeCallbacks(it)
-        }
-        
-        updateStatus("Live Vision stopped")
-        speak("Live vision stopped. Tap the orange button to restart when needed.")
-        
-        Log.d(TAG, "Live Vision stopped")
-    }
+    // Removed old live vision functions - using single vision button instead
     
     /**
      * Continuous Vision Analysis - Every 3 seconds
      */
     private fun startContinuousVisionAnalysis() {
-        liveVisionRunnable = object : Runnable {
+        visionRunnable = object : Runnable {
             override fun run() {
-                if (isLiveVisionActive) {
+                if (isVisionActive) {
                     analyzeLiveFrame()
                     // Schedule next analysis in 3 seconds
-                    liveVisionHandler.postDelayed(this, 3000)
+                    visionHandler.postDelayed(this, 3000)
                 }
             }
         }
         
         // Start first analysis
-        liveVisionHandler.post(liveVisionRunnable!!)
+        visionHandler.post(visionRunnable!!)
     }
     
     /**
      * Analyze current camera frame for accessibility
      */
     private fun analyzeLiveFrame() {
-        if (!isLiveVisionActive || !APIConfig.hasVisionAPI()) {
+        if (!isVisionActive) {
             return
         }
         
@@ -890,50 +634,35 @@ class RealMainActivity : AppCompatActivity() {
                 return
             }
             
-            Log.d(TAG, "📸 Captured frame for live vision analysis")
+            Log.d(TAG, "📸 Captured frame for continuous vision analysis")
             
             lifecycleScope.launch {
                 try {
-                    // Use Google Vision for scene analysis
-                    val ocrResult = googleVisionAPI.extractTextFromImage(bitmap)
-                    
-                    // Create accessibility-focused prompt
-                    val prompt = buildString {
-                        append("You are an AI sight assistant helping someone navigate their environment. ")
-                        append("Describe what you see in this scene briefly and helpfully. ")
-                        append("Focus on: obstacles, text to read, objects, people, navigation help. ")
-                        append("Be concise but descriptive. ")
-                        if (ocrResult.text.isNotEmpty()) {
-                            append("Text visible: ${ocrResult.text}")
-                        }
-                    }
-                    
-                    // Get Claude's description using vision method
-                    val description = claudeAPI.chatAboutVision(
-                        userMessage = prompt,
-                        sceneText = ocrResult.text,
-                        conversationHistory = emptyList() // Keep it fresh for live analysis
+                    // Use the new VLM service for continuous analysis
+                    val visionResult = visionLLMService.analyzeImage(
+                        bitmap, 
+                        "Briefly describe what you see for navigation assistance. Focus on obstacles, text, and important objects."
                     )
                     
                     // Update status with brief description
-                    if (description.length > 10 && !description.contains("I can't see")) {
+                    if (visionResult.description.length > 10 && visionResult.confidence > 0.3f) {
                         runOnUiThread {
-                            updateStatus("👁️ Live: ${description.take(60)}...")
+                            updateStatus("👁️ Seeing (Tier ${visionResult.tier}): ${visionResult.description.take(60)}...")
                         }
-                        Log.d(TAG, "✅ Live vision analysis: $description")
-                        // Don't speak every frame - only on voice request
+                        Log.d(TAG, "✅ Continuous vision analysis: Tier ${visionResult.tier}, ${visionResult.processingTime}ms, confidence: ${visionResult.confidence}")
+                        // Don't speak every frame - only when user releases button
                     }
                     
                 } catch (e: Exception) {
-                    Log.e(TAG, "Live vision analysis error", e)
+                    Log.e(TAG, "Continuous vision analysis error", e)
                     runOnUiThread {
-                        updateStatus("👁️ Live vision active (analysis paused)")
+                        updateStatus("👁️ Vision active (analysis paused)")
                     }
                 }
             }
             
         } catch (e: Exception) {
-            Log.e(TAG, "Error capturing frame for live vision", e)
+            Log.e(TAG, "Error capturing frame for continuous vision", e)
         }
     }
     
@@ -1020,6 +749,9 @@ class RealMainActivity : AppCompatActivity() {
         cameraExecutor.shutdown()
         if (APIConfig.hasSpeechAPI() && ::whisperAPI.isInitialized) {
             whisperAPI.cleanup()
+        }
+        if (::visionLLMService.isInitialized) {
+            visionLLMService.cleanup()
         }
     }
 }
