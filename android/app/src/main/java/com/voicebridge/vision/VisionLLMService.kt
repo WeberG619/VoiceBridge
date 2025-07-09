@@ -3,18 +3,21 @@ package com.voicebridge.vision
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
-import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.label.ImageLabel
 import com.google.mlkit.vision.label.ImageLabeling
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
+import com.google.mlkit.vision.objects.DetectedObject
 import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
+import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.voicebridge.api.ClaudeAPI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.tasks.await
+import com.google.android.gms.tasks.Task
 
 /**
  * Multi-tiered Vision Language Model Service
@@ -144,7 +147,7 @@ class VisionLLMService(
                 if (objectResults.isNotEmpty()) {
                     if (isNotEmpty()) append(" | ")
                     append("Objects: ")
-                    objectResults.take(3).forEach { obj ->
+                    objectResults.take(3).forEach { obj: DetectedObject ->
                         obj.labels.firstOrNull()?.let { label ->
                             append("${label.text}(${(label.confidence * 100).toInt()}%) ")
                         }
@@ -155,7 +158,7 @@ class VisionLLMService(
                 if (labelResults.isNotEmpty()) {
                     if (isNotEmpty()) append(" | ")
                     append("Scene: ")
-                    labelResults.take(3).forEach { label ->
+                    labelResults.take(3).forEach { label: ImageLabel ->
                         append("${label.text}(${(label.confidence * 100).toInt()}%) ")
                     }
                 }
